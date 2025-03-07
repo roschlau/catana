@@ -26,6 +26,8 @@
     "@electron-forge/plugin-fuses": "^7.7.0",
     "@electron-forge/plugin-vite": "^7.7.0",
     "@electron/fuses": "^1.8.0",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
     "electron": "35.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2",
@@ -33,6 +35,8 @@
   },
   "dependencies": {
     "@types/electron-squirrel-startup": "^1.0.2",
-    "electron-squirrel-startup": "^1.0.1"
+    "electron-squirrel-startup": "^1.0.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   }
 }
