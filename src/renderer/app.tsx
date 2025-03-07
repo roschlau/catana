@@ -1,4 +1,8 @@
 import {createRoot} from 'react-dom/client'
 
 const root = createRoot(document.body)
-root.render(<h2>Hello from React!</h2>)
+root.render(<App/>)
+
+function App() {
+  return <h1>Hello from React!</h1>
+}
