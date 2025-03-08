@@ -1,7 +1,7 @@
 import {app, BrowserWindow, dialog} from 'electron'
 import path from 'node:path'
 import started from 'electron-squirrel-startup'
-import * as fs from 'node:fs'
+import {settings} from './settings'
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -9,24 +9,24 @@ if (started) {
 }
 
 async function loadDefaultWorkspacePath(): Promise<string | null> {
-  const userData = app.getPath('userData')
-  const lastWorkspacePath = path.join(userData, 'last-workspace.txt')
-  if (fs.existsSync(lastWorkspacePath)) {
-    return fs.readFileSync(lastWorkspacePath, 'utf8')
-  } else {
-    const workspaceResult = await dialog.showOpenDialog({
-      title: 'Open Workspace',
-      buttonLabel: 'Open Folder as Workspace',
-      properties: ['openDirectory', 'createDirectory', 'promptToCreate'],
-    })
-    console.log(workspaceResult)
-    if (workspaceResult.canceled) {
-      return null
-    }
-    const workspace = workspaceResult.filePaths[0]
-    fs.writeFileSync(lastWorkspacePath, workspace, 'utf8')
-    return workspace
+  const lastWorkspacePath = settings.get('last-workspace')
+  if (lastWorkspacePath) {
+    console.log('Automatically loading last used workspace')
+    return lastWorkspacePath
   }
+  console.log('First app start, asking for workspace to use')
+  const openDirectoryResult = await dialog.showOpenDialog({
+    title: 'Open Workspace',
+    buttonLabel: 'Open Folder as Workspace',
+    properties: ['openDirectory', 'createDirectory', 'promptToCreate'],
+  })
+  console.log(openDirectoryResult)
+  if (openDirectoryResult.canceled) {
+    return null
+  }
+  const workspacePath = openDirectoryResult.filePaths[0]
+  settings.set('last-workspace', workspacePath)
+  return workspacePath
 }
 
 const createWindow = async () => {
