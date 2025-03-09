@@ -3,13 +3,16 @@ import {Node} from '../common/ipc-model'
 import {Button, Flex, Text, Theme, ThemePanel} from '@radix-ui/themes'
 import {useState} from 'react'
 import {NodeViewer} from './NodeViewer'
+import {ThemeProvider} from 'next-themes'
 
 const root = createRoot(document.body)
 root.render(
-  <Theme>
-    <App/>
-    <ThemePanel/>
-  </Theme>,
+  <ThemeProvider attribute={'class'}>
+    <Theme appearance={'inherit'}>
+      <App/>
+      <ThemePanel/>
+    </Theme>,
+  </ThemeProvider>
 )
 
 function App() {
