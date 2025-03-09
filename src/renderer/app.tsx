@@ -1,8 +1,22 @@
 import {createRoot} from 'react-dom/client'
+import {Node} from '../common/ipc-model'
 
-const root = createRoot(document.body)
-root.render(<App/>)
+window.nodesAPI.openNode().then(node => {
+  console.log('Node opened', node)
+  const root = createRoot(document.body)
+  root.render(<App node={node}/>)
+})
 
-function App() {
-  return <h1>Hello from React!</h1>
+function App({node}: {node: Node}) {
+  return (<>
+    <h1>{node.title}</h1>
+    <h2>Content:</h2>
+    <ul>
+      {node.content.map(text => <li key={text}>{text}</li>)}
+    </ul>
+    <h2>Files:</h2>
+    <ul>
+      {node.fileNodes.map(path => <li key={path}>{path}</li>)}
+    </ul>
+  </>)
 }

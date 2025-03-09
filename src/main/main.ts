@@ -1,41 +1,46 @@
-import {app, BrowserWindow, dialog} from 'electron'
+import {app, BrowserWindow, dialog, ipcMain} from 'electron'
 import path from 'node:path'
 import started from 'electron-squirrel-startup'
 import {settings} from './settings'
+import {loadNode} from './filesystem'
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit()
 }
 
-async function loadDefaultWorkspacePath(): Promise<string | null> {
-  const lastWorkspacePath = settings.get('last-workspace')
+async function loadLastNodePath(): Promise<string | null> {
+  const lastWorkspacePath = settings.get('last-node')
   if (lastWorkspacePath) {
-    console.log('Automatically loading last used workspace')
+    console.log('Automatically opening last used node')
     return lastWorkspacePath
   }
-  console.log('First app start, asking for workspace to use')
-  const openDirectoryResult = await dialog.showOpenDialog({
-    title: 'Open Workspace',
-    buttonLabel: 'Open Folder as Workspace',
-    properties: ['openDirectory', 'createDirectory', 'promptToCreate'],
+  console.log('First app start, asking for node to open')
+  const openNodeResult = await dialog.showOpenDialog({
+    title: 'Open Node',
+    buttonLabel: 'Open Node',
+    properties: ['openDirectory', 'openFile', 'showHiddenFiles', 'createDirectory', 'promptToCreate'],
   })
-  console.log(openDirectoryResult)
-  if (openDirectoryResult.canceled) {
+  console.log(openNodeResult)
+  if (openNodeResult.canceled) {
     return null
   }
-  const workspacePath = openDirectoryResult.filePaths[0]
-  settings.set('last-workspace', workspacePath)
-  return workspacePath
+  const nodePath = openNodeResult.filePaths[0]
+  settings.set('last-node', nodePath)
+  return nodePath
 }
 
 const createWindow = async () => {
-  const workspacePath = await loadDefaultWorkspacePath()
-  console.log('Opening workspace', workspacePath)
-  if (!workspacePath) {
-    app.quit()
-    return
-  }
+  ipcMain.handle('open-node', async () => {
+    const nodePath = await loadLastNodePath()
+    console.log('Opening Node', nodePath)
+    if (!nodePath) {
+      app.quit()
+      return
+    }
+    return loadNode(nodePath)
+  })
+
 
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -48,9 +53,9 @@ const createWindow = async () => {
 
   // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    void mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL)
+    await mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL)
   } else {
-    void mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`))
+    await mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`))
   }
 
   // Open the DevTools.
