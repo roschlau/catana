@@ -35,8 +35,10 @@ function loadNodeFile(path: string): Pick<Node, 'title' | 'content'> | null {
     return null
   }
   const fileContent = fs.readFileSync(path, 'utf8')
-  const [title, contentText] = fileContent.split('\n\n')
-  const content = contentText.split('\n')
+  const [title, contentText] = fileContent.split(/\r?\n\r?\n/)
+  const content = contentText
+    .trim()
+    .split('\n')
     .map(line => {
       if (!line.startsWith('- ')) {
         throw Error('Invalid content line: ' + line)
