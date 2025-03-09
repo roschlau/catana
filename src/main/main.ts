@@ -9,17 +9,11 @@ if (started) {
   app.quit()
 }
 
-async function loadLastNodePath(): Promise<string | null> {
-  const lastWorkspacePath = settings.get('last-node')
-  if (lastWorkspacePath) {
-    console.log('Automatically opening last used node')
-    return lastWorkspacePath
-  }
-  console.log('First app start, asking for node to open')
+async function loadLastNodePath(mode: 'openDirectory' | 'openFile'): Promise<string | null> {
   const openNodeResult = await dialog.showOpenDialog({
     title: 'Open Node',
     buttonLabel: 'Open Node',
-    properties: ['openDirectory', 'openFile', 'showHiddenFiles', 'createDirectory', 'promptToCreate'],
+    properties: [mode, 'showHiddenFiles', 'createDirectory', 'promptToCreate'],
   })
   console.log(openNodeResult)
   if (openNodeResult.canceled) {
@@ -31,13 +25,12 @@ async function loadLastNodePath(): Promise<string | null> {
 }
 
 const createWindow = async () => {
-  ipcMain.handle('open-node', async () => {
-    const nodePath = await loadLastNodePath()
-    console.log('Opening Node', nodePath)
+  ipcMain.handle('open-node', async (_, mode: 'openDirectory' | 'openFile') => {
+    const nodePath = await loadLastNodePath(mode)
     if (!nodePath) {
-      app.quit()
-      return
+      return null
     }
+    console.log('Opening Node', nodePath)
     return loadNode(nodePath)
   })
 

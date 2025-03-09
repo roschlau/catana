@@ -1,7 +1,7 @@
 import {Node} from '../common/ipc-model'
 
 export interface NodesAPI {
-  openNode: () => Promise<Node>,
+  openNode: (mode: 'openDirectory' | 'openFile') => Promise<Node | null>,
 }
 
 declare global {

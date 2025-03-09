@@ -3,5 +3,5 @@ import {Node} from '../common/ipc-model'
 import {NodesAPI} from './interface'
 
 contextBridge.exposeInMainWorld('nodesAPI', {
-  openNode: () => ipcRenderer.invoke('open-node') as Promise<Node>,
+  openNode: (mode: 'openDirectory' | 'openFile') => ipcRenderer.invoke('open-node', mode) as Promise<Node | null>,
 } satisfies NodesAPI)

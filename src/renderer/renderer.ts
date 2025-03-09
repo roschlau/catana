@@ -26,8 +26,7 @@
  * ```
  */
 
+import "./reset.css"
 import "@radix-ui/themes/styles.css";
 
-console.log('👋 This message is being logged by "renderer.ts", included via Vite')
-
-import './app'
+import './App'

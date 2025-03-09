@@ -1,45 +1,42 @@
 import {createRoot} from 'react-dom/client'
 import {Node} from '../common/ipc-model'
-import {Button, Flex, Heading, Theme, ThemePanel} from '@radix-ui/themes'
+import {Button, Flex, Text, Theme, ThemePanel} from '@radix-ui/themes'
+import {useState} from 'react'
+import {NodeViewer} from './NodeViewer'
 
-window.nodesAPI.openNode().then(node => {
-  console.log('Node opened', node)
-  const root = createRoot(document.body)
-  root.render(
-    <Theme>
-      <App node={node}/>
-      <ThemePanel/>
-    </Theme>,
-  )
-})
+const root = createRoot(document.body)
+root.render(
+  <Theme>
+    <App/>
+    <ThemePanel/>
+  </Theme>,
+)
 
-function App({ node }: { node: Node }) {
+function App() {
+  const [node, setNode] = useState(null as null | Node)
+  async function loadNode(mode: 'openDirectory' | 'openFile') {
+    const newNode = await window.nodesAPI.openNode(mode)
+    if (newNode) {
+      setNode(newNode)
+    }
+  }
   return (
-    <Flex>
-      <Sidebar/>
-      <NodeViewer node={node}/>
+    <Flex direction={'row'} p={'4'} gap={'4'}>
+      <Sidebar loadNodeClicked={loadNode}/>
+      {node ? <NodeViewer node={node}/> : <WelcomeScreen/>}
     </Flex>
   )
 }
 
-function Sidebar() {
+function Sidebar({loadNodeClicked}: { loadNodeClicked: (mode: 'openDirectory' | 'openFile') => void }) {
   return (
-    <Flex direction={'column'}>
-      <Button>Load Node...</Button>
+    <Flex direction={'column'} gap={'2'}>
+      <Button onClick={() => loadNodeClicked('openFile')}>Open File</Button>
+      <Button onClick={() => loadNodeClicked('openDirectory')}>Open Directory</Button>
     </Flex>
   )
 }
 
-function NodeViewer({ node }: { node: Node }) {
-  return (<Flex direction={'column'} flexGrow={'1'} align={'center'}>
-    <Heading>{node.title}</Heading>
-    <Heading as={'h2'}>Content:</Heading>
-    <ul>
-      {node.content.map(text => <li key={text}>{text}</li>)}
-    </ul>
-    <Heading as={'h2'}>Files:</Heading>
-    <ul>
-      {node.fileNodes.map(path => <li key={path}>{path}</li>)}
-    </ul>
-  </Flex>)
+function WelcomeScreen() {
+  return (<Text>Welcome!</Text>)
 }
