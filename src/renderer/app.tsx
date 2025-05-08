@@ -11,7 +11,7 @@ root.render(
     <Theme appearance={'inherit'}>
       <App/>
       <ThemePanel/>
-    </Theme>,
+    </Theme>
   </ThemeProvider>
 )
 
