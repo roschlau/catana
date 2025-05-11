@@ -1,40 +1,20 @@
-import {app, BrowserWindow, dialog, ipcMain} from 'electron'
+import {app, BrowserWindow} from 'electron'
 import path from 'node:path'
 import started from 'electron-squirrel-startup'
-import {settings} from './settings'
-import {loadNode} from './filesystem'
+import installExtension, {REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS} from 'electron-devtools-installer'
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit()
 }
 
-async function loadLastNodePath(mode: 'openDirectory' | 'openFile'): Promise<string | null> {
-  const openNodeResult = await dialog.showOpenDialog({
-    title: 'Open Node',
-    buttonLabel: 'Open Node',
-    properties: [mode, 'showHiddenFiles', 'createDirectory', 'promptToCreate'],
-  })
-  console.log(openNodeResult)
-  if (openNodeResult.canceled) {
-    return null
-  }
-  const nodePath = openNodeResult.filePaths[0]
-  settings.set('last-node', nodePath)
-  return nodePath
-}
+app.whenReady().then(() => {
+  installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS])
+    .then(([redux, react]) => console.log(`Added Extensions:  ${redux.name}, ${react.name}`))
+    .catch((err) => console.log('An error occurred: ', err));
+});
 
 const createWindow = async () => {
-  ipcMain.handle('open-node', async (_, mode: 'openDirectory' | 'openFile') => {
-    const nodePath = await loadLastNodePath(mode)
-    if (!nodePath) {
-      return null
-    }
-    console.log('Opening Node', nodePath)
-    return loadNode(nodePath)
-  })
-
-
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 1800,

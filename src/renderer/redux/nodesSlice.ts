@@ -1,0 +1,73 @@
+import type {PayloadAction} from '@reduxjs/toolkit'
+import {createSlice} from '@reduxjs/toolkit'
+import {RootState} from './store'
+
+// Define the TS type for the counter slice's state
+export interface NodeState {
+  id: string
+  title: string
+  ownerNodeId: string | null
+  /**
+   * A list of Node IDs that are nested under this node. This list _might_ be incomplete if there are nodes that are
+   * owned by this node, but have for some reason not been added to this array. Those nodes need to be implicitly
+   * appended to this list to get the full content of this node. `selectContentNodeIds` does that for you.
+   */
+  contentNodeIds: string[]
+}
+
+export const ROOT_NODE = '_root'
+
+const initialState: Partial<Record<string, NodeState>> = {
+  // TODO dummy data
+  [ROOT_NODE]: {
+    id: ROOT_NODE,
+    title: 'Root Node',
+    ownerNodeId: null,
+    contentNodeIds: ['1', '2', '3'],
+  },
+  '1': {
+    id: '1',
+    title: 'Node with ID 1',
+    ownerNodeId: ROOT_NODE,
+    contentNodeIds: ['2'],
+  },
+  '2': {
+    id: '2',
+    title: 'Node with ID 2',
+    ownerNodeId: '1',
+    contentNodeIds: [],
+  },
+  '3': {
+    id: '3',
+    title: 'Node with ID 3',
+    ownerNodeId: ROOT_NODE,
+    contentNodeIds: [],
+  },
+}
+
+
+export const nodesSlice = createSlice({
+  name: 'nodes',
+  initialState,
+  reducers: {
+    titleUpdated: (state, action: PayloadAction<{ nodeId: string, title: string }>) => {
+      state[action.payload.nodeId]!.title = action.payload.title
+    },
+  },
+})
+
+export const { titleUpdated } = nodesSlice.actions
+
+export const selectNode = (nodeId: string) => (state: RootState) => state.nodes[nodeId]
+
+// TODO this needs to be memoized
+export const selectContentNodeIds = (nodeId: string) => (state: RootState) => {
+  const explicitContent = state.nodes[nodeId].contentNodeIds
+  const explicitIDsSet = new Set(explicitContent)
+  const implicitContent = Object.values(state.nodes)
+    .filter(node => node.ownerNodeId === nodeId && !explicitIDsSet.has(node.id))
+    .map(node => node.id)
+  return [...explicitContent, ...implicitContent]
+}
+
+export default nodesSlice.reducer

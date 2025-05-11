@@ -26,7 +26,7 @@
  * ```
  */
 
-import "./reset.css"
-import "@radix-ui/themes/styles.css";
+import './reset.css'
+import '@radix-ui/themes/styles.css'
 
-import './App'
+import './app'

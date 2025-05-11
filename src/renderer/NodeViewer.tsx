@@ -1,17 +1,26 @@
-import {Node} from '../common/ipc-model'
-import {Container, Flex, Heading, Text} from '@radix-ui/themes'
+import {Container, Flex} from '@radix-ui/themes'
+import {useAppDispatch, useAppSelector} from './redux/hooks'
+import {selectContentNodeIds, selectNode, titleUpdated} from './redux/nodesSlice'
+import TextareaAutosize from 'react-textarea-autosize'
 
-export function NodeViewer({ node }: { node: Node }) {
-  return (<Flex direction={'column'} flexGrow={'1'} align={'center'}>
-    <Container size={'3'}>
-      <Heading size={'7'}>{node.title}</Heading>
-      <ul>
-        {node.content.map(text => <li key={text}><Text size={'2'}>{text}</Text></li>)}
-      </ul>
-      <Heading as={'h2'} size={'6'}>Files</Heading>
-      <ul>
-        {node.fileNodes.map(path => <li key={path}><Text size={'2'}>{path}</Text></li>)}
-      </ul>
-    </Container>
-  </Flex>)
+export function NodeViewer({ nodeId }: { nodeId: string }) {
+  const dispatch = useAppDispatch()
+  const node = useAppSelector(selectNode(nodeId))
+  const content = useAppSelector(selectContentNodeIds(nodeId))
+
+  return (
+    <Flex direction={'column'} flexGrow={'1'} align={'center'}>
+      <Container size={'3'}>
+        <TextareaAutosize
+          value={node.title}
+          onChange={e => dispatch(titleUpdated({ nodeId, title: e.target.value }))}
+        />
+        <ul>
+          {content.map(contentNodeId => <li key={contentNodeId}>
+            <NodeViewer nodeId={contentNodeId}/>
+          </li>)}
+        </ul>
+      </Container>
+    </Flex>
+  )
 }
