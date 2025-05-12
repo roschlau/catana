@@ -13,7 +13,6 @@ root.render(
     <ThemeProvider attribute={'class'}>
       <Theme appearance={'inherit'}>
         <App/>
-        <ThemePanel/>
       </Theme>
     </ThemeProvider>
   </Provider>
@@ -33,9 +32,19 @@ function App() {
 }
 
 function Sidebar({nodeClicked}: { nodeClicked: (nodeId: string) => void }) {
+  const [showThemePanel, setShowThemePanel] = useState(false)
   return (
     <Flex direction={'column'} gap={'2'}>
-      <Button onClick={() => nodeClicked(ROOT_NODE)}>Home</Button>
+      <Button onClick={() => nodeClicked(ROOT_NODE)}>
+        Home
+      </Button>
+      <Button
+        variant={'surface'}
+        onClick={() => setShowThemePanel(!showThemePanel)}
+      >
+        Theme
+      </Button>
+      {showThemePanel && <ThemePanel/>}
     </Flex>
   )
 }
