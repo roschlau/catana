@@ -41,13 +41,24 @@ export function NodeViewer({ nodeId, viewParentId }: { nodeId: string, viewParen
             : <DotFilledIcon color={'var(--gray-10)'}/>}
         </button>
         <TextareaAutosize
-          style={{width: '100%', background: 'none', border: 'none', resize: 'none'}}
+          style={{
+            width: '100%',
+            background: 'none',
+            border: 'none',
+            resize: 'none',
+            color: 'var(--gray-11)',
+          }}
           value={node.title}
           onChange={e => dispatch(titleUpdated({ nodeId, title: e.target.value }))}
           onKeyDown={keyDown}
         />
       </Flex>
-      {expanded && content.length > 0 && <ul style={{ width: '100%', marginInlineStart: '12px', paddingInlineStart: '12px', borderLeft: '2px solid var(--gray-5)' }}>
+      {expanded && content.length > 0 && <ul style={{
+        width: '100%',
+        marginInlineStart: '12px',
+        paddingInlineStart: '12px',
+        borderLeft: '2px solid var(--gray-5)',
+      }}>
         {content.map(contentNodeId => <li key={contentNodeId}>
           <NodeViewer nodeId={contentNodeId} viewParentId={node.id}/>
         </li>)}

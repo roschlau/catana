@@ -51,6 +51,7 @@ textarea,
 select {
     font-family: inherit;
     font-size: inherit;
+    color: currentColor;
 }
 
 /* Anything that has been anchored to should have extra scroll margin */
