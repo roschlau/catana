@@ -47,6 +47,7 @@ export function NodeViewer({ nodeId, viewParentId }: { nodeId: string, viewParen
             border: 'none',
             resize: 'none',
             color: 'var(--gray-11)',
+            outline: 'none',
           }}
           value={node.title}
           onChange={e => dispatch(titleUpdated({ nodeId, title: e.target.value }))}
