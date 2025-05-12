@@ -10,7 +10,7 @@ import classNames from 'classnames'
 export function NodeViewer({ nodeId, viewParentId }: { nodeId: string, viewParentId?: string }) {
   const dispatch = useAppDispatch()
   const node = useAppSelector(selectNode(nodeId))
-  const content = useAppSelector(selectContentNodeIds(nodeId))
+  const content = useAppSelector(state => selectContentNodeIds(state, nodeId))
   const [expanded, setExpanded] = useState(true)
 
   const keyDown = (e: KeyboardEvent) => {

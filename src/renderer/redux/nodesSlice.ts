@@ -1,5 +1,4 @@
-import type {PayloadAction} from '@reduxjs/toolkit'
-import {createSlice} from '@reduxjs/toolkit'
+import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {RootState} from './store'
 
 // Define the TS type for the counter slice's state
@@ -60,14 +59,19 @@ export const { titleUpdated } = nodesSlice.actions
 
 export const selectNode = (nodeId: string) => (state: RootState) => state.nodes[nodeId]
 
-// TODO this needs to be memoized
-export const selectContentNodeIds = (nodeId: string) => (state: RootState) => {
-  const explicitContent = state.nodes[nodeId].contentNodeIds
-  const explicitIDsSet = new Set(explicitContent)
-  const implicitContent = Object.values(state.nodes)
-    .filter(node => node.ownerNodeId === nodeId && !explicitIDsSet.has(node.id))
-    .map(node => node.id)
-  return [...explicitContent, ...implicitContent]
-}
+export const selectContentNodeIds = createSelector(
+  [
+    (state: RootState) => state.nodes,
+    (_: RootState, nodeId: string) => nodeId,
+  ],
+  (nodes, nodeId) => {
+    const explicitContent = nodes[nodeId].contentNodeIds
+    const explicitIDsSet = new Set(explicitContent)
+    const implicitContent = Object.values(nodes)
+      .filter(node => node.ownerNodeId === nodeId && !explicitIDsSet.has(node.id))
+      .map(node => node.id)
+    return [...explicitContent, ...implicitContent]
+  },
+)
 
 export default nodesSlice.reducer
