@@ -1,0 +1,20 @@
+.NodeViewer_chevron-button {
+    width: 15px;
+    height: 15px;
+    border-radius: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.NodeViewer_chevron-button:hover {
+    background: var(--gray-4);
+}
+
+.NodeViewer_chevron-button.NodeViewer_chevron-button--link {
+    outline: 1px dashed var(--gray-7);
+}
+
+.NodeViewer_chevron-button:focus-visible {
+    outline: 1px solid var(--gray-11);
+}
