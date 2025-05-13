@@ -4,20 +4,20 @@ import {selectContentNodeIds, selectNode, titleUpdated} from './redux/nodesSlice
 import TextareaAutosize from 'react-textarea-autosize'
 import {ChevronRightIcon, DotFilledIcon} from '@radix-ui/react-icons'
 import {KeyboardEvent, Ref, useCallback, useImperativeHandle, useRef, useState} from 'react'
-import './NodeViewer.css'
+import './NodeEditor.css'
 import classNames from 'classnames'
 import {calculateCursorPosition} from './util/textarea-measuring'
 
-interface NodeViewerRef {
+interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void
 }
 
-export function NodeViewer({ nodeId, viewParentId, onFocusPrevNode, onFocusNextNode, ref }: {
+export function NodeEditor({ nodeId, viewParentId, onFocusPrevNode, onFocusNextNode, ref }: {
   nodeId: string,
   viewParentId?: string,
   onFocusPrevNode?: () => boolean,
   onFocusNextNode?: () => boolean,
-  ref?: Ref<NodeViewerRef>,
+  ref?: Ref<NodeEditorRef>,
 }) {
   const dispatch = useAppDispatch()
   const node = useAppSelector(selectNode(nodeId))
@@ -25,7 +25,7 @@ export function NodeViewer({ nodeId, viewParentId, onFocusPrevNode, onFocusNextN
   const [expanded, setExpanded] = useState(true)
 
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
-  const childNodeRefs = useRef<(NodeViewerRef | null)[]>([])
+  const childNodeRefs = useRef<(NodeEditorRef | null)[]>([])
 
   useImperativeHandle(ref, () => ({
     focus: (mode: 'first' | 'last') => {
@@ -94,8 +94,8 @@ export function NodeViewer({ nodeId, viewParentId, onFocusPrevNode, onFocusNextN
   }, [expanded, setExpanded, contentNodeIds])
 
   const chevronButtonClasses = classNames(
-    'NodeViewer_chevron-button',
-    { 'NodeViewer_chevron-button--link': viewParentId && viewParentId !== node.ownerNodeId },
+    'NodeEditor_chevron-button',
+    { 'NodeEditor_chevron-button--link': viewParentId && viewParentId !== node.ownerNodeId },
   )
 
   return (
@@ -131,7 +131,7 @@ export function NodeViewer({ nodeId, viewParentId, onFocusPrevNode, onFocusNextN
         borderLeft: '2px solid var(--gray-5)',
       }}>
         {contentNodeIds.map((contentNodeId, i) => <li key={contentNodeId}>
-          <NodeViewer
+          <NodeEditor
             nodeId={contentNodeId}
             viewParentId={node.id}
             onFocusPrevNode={() => focusChildAtIndex(i - 1, 'last')}

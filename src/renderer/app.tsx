@@ -1,7 +1,7 @@
 import {createRoot} from 'react-dom/client'
 import {Box, Button, Flex, Heading, Theme, ThemePanel} from '@radix-ui/themes'
 import {useState} from 'react'
-import {NodeViewer} from './NodeViewer'
+import {NodeEditor} from './NodeEditor'
 import {ThemeProvider} from 'next-themes'
 import {Provider} from 'react-redux'
 import {store} from './redux/store'
@@ -26,7 +26,7 @@ function App() {
       <Flex direction={'column'} align={'center'} flexGrow={'1'} gap={'6'}>
         <Heading size={'7'}>Catana</Heading>
         <Box width={'100%'} maxWidth={'600px'}>
-          <NodeViewer nodeId={node}/>
+          <NodeEditor nodeId={node}/>
         </Box>
       </Flex>
     </Flex>
