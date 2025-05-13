@@ -20,25 +20,25 @@ const initialState: Partial<Record<string, NodeState>> = {
   // TODO dummy data
   [ROOT_NODE]: {
     id: ROOT_NODE,
-    title: 'Root Node',
+    title: '_root: Root Node',
     ownerNodeId: null,
     contentNodeIds: ['1', '2', '3'],
   },
   '1': {
     id: '1',
-    title: 'Node with ID 1',
+    title: '1: Node with ID 1 and a very long title that should probably wrap around to the next line.',
     ownerNodeId: ROOT_NODE,
     contentNodeIds: ['2'],
   },
   '2': {
     id: '2',
-    title: 'Node with ID 2',
+    title: '2: Node that is linked in multiple places',
     ownerNodeId: '1',
     contentNodeIds: [],
   },
   '3': {
     id: '3',
-    title: 'Node with ID 3',
+    title: '3: Another Node',
     ownerNodeId: ROOT_NODE,
     contentNodeIds: [],
   },
