@@ -12,8 +12,8 @@ Catana aspires to be _the_ central hub for your personal, digital life, without 
 - A management tool for your personal tasks and projects
 - A file manager (possibly. Let's see if we get there)
 
-Catana is not, and will probably never be:
-- A team collaboration tool. I want this to work for me and my personal life. Adding any kind of collaboration aspect would be a cross-cutting concern that massively complicates every aspect of how Catana works and needs to be developed. You might find ways to make it work well enough, but it's never going to be a primary concern.
+Catana is not, and will likely never be:
+- A collaboration tool. I want this to work for me and my personal life. Adding any kind of collaboration functionality would be a cross-cutting concern that massively complicates every aspect of how Catana works and needs to be developed. You might find ways to make it work well enough for you, but it's not going to be a primary concern for the foreseeable future.
 
 ## Why not use [Obsidian](https://obsidian.md) or [Logseq](https://logseq.com)?
 I tried. Neither of them really clicked for me the way that Tana did, although Logseq came close. I attribute most of their shortcomings to being not only local-first, but markdown-first. I care about the former, but not that much about the latter. Going markdown-first forces them into compromises that I don't agree with:
