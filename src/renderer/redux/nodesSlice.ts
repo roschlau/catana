@@ -91,10 +91,29 @@ export const nodesSlice = createSlice({
         node.ownerNodeId = newParentId
       }
     },
+    nodeSplit: (state, action: PayloadAction<{ nodeId: string, atIndex: number, parentId: string }>) => {
+      const node = state[action.payload.nodeId]!
+      const newNode = {
+        id: nanoid(),
+        title: node.title.slice(action.payload.atIndex),
+        ownerNodeId: action.payload.parentId,
+        contentNodeIds: [] as string[],
+      } satisfies NodeState
+      console.log('Adding new node', newNode)
+      state[newNode.id] = newNode
+      node.title = node.title.slice(0, action.payload.atIndex)
+      if (newNode.ownerNodeId === node.id) {
+        node.contentNodeIds.unshift(newNode.id)
+      } else {
+        const parentNode = state[newNode.ownerNodeId]!
+        const existingNodeIndex = parentNode.contentNodeIds.indexOf(node.id)
+        parentNode.contentNodeIds.splice(existingNodeIndex + 1, 0, newNode.id)
+      }
+    },
   },
 })
 
-export const { titleUpdated, nodeIndented, nodeOutdented } = nodesSlice.actions
+export const { titleUpdated, nodeSplit, nodeIndented, nodeOutdented } = nodesSlice.actions
 
 export const selectNode = (nodeId: string) => (state: RootState) => state.nodes[nodeId]
 

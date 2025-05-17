@@ -3,6 +3,7 @@ import {useAppDispatch, useAppSelector} from './redux/hooks'
 import {
   nodeIndented,
   nodeOutdented,
+  nodeSplit,
   selectContentNodeIds,
   selectNode,
   titleUpdated,
@@ -90,6 +91,16 @@ export function NodeEditorInline({ nodeId, viewParentId, onFocusPrevNode, onFocu
       } else {
         dispatch(nodeIndented({ nodeId, currentParentId: viewParentId }))
       }
+    }
+    if (e.key === 'Enter') {
+      // Not allowing any line breaks for now to simplify things. Might change my mind on that later.
+      e.preventDefault()
+      const splitIndex = e.currentTarget.selectionStart
+      if (e.currentTarget.selectionEnd !== splitIndex) {
+        dispatch(titleUpdated({ nodeId, title: e.currentTarget.value.slice(0, splitIndex) + e.currentTarget.value.slice(e.currentTarget.selectionEnd) }))
+      }
+      const parentId = expanded && contentNodeIds.length > 0 ? node.id : viewParentId
+      dispatch(nodeSplit({ nodeId, atIndex: splitIndex, parentId }))
     }
   }, [expanded, setExpanded, contentNodeIds])
 
