@@ -12,7 +12,7 @@ interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void
 }
 
-export function NodeEditor({ nodeId, viewParentId, onFocusPrevNode, onFocusNextNode, ref }: {
+export function NodeEditorInline({ nodeId, viewParentId, onFocusPrevNode, onFocusNextNode, ref }: {
   nodeId: string,
   viewParentId?: string,
   onFocusPrevNode?: () => boolean,
@@ -25,35 +25,22 @@ export function NodeEditor({ nodeId, viewParentId, onFocusPrevNode, onFocusNextN
   const [expanded, setExpanded] = useState(true)
 
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
-  const childNodeRefs = useRef<(NodeEditorRef | null)[]>([])
+  const contentNodesList = useRef<NodeEditorRef | null>(null)
 
   useImperativeHandle(ref, () => ({
     focus: (mode: 'first' | 'last') => {
       if (mode === 'last' && expanded && contentNodeIds.length > 0) {
-        focusChildAtIndex(contentNodeIds.length - 1, 'last')
+        contentNodesList.current?.focus(mode)
       } else {
         textAreaRef.current?.focus()
       }
     },
   }))
 
-  if (childNodeRefs.current.length !== contentNodeIds.length) {
-    childNodeRefs.current = Array(contentNodeIds.length).fill(null)
-  }
-
-  const focusChildAtIndex = (index: number, mode: 'first' | 'last') => {
-    if (index >= contentNodeIds.length) {
-      // We stepped past our last child node, delegate to parent node
-      return onFocusNextNode?.() || false
-    }
-    if (index < 0) {
-      // We stepped before our first child node, delegate to parent node
-      textAreaRef.current?.focus()
-      return true
-    }
-    childNodeRefs.current[index]?.focus(mode)
+  const focus = useCallback(() => {
+    textAreaRef.current?.focus()
     return true
-  }
+  }, [textAreaRef])
 
   const keyDown = useCallback((e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.ctrlKey && e.key === 'ArrowUp') {
@@ -73,7 +60,8 @@ export function NodeEditor({ nodeId, viewParentId, onFocusPrevNode, onFocusNextN
         return
       }
       if (expanded && contentNodeIds.length > 0) {
-        focusChildAtIndex(0, 'first')
+        contentNodesList.current?.focus('first')
+        e.preventDefault()
       } else {
         // Delegate to parent node
         if (onFocusNextNode?.()) {
@@ -124,24 +112,70 @@ export function NodeEditor({ nodeId, viewParentId, onFocusPrevNode, onFocusNextN
           onKeyDown={keyDown}
         />
       </Flex>
-      {expanded && contentNodeIds.length > 0 && <ul style={{
-        width: '100%',
-        marginInlineStart: '12px',
-        paddingInlineStart: '12px',
-        borderLeft: '2px solid var(--gray-5)',
-      }}>
-        {contentNodeIds.map((contentNodeId, i) => <li key={contentNodeId}>
-          <NodeEditor
-            nodeId={contentNodeId}
-            viewParentId={node.id}
-            onFocusPrevNode={() => focusChildAtIndex(i - 1, 'last')}
-            onFocusNextNode={() => focusChildAtIndex(i + 1, 'first')}
-            ref={el => {
-              childNodeRefs.current[i] = el
-            }}
-          />
-        </li>)}
-      </ul>}
+      {expanded && contentNodeIds.length > 0 && <NodeEditorList
+          ref={contentNodesList}
+          nodeIds={contentNodeIds}
+          viewParentId={node.id}
+          onFocusMovedBefore={focus}
+          onFocusMovedAfter={onFocusNextNode}
+      />}
     </Flex>
+  )
+}
+
+export function NodeEditorList({ nodeIds, viewParentId, onFocusMovedAfter, onFocusMovedBefore, ref }: {
+  nodeIds: string[],
+  viewParentId?: string,
+  onFocusMovedAfter?: () => boolean,
+  onFocusMovedBefore?: () => boolean,
+  ref?: Ref<NodeEditorRef>,
+}) {
+  useImperativeHandle(ref, () => ({
+    focus: (mode: 'first' | 'last') => {
+      if (mode === 'last') {
+        focusIndex(nodeIds.length - 1, 'last')
+      } else {
+        focusIndex(0, 'first')
+      }
+    },
+  }))
+
+  const childNodeRefs = useRef<(NodeEditorRef | null)[]>([])
+  if (childNodeRefs.current.length !== nodeIds.length) {
+    childNodeRefs.current = Array(nodeIds.length).fill(null)
+  }
+
+  const focusIndex = (index: number, mode: 'first' | 'last') => {
+    if (index >= nodeIds.length) {
+      // We stepped past our last child node, delegate to parent node
+      return onFocusMovedAfter?.() || false
+    }
+    if (index < 0) {
+      // We stepped before our first child node, delegate to parent node
+      return onFocusMovedBefore?.() || false
+    }
+    childNodeRefs.current[index]?.focus(mode)
+    return true
+  }
+
+  return (
+    <ul style={{
+      width: '100%',
+      marginInlineStart: '12px',
+      paddingInlineStart: '12px',
+      borderLeft: '2px solid var(--gray-5)',
+    }}>
+      {nodeIds.map((contentNodeId, i) => <li key={contentNodeId}>
+        <NodeEditorInline
+          nodeId={contentNodeId}
+          viewParentId={viewParentId}
+          onFocusPrevNode={() => focusIndex(i - 1, 'last')}
+          onFocusNextNode={() => focusIndex(i + 1, 'first')}
+          ref={el => {
+            childNodeRefs.current[i] = el
+          }}
+        />
+      </li>)}
+    </ul>
   )
 }

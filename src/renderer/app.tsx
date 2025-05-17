@@ -1,7 +1,7 @@
 import {createRoot} from 'react-dom/client'
 import {Box, Button, Flex, Heading, Theme, ThemePanel} from '@radix-ui/themes'
 import {useState} from 'react'
-import {NodeEditor} from './NodeEditor'
+import {NodeEditorInline} from './NodeEditorInline'
 import {ThemeProvider} from 'next-themes'
 import {Provider} from 'react-redux'
 import {store} from './redux/store'
@@ -30,7 +30,7 @@ function App() {
       >
         <Heading size={'7'}>Catana</Heading>
         <Box width={'100%'} maxWidth={'600px'}>
-          <NodeEditor nodeId={node}/>
+          <NodeEditorInline nodeId={node}/>
         </Box>
       </Flex>
     </Flex>
