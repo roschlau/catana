@@ -1,6 +1,12 @@
 import {Flex} from '@radix-ui/themes'
 import {useAppDispatch, useAppSelector} from './redux/hooks'
-import {selectContentNodeIds, selectNode, titleUpdated} from './redux/nodesSlice'
+import {
+  nodeIndented,
+  nodeOutdented,
+  selectContentNodeIds,
+  selectNode,
+  titleUpdated,
+} from './redux/nodesSlice'
 import TextareaAutosize from 'react-textarea-autosize'
 import {ChevronRightIcon, DotFilledIcon} from '@radix-ui/react-icons'
 import {KeyboardEvent, Ref, useCallback, useImperativeHandle, useRef, useState} from 'react'
@@ -53,7 +59,6 @@ export function NodeEditorInline({ nodeId, viewParentId, onFocusPrevNode, onFocu
       setExpanded(true)
       return
     }
-
     if (e.key === 'ArrowDown') {
       const textarea = e.currentTarget
       if (!calculateCursorPosition(textarea).lastLine) {
@@ -69,7 +74,6 @@ export function NodeEditorInline({ nodeId, viewParentId, onFocusPrevNode, onFocu
         }
       }
     }
-
     if (e.key === 'ArrowUp') {
       const textarea = e.currentTarget
       if (!calculateCursorPosition(textarea).firstLine) {
@@ -77,6 +81,14 @@ export function NodeEditorInline({ nodeId, viewParentId, onFocusPrevNode, onFocu
       }
       if (onFocusPrevNode?.()) {
         e.preventDefault()
+      }
+    }
+    if (e.key === 'Tab') {
+      e.preventDefault()
+      if (e.shiftKey) {
+        dispatch(nodeOutdented({ nodeId, currentParentId: viewParentId }))
+      } else {
+        dispatch(nodeIndented({ nodeId, currentParentId: viewParentId }))
       }
     }
   }, [expanded, setExpanded, contentNodeIds])

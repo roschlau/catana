@@ -1,4 +1,4 @@
-import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit'
+import {createSelector, createSlice, nanoid, PayloadAction} from '@reduxjs/toolkit'
 import {RootState} from './store'
 
 // Define the TS type for the counter slice's state
@@ -52,10 +52,49 @@ export const nodesSlice = createSlice({
     titleUpdated: (state, action: PayloadAction<{ nodeId: string, title: string }>) => {
       state[action.payload.nodeId]!.title = action.payload.title
     },
+    nodeIndented: (state, action: PayloadAction<{ nodeId: string, currentParentId: string }>) => {
+      const oldParent = state[action.payload.currentParentId]!
+      const oldSiblings = oldParent.contentNodeIds
+      const oldSiblingIndex = oldSiblings.indexOf(action.payload.nodeId)
+      if (oldSiblingIndex === 0) {
+        // Can't indent node that doesn't have a preceding sibling because that would skip indentation levels
+        return
+      }
+      const newParentId = oldSiblings[oldSiblingIndex - 1]
+      const newParent = state[newParentId]!
+      const newSiblings = newParent.contentNodeIds
+      const indexUnderNewParent = newSiblings.length
+      newSiblings.splice(indexUnderNewParent, 0, action.payload.nodeId)
+      oldSiblings.splice(oldSiblingIndex, 1)
+      const node = state[action.payload.nodeId]!
+      if (node.ownerNodeId === oldParent.id) {
+        // We're moving the actual node and not a link, so we need to update the owner node ID
+        node.ownerNodeId = newParentId
+      }
+    },
+    nodeOutdented: (state, action: PayloadAction<{ nodeId: string, currentParentId: string }>) => {
+      const oldParent = state[action.payload.currentParentId]!
+      const newParentId = oldParent.ownerNodeId
+      if (!newParentId) {
+        // Already on root level, can't outdent further
+        return
+      }
+      const newParent = state[newParentId]!
+      const oldParentIndex = newParent.contentNodeIds.indexOf(oldParent.id)
+      const newSiblingIndex = oldParentIndex + 1
+      const oldSiblingIndex = oldParent.contentNodeIds.indexOf(action.payload.nodeId)
+      oldParent.contentNodeIds.splice(oldSiblingIndex, 1)
+      newParent.contentNodeIds.splice(newSiblingIndex, 0, action.payload.nodeId)
+      const node = state[action.payload.nodeId]!
+      if (node.ownerNodeId === oldParent.id) {
+        // We're moving the actual node and not a link, so we need to update the owner node ID
+        node.ownerNodeId = newParentId
+      }
+    },
   },
 })
 
-export const { titleUpdated } = nodesSlice.actions
+export const { titleUpdated, nodeIndented, nodeOutdented } = nodesSlice.actions
 
 export const selectNode = (nodeId: string) => (state: RootState) => state.nodes[nodeId]
 
@@ -65,7 +104,7 @@ export const selectContentNodeIds = createSelector(
     (_: RootState, nodeId: string) => nodeId,
   ],
   (nodes, nodeId) => {
-    const explicitContent = nodes[nodeId].contentNodeIds
+    const explicitContent = nodes[nodeId]!.contentNodeIds
     const explicitIDsSet = new Set(explicitContent)
     const implicitContent = Object.values(nodes)
       .filter(node => node.ownerNodeId === nodeId && !explicitIDsSet.has(node.id))
