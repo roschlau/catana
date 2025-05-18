@@ -59,6 +59,11 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
   }, [textAreaRef])
 
   const keyDown = useCallback((e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.ctrlKey && ['z', 'Z'].includes(e.key)) {
+      // Undo/Redo is handled globally, so prevent the browser here to prevent weird behavior
+      e.preventDefault()
+      return
+    }
     if (e.ctrlKey && e.key === 'ArrowUp') {
       e.preventDefault()
       setExpanded(false)

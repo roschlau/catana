@@ -104,7 +104,7 @@ export const { titleUpdated, nodeSplit, nodeIndented, nodeOutdented } = nodesSli
  */
 export const selectResolvedNode = createSelector(
   [
-    (state: RootState) => state.nodes,
+    (state: RootState) => state.nodes.present,
     (_: RootState, nodeId: string) => nodeId,
   ],
   (nodes, nodeId) => {
@@ -117,7 +117,7 @@ export const selectResolvedNode = createSelector(
  */
 export const selectContentNodeIds = createSelector(
   [
-    (state: RootState) => state.nodes,
+    (state: RootState) => state.nodes.present,
     (_: RootState, nodeId: string) => nodeId,
   ],
   (nodes, nodeId) => {

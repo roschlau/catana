@@ -1,11 +1,16 @@
 import {configureStore} from '@reduxjs/toolkit'
-import nodesReducer from './nodes/nodesSlice'
+import nodesReducer, {titleUpdated} from './nodes/nodesSlice'
+import undoable from 'redux-undo'
 
 
 export const store = configureStore({
   reducer: {
-    nodes: nodesReducer,
-  }
+    nodes: undoable(nodesReducer, {
+      groupBy: (action) => action.type === titleUpdated.type
+        ? action.type + '/' + (action.payload as any).nodeId
+        : null,
+    }),
+  },
 })
 
 export type RootState = ReturnType<typeof store.getState>
