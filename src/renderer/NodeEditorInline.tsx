@@ -1,4 +1,4 @@
-import {Flex, Grid} from '@radix-ui/themes'
+import {Flex} from '@radix-ui/themes'
 import {useAppDispatch, useAppSelector} from './redux/hooks'
 import {
   nodeIndented,
@@ -38,7 +38,7 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
   const dispatch = useAppDispatch()
   const { node, link } = useAppSelector(state => selectResolvedNode(state, nodeId))
   const contentNodeIds = useAppSelector(state => selectContentNodeIds(state, node.id))
-  const [expanded, setExpanded] = useState(true)
+  const [expanded, setExpanded] = useState(viewPath.length < 3) // Only auto-expand the first three levels so the UI doesn't freeze up on cyclic Node graphs
 
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
   const contentNodesList = useRef<NodeEditorRef | null>(null)
