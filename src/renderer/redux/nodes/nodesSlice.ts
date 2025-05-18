@@ -1,5 +1,6 @@
 import {createSelector, createSlice, nanoid, PayloadAction} from '@reduxjs/toolkit'
-import {RootState} from './store'
+import {RootState} from '../store'
+import {demoNodes} from './demoNodes'
 
 export type Node = TextNode | NodeLink
 export interface ResolvedNode {
@@ -28,49 +29,9 @@ export interface NodeLink {
   parentNodeId: string | null
 }
 
-export const ROOT_NODE = '_root'
-
-const initialState: Partial<Record<string, Node>> = {
-  // TODO dummy data
-  [ROOT_NODE]: {
-    type: 'text',
-    id: ROOT_NODE,
-    title: '_root: Root Node',
-    parentNodeId: null,
-    contentNodeIds: ['1', 'link-2', '3'],
-  },
-  '1': {
-    type: 'text',
-    id: '1',
-    title: '1: Node with ID 1 and a very long title that should probably wrap around to the next line.',
-    parentNodeId: ROOT_NODE,
-    contentNodeIds: ['2'],
-  },
-  '2': {
-    type: 'text',
-    id: '2',
-    title: '2: Node that is linked in multiple places',
-    parentNodeId: '1',
-    contentNodeIds: [],
-  },
-  '3': {
-    type: 'text',
-    id: '3',
-    title: '3: Another Node',
-    parentNodeId: ROOT_NODE,
-    contentNodeIds: [],
-  },
-  'link-2': {
-    type: 'nodeLink',
-    id: 'link-2',
-    nodeId: '2',
-    parentNodeId: '_root'
-  },
-}
-
 export const nodesSlice = createSlice({
   name: 'nodes',
-  initialState,
+  initialState: demoNodes,
   reducers: {
     titleUpdated: (state, action: PayloadAction<{ nodeId: string, title: string }>) => {
       const node = state[action.payload.nodeId]!
@@ -96,16 +57,20 @@ export const nodesSlice = createSlice({
       oldSiblings.splice(oldSiblingIndex, 1)
       node.parentNodeId = newParentId
     },
-    nodeOutdented: (state, action: PayloadAction<{ nodeId: string }>) => {
+    nodeOutdented: (state, action: PayloadAction<{ nodeId: string, viewPath: string[] }>) => {
+      if (action.payload.viewPath.length < 2) {
+        // We're already at the root level of the current view, can't outdent any further
+        return
+      }
       const node = state[action.payload.nodeId]!
-      const oldParent = getParentNode(state, node)
-      const newParent = getParentNode(state, oldParent)
-      const oldParentIndex = newParent.contentNodeIds.indexOf(oldParent.id)
+      const oldParent = resolveNode(state, action.payload.viewPath[action.payload.viewPath.length - 1])
+      const newParent = resolveNode(state, action.payload.viewPath[action.payload.viewPath.length - 2])
+      const oldParentIndex = newParent.node.contentNodeIds.indexOf((oldParent.link ?? oldParent.node).id)
       const newSiblingIndex = oldParentIndex + 1
-      const oldSiblingIndex = oldParent.contentNodeIds.indexOf(action.payload.nodeId)
-      oldParent.contentNodeIds.splice(oldSiblingIndex, 1)
-      newParent.contentNodeIds.splice(newSiblingIndex, 0, action.payload.nodeId)
-      node.parentNodeId = newParent.id
+      const oldSiblingIndex = oldParent.node.contentNodeIds.indexOf(action.payload.nodeId)
+      oldParent.node.contentNodeIds.splice(oldSiblingIndex, 1)
+      newParent.node.contentNodeIds.splice(newSiblingIndex, 0, action.payload.nodeId)
+      node.parentNodeId = newParent.node.id
     },
     nodeSplit: (state, action: PayloadAction<{ nodeId: string, atIndex: number, parentId: string }>) => {
       const node = resolveNode(state, action.payload.nodeId).node

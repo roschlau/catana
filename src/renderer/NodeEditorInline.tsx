@@ -7,7 +7,7 @@ import {
   selectContentNodeIds,
   selectResolvedNode,
   titleUpdated,
-} from './redux/nodesSlice'
+} from './redux/nodes/nodesSlice'
 import TextareaAutosize from 'react-textarea-autosize'
 import {ChevronRightIcon, DotFilledIcon} from '@radix-ui/react-icons'
 import {KeyboardEvent, Ref, useCallback, useImperativeHandle, useRef, useState} from 'react'
@@ -19,8 +19,18 @@ interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void
 }
 
-export function NodeEditorInline({ nodeId, onFocusPrevNode, onFocusNextNode, ref }: {
+/**
+ * @param nodeId The ID of the node to render
+ * @param viewPath A list of ancestor nodes of this editor in the current view. Necessary to correctly outdent nodes.
+ * @param onFocusPrevNode Called when the user presses the up arrow while in the first line of text within this node.
+ *                        Should return false if there is no previous node to focus, true otherwise.
+ * @param onFocusNextNode Called when the user presses the down arrow while in the last line of text within this node.
+ *                        Should return false if there is no next node to focus, true otherwise.
+ * @param ref
+ */
+export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNextNode, ref }: {
   nodeId: string,
+  viewPath: string[],
   onFocusPrevNode?: () => boolean,
   onFocusNextNode?: () => boolean,
   ref?: Ref<NodeEditorRef>,
@@ -86,7 +96,7 @@ export function NodeEditorInline({ nodeId, onFocusPrevNode, onFocusNextNode, ref
     if (e.key === 'Tab') {
       e.preventDefault()
       if (e.shiftKey) {
-        dispatch(nodeOutdented({ nodeId }))
+        dispatch(nodeOutdented({ nodeId, viewPath }))
       } else {
         dispatch(nodeIndented({ nodeId }))
       }
@@ -138,6 +148,7 @@ export function NodeEditorInline({ nodeId, onFocusPrevNode, onFocusNextNode, ref
       {expanded && contentNodeIds.length > 0 && <NodeEditorList
           ref={contentNodesList}
           nodeIds={contentNodeIds}
+          viewPath={[...viewPath, nodeId]}
           onFocusMovedBefore={focus}
           onFocusMovedAfter={onFocusNextNode}
       />}
@@ -145,8 +156,9 @@ export function NodeEditorInline({ nodeId, onFocusPrevNode, onFocusNextNode, ref
   )
 }
 
-export function NodeEditorList({ nodeIds, onFocusMovedAfter, onFocusMovedBefore, ref }: {
+export function NodeEditorList({ nodeIds, viewPath, onFocusMovedAfter, onFocusMovedBefore, ref }: {
   nodeIds: string[],
+  viewPath: string[],
   onFocusMovedAfter?: () => boolean,
   onFocusMovedBefore?: () => boolean,
   ref?: Ref<NodeEditorRef>,
@@ -189,6 +201,7 @@ export function NodeEditorList({ nodeIds, onFocusMovedAfter, onFocusMovedBefore,
       {nodeIds.map((contentNodeId, i) => <li key={contentNodeId}>
         <NodeEditorInline
           nodeId={contentNodeId}
+          viewPath={viewPath}
           onFocusPrevNode={() => focusIndex(i - 1, 'last')}
           onFocusNextNode={() => focusIndex(i + 1, 'first')}
           ref={el => {
