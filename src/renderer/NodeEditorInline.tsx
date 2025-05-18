@@ -1,4 +1,4 @@
-import {Flex} from '@radix-ui/themes'
+import {Flex, Grid} from '@radix-ui/themes'
 import {useAppDispatch, useAppSelector} from './redux/hooks'
 import {
   nodeIndented,
@@ -110,8 +110,9 @@ export function NodeEditorInline({ nodeId, onFocusPrevNode, onFocusNextNode, ref
 
   return (
     <Flex direction={'column'} flexGrow={'1'} align={'center'}>
-      <Flex direction={'row'} width={'100%'} gap={'1'} align={'center'}>
+      <Flex direction={'row'} width={'100%'} gap={'1'} align={'start'}>
         <button
+          style={{marginTop: '.4rem'}}
           className={chevronButtonClasses}
           onClick={() => setExpanded(!expanded)}
         >
