@@ -1,12 +1,13 @@
 import {createRoot} from 'react-dom/client'
 import {Box, Button, Flex, Heading, Theme, ThemePanel} from '@radix-ui/themes'
-import {useState} from 'react'
+import {useCallback, useState} from 'react'
 import {NodeEditorInline} from './NodeEditorInline'
 import {ThemeProvider} from 'next-themes'
 import {Provider} from 'react-redux'
 import {store} from './redux/store'
-import {ROOT_NODE} from './redux/nodesSlice'
-import {GearIcon, HomeIcon} from '@radix-ui/react-icons'
+import {DownloadIcon, GearIcon, HomeIcon} from '@radix-ui/react-icons'
+import {useAppStore} from './redux/hooks'
+import {ROOT_NODE} from './redux/nodes/demoNodes'
 
 const root = createRoot(document.body)
 root.render(
@@ -21,29 +22,43 @@ root.render(
 
 function App() {
   const [node, setNode] = useState(ROOT_NODE)
+  const store = useAppStore()
+  const saveWorkspace = useCallback(() => {
+    console.log(JSON.stringify(store.getState()))
+  }, [store])
   return (
     <Flex direction={'row'} p={'2'} gap={'2'} align={'stretch'} style={{background: "var(--gray-3)"}}>
-      <Sidebar nodeClicked={setNode}/>
+      <Sidebar
+        nodeClicked={setNode}
+        onSaveWorkspaceClicked={saveWorkspace}
+      />
       <Flex
         direction={'column'} align={'center'} flexGrow={'1'} gap={'6'} p={'4'}
         style={{background: "var(--gray-1)", borderRadius: "var(--radius-5)", padding: "var(--space-4)"}}
       >
         <Heading size={'7'}>Catana</Heading>
         <Box width={'100%'} maxWidth={'600px'}>
-          <NodeEditorInline nodeId={node}/>
+          <NodeEditorInline nodeId={node} viewPath={[]}/>
         </Box>
       </Flex>
     </Flex>
   )
 }
 
-function Sidebar({nodeClicked}: { nodeClicked: (nodeId: string) => void }) {
+function Sidebar({nodeClicked, onSaveWorkspaceClicked}: {
+  nodeClicked: (nodeId: string) => void,
+  onSaveWorkspaceClicked: () => void,
+}) {
   const [showThemePanel, setShowThemePanel] = useState(false)
   return (
     <Flex direction={'column'} gap={'2'}>
       <Button onClick={() => nodeClicked(ROOT_NODE)}>
         <HomeIcon/>
         Home
+      </Button>
+      <Button onClick={onSaveWorkspaceClicked} variant={'surface'}>
+        <DownloadIcon/>
+        Save Workspace
       </Button>
       <Button
         variant={'surface'}
