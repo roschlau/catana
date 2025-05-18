@@ -7,7 +7,7 @@ import {Provider} from 'react-redux'
 import {store} from './redux/store'
 import {DownloadIcon, GearIcon, HomeIcon} from '@radix-ui/react-icons'
 import {useAppDispatch, useAppStore} from './redux/hooks'
-import {ROOT_NODE} from './redux/nodes/demoNodes'
+import {ROOT_NODE} from './redux/nodes/demoGraph'
 import {ActionCreators} from 'redux-undo'
 
 const root = createRoot(document.body)

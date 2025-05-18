@@ -1,6 +1,6 @@
 import {createSelector, createSlice, nanoid, PayloadAction} from '@reduxjs/toolkit'
 import {RootState} from '../store'
-import {demoNodes} from './demoNodes'
+import {demoGraph} from './demoGraph'
 
 export type Node = TextNode | NodeLink
 export interface ResolvedNode {
@@ -31,7 +31,7 @@ export interface NodeLink {
 
 export const nodesSlice = createSlice({
   name: 'nodes',
-  initialState: demoNodes,
+  initialState: demoGraph,
   reducers: {
     titleUpdated: (state, action: PayloadAction<{ nodeId: string, title: string }>) => {
       const node = state[action.payload.nodeId]!

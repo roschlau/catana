@@ -2,7 +2,7 @@ import {Node} from './nodesSlice'
 
 export const ROOT_NODE = '_root'
 
-export const demoNodes: Partial<Record<string, Node>> = {
+export const demoGraph: Partial<Record<string, Node>> = {
   [ROOT_NODE]: {
     type: 'text',
     id: ROOT_NODE,
