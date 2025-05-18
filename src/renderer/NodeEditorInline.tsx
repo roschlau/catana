@@ -5,7 +5,7 @@ import {
   nodeOutdented,
   nodeSplit,
   selectContentNodeIds,
-  selectNode,
+  selectResolvedNode,
   titleUpdated,
 } from './redux/nodesSlice'
 import TextareaAutosize from 'react-textarea-autosize'
@@ -19,16 +19,15 @@ interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void
 }
 
-export function NodeEditorInline({ nodeId, viewParentId, onFocusPrevNode, onFocusNextNode, ref }: {
+export function NodeEditorInline({ nodeId, onFocusPrevNode, onFocusNextNode, ref }: {
   nodeId: string,
-  viewParentId?: string,
   onFocusPrevNode?: () => boolean,
   onFocusNextNode?: () => boolean,
   ref?: Ref<NodeEditorRef>,
 }) {
   const dispatch = useAppDispatch()
-  const node = useAppSelector(selectNode(nodeId))
-  const contentNodeIds = useAppSelector(state => selectContentNodeIds(state, nodeId))
+  const { node, link } = useAppSelector(state => selectResolvedNode(state, nodeId))
+  const contentNodeIds = useAppSelector(state => selectContentNodeIds(state, node.id))
   const [expanded, setExpanded] = useState(true)
 
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
@@ -87,9 +86,9 @@ export function NodeEditorInline({ nodeId, viewParentId, onFocusPrevNode, onFocu
     if (e.key === 'Tab') {
       e.preventDefault()
       if (e.shiftKey) {
-        dispatch(nodeOutdented({ nodeId, currentParentId: viewParentId }))
+        dispatch(nodeOutdented({ nodeId }))
       } else {
-        dispatch(nodeIndented({ nodeId, currentParentId: viewParentId }))
+        dispatch(nodeIndented({ nodeId }))
       }
     }
     if (e.key === 'Enter') {
@@ -99,14 +98,14 @@ export function NodeEditorInline({ nodeId, viewParentId, onFocusPrevNode, onFocu
       if (e.currentTarget.selectionEnd !== splitIndex) {
         dispatch(titleUpdated({ nodeId, title: e.currentTarget.value.slice(0, splitIndex) + e.currentTarget.value.slice(e.currentTarget.selectionEnd) }))
       }
-      const parentId = expanded && contentNodeIds.length > 0 ? node.id : viewParentId
+      const parentId = expanded && contentNodeIds.length > 0 ? node.id : (link ?? node).parentNodeId
       dispatch(nodeSplit({ nodeId, atIndex: splitIndex, parentId }))
     }
   }, [expanded, setExpanded, contentNodeIds])
 
   const chevronButtonClasses = classNames(
     'NodeEditor_chevron-button',
-    { 'NodeEditor_chevron-button--link': viewParentId && viewParentId !== node.ownerNodeId },
+    { 'NodeEditor_chevron-button--link': !!link },
   )
 
   return (
@@ -131,14 +130,13 @@ export function NodeEditorInline({ nodeId, viewParentId, onFocusPrevNode, onFocu
             outline: 'none',
           }}
           value={node.title}
-          onChange={e => dispatch(titleUpdated({ nodeId, title: e.target.value }))}
+          onChange={e => dispatch(titleUpdated({ nodeId: node.id, title: e.target.value }))}
           onKeyDown={keyDown}
         />
       </Flex>
       {expanded && contentNodeIds.length > 0 && <NodeEditorList
           ref={contentNodesList}
           nodeIds={contentNodeIds}
-          viewParentId={node.id}
           onFocusMovedBefore={focus}
           onFocusMovedAfter={onFocusNextNode}
       />}
@@ -146,9 +144,8 @@ export function NodeEditorInline({ nodeId, viewParentId, onFocusPrevNode, onFocu
   )
 }
 
-export function NodeEditorList({ nodeIds, viewParentId, onFocusMovedAfter, onFocusMovedBefore, ref }: {
+export function NodeEditorList({ nodeIds, onFocusMovedAfter, onFocusMovedBefore, ref }: {
   nodeIds: string[],
-  viewParentId?: string,
   onFocusMovedAfter?: () => boolean,
   onFocusMovedBefore?: () => boolean,
   ref?: Ref<NodeEditorRef>,
@@ -191,7 +188,6 @@ export function NodeEditorList({ nodeIds, viewParentId, onFocusMovedAfter, onFoc
       {nodeIds.map((contentNodeId, i) => <li key={contentNodeId}>
         <NodeEditorInline
           nodeId={contentNodeId}
-          viewParentId={viewParentId}
           onFocusPrevNode={() => focusIndex(i - 1, 'last')}
           onFocusNextNode={() => focusIndex(i + 1, 'first')}
           ref={el => {

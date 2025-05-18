@@ -1,59 +1,87 @@
 import {createSelector, createSlice, nanoid, PayloadAction} from '@reduxjs/toolkit'
 import {RootState} from './store'
 
-// Define the TS type for the counter slice's state
-export interface NodeState {
+export type Node = TextNode | NodeLink
+export interface ResolvedNode {
+  node: Exclude<Node, NodeLink>,
+  link?: NodeLink,
+}
+
+export interface TextNode {
   id: string
+  type: 'text'
   title: string
-  ownerNodeId: string | null
+  parentNodeId: string | null
   /**
-   * A list of Node IDs that are nested under this node. This list _might_ be incomplete if there are nodes that are
-   * owned by this node, but have for some reason not been added to this array. Those nodes need to be implicitly
-   * appended to this list to get the full content of this node. `selectContentNodeIds` does that for you.
+   * A list of Node IDs that are nested under this node. This list _might_ be incomplete if there are nodes that have
+   * this one as their parent, but have not been added to this array because of a bug or someone messed with the saved
+   * state manually. Those nodes need to be implicitly appended to this list to get the full content of this node.
+   * `selectContentNodeIds` does that for you.
    */
   contentNodeIds: string[]
 }
 
+export interface NodeLink {
+  type: 'nodeLink'
+  id: string
+  nodeId: string
+  parentNodeId: string | null
+}
+
 export const ROOT_NODE = '_root'
 
-const initialState: Partial<Record<string, NodeState>> = {
+const initialState: Partial<Record<string, Node>> = {
   // TODO dummy data
   [ROOT_NODE]: {
+    type: 'text',
     id: ROOT_NODE,
     title: '_root: Root Node',
-    ownerNodeId: null,
-    contentNodeIds: ['1', '2', '3'],
+    parentNodeId: null,
+    contentNodeIds: ['1', 'link-2', '3'],
   },
   '1': {
+    type: 'text',
     id: '1',
     title: '1: Node with ID 1 and a very long title that should probably wrap around to the next line.',
-    ownerNodeId: ROOT_NODE,
+    parentNodeId: ROOT_NODE,
     contentNodeIds: ['2'],
   },
   '2': {
+    type: 'text',
     id: '2',
     title: '2: Node that is linked in multiple places',
-    ownerNodeId: '1',
+    parentNodeId: '1',
     contentNodeIds: [],
   },
   '3': {
+    type: 'text',
     id: '3',
     title: '3: Another Node',
-    ownerNodeId: ROOT_NODE,
+    parentNodeId: ROOT_NODE,
     contentNodeIds: [],
   },
+  'link-2': {
+    type: 'nodeLink',
+    id: 'link-2',
+    nodeId: '2',
+    parentNodeId: '_root'
+  },
 }
-
 
 export const nodesSlice = createSlice({
   name: 'nodes',
   initialState,
   reducers: {
     titleUpdated: (state, action: PayloadAction<{ nodeId: string, title: string }>) => {
-      state[action.payload.nodeId]!.title = action.payload.title
+      const node = state[action.payload.nodeId]!
+      if (node.type !== 'text') {
+        throw Error('Can\'t update title for elements of type ' + node.type)
+      }
+      node.title = action.payload.title
     },
-    nodeIndented: (state, action: PayloadAction<{ nodeId: string, currentParentId: string }>) => {
-      const oldParent = state[action.payload.currentParentId]!
+    nodeIndented: (state, action: PayloadAction<{ nodeId: string }>) => {
+      const node = state[action.payload.nodeId]!
+      const oldParent = getParentNode(state, node)
       const oldSiblings = oldParent.contentNodeIds
       const oldSiblingIndex = oldSiblings.indexOf(action.payload.nodeId)
       if (oldSiblingIndex === 0) {
@@ -61,52 +89,41 @@ export const nodesSlice = createSlice({
         return
       }
       const newParentId = oldSiblings[oldSiblingIndex - 1]
-      const newParent = state[newParentId]!
+      const newParent = resolveNode(state, newParentId).node
       const newSiblings = newParent.contentNodeIds
       const indexUnderNewParent = newSiblings.length
       newSiblings.splice(indexUnderNewParent, 0, action.payload.nodeId)
       oldSiblings.splice(oldSiblingIndex, 1)
-      const node = state[action.payload.nodeId]!
-      if (node.ownerNodeId === oldParent.id) {
-        // We're moving the actual node and not a link, so we need to update the owner node ID
-        node.ownerNodeId = newParentId
-      }
+      node.parentNodeId = newParentId
     },
-    nodeOutdented: (state, action: PayloadAction<{ nodeId: string, currentParentId: string }>) => {
-      const oldParent = state[action.payload.currentParentId]!
-      const newParentId = oldParent.ownerNodeId
-      if (!newParentId) {
-        // Already on root level, can't outdent further
-        return
-      }
-      const newParent = state[newParentId]!
+    nodeOutdented: (state, action: PayloadAction<{ nodeId: string }>) => {
+      const node = state[action.payload.nodeId]!
+      const oldParent = getParentNode(state, node)
+      const newParent = getParentNode(state, oldParent)
       const oldParentIndex = newParent.contentNodeIds.indexOf(oldParent.id)
       const newSiblingIndex = oldParentIndex + 1
       const oldSiblingIndex = oldParent.contentNodeIds.indexOf(action.payload.nodeId)
       oldParent.contentNodeIds.splice(oldSiblingIndex, 1)
       newParent.contentNodeIds.splice(newSiblingIndex, 0, action.payload.nodeId)
-      const node = state[action.payload.nodeId]!
-      if (node.ownerNodeId === oldParent.id) {
-        // We're moving the actual node and not a link, so we need to update the owner node ID
-        node.ownerNodeId = newParentId
-      }
+      node.parentNodeId = newParent.id
     },
     nodeSplit: (state, action: PayloadAction<{ nodeId: string, atIndex: number, parentId: string }>) => {
-      const node = state[action.payload.nodeId]!
-      const newNode = {
+      const node = resolveNode(state, action.payload.nodeId).node
+      const newNode: TextNode = {
+        type: 'text',
         id: nanoid(),
         title: node.title.slice(action.payload.atIndex),
-        ownerNodeId: action.payload.parentId,
+        parentNodeId: action.payload.parentId,
         contentNodeIds: [] as string[],
-      } satisfies NodeState
+      }
       console.log('Adding new node', newNode)
       state[newNode.id] = newNode
       node.title = node.title.slice(0, action.payload.atIndex)
-      if (newNode.ownerNodeId === node.id) {
+      if (newNode.parentNodeId === node.id) {
         node.contentNodeIds.unshift(newNode.id)
       } else {
-        const parentNode = state[newNode.ownerNodeId]!
-        const existingNodeIndex = parentNode.contentNodeIds.indexOf(node.id)
+        const parentNode = getParentNode(state, newNode)
+        const existingNodeIndex = parentNode.contentNodeIds.indexOf(action.payload.nodeId)
         parentNode.contentNodeIds.splice(existingNodeIndex + 1, 0, newNode.id)
       }
     },
@@ -115,21 +132,69 @@ export const nodesSlice = createSlice({
 
 export const { titleUpdated, nodeSplit, nodeIndented, nodeOutdented } = nodesSlice.actions
 
-export const selectNode = (nodeId: string) => (state: RootState) => state.nodes[nodeId]
+/**
+ * Returns an object containing the non-link node that the given nodeId points to. If the given node is already a
+ * non-link node, it is returned directly as the `node` property. If the given node is a link node, then it will be
+ * available in the `link` property, and the `node` property will be the node that the link points to.
+ */
+export const selectResolvedNode = createSelector(
+  [
+    (state: RootState) => state.nodes,
+    (_: RootState, nodeId: string) => nodeId,
+  ],
+  (nodes, nodeId) => {
+    return resolveNode(nodes, nodeId)
+  },
+)
 
+/**
+ * Returns the IDs of all nodes that are children of the given node.
+ */
 export const selectContentNodeIds = createSelector(
   [
     (state: RootState) => state.nodes,
     (_: RootState, nodeId: string) => nodeId,
   ],
   (nodes, nodeId) => {
-    const explicitContent = nodes[nodeId]!.contentNodeIds
+    const explicitContent = resolveNode(nodes, nodeId).node.contentNodeIds
     const explicitIDsSet = new Set(explicitContent)
     const implicitContent = Object.values(nodes)
-      .filter(node => node.ownerNodeId === nodeId && !explicitIDsSet.has(node.id))
+      .filter(node => node.parentNodeId === nodeId && !explicitIDsSet.has(node.id))
       .map(node => node.id)
     return [...explicitContent, ...implicitContent]
   },
 )
 
 export default nodesSlice.reducer
+
+/**
+ * Returns an object containing the non-link node that the given nodeId points to. If the given node is already a
+ * non-link node, it is returned directly as the `node` property. If the given node is a link node, then it will be
+ * available in the `link` property, and the `node` property will be the node that the link points to.
+ */
+function resolveNode(state: Partial<Record<string, Node>>, nodeId: string): ResolvedNode {
+  const node = state[nodeId]!
+  if (node.type !== 'nodeLink') {
+    return { node }
+  }
+  const linkedNode = state[node.nodeId]!
+  if (linkedNode.type === 'nodeLink') {
+    throw Error(`Link node ${node.nodeId} points to another link node ${linkedNode.nodeId}. This is not supported.`)
+  }
+  return { node: linkedNode, link: node }
+}
+
+function getParentNode(state: Partial<Record<string, Node>>, node: Node): TextNode | null {
+  const parentNodeId = node.parentNodeId
+  if (!parentNodeId) {
+    return null
+  }
+  const parentNode = state[parentNodeId]!
+  if (parentNode.type === 'nodeLink') {
+    // Currently, node links can't have children, so if this happens, we got a bug somewhere or someone messed with the
+    // saved state manually. This might change in the future - we could add support for node links having child nodes
+    // that are nested under them and are separate from the linked node's content.
+    throw Error(`Node ${node.id} is illegally owned by a Node Link (${parentNode.id}).`)
+  }
+  return parentNode
+}
