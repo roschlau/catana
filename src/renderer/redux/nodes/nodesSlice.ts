@@ -2,6 +2,7 @@ import {createSelector, createSlice, nanoid, PayloadAction} from '@reduxjs/toolk
 import {AppDispatch, RootState} from '../store'
 import {demoGraph} from './demoGraph'
 import {focusRestoreRequested} from '../ui/uiSlice'
+import {clamp} from '../../util/math'
 
 export type Node = TextNode | NodeLink
 export interface ResolvedNode {
@@ -40,6 +41,18 @@ export const nodesSlice = createSlice({
         throw Error('Can\'t update title for elements of type ' + node.type)
       }
       node.title = action.payload.title
+    },
+    nodeIndexChanged: (state, action: PayloadAction<{ nodeId: string, indexChange: number }>) => {
+      const node = state[action.payload.nodeId]!
+      const parentNode = getParentNode(state, node)
+      if (!parentNode) {
+        // Can't move around the root node
+        return
+      }
+      const existingNodeIndex = parentNode.contentNodeIds.indexOf(action.payload.nodeId)
+      const newIndex = clamp(existingNodeIndex + action.payload.indexChange, 0, parentNode.contentNodeIds.length - 1)
+      parentNode.contentNodeIds.splice(existingNodeIndex, 1)
+      parentNode.contentNodeIds.splice(newIndex, 0, action.payload.nodeId)
     },
     nodeIndented: (state, action: PayloadAction<{ nodeId: string }>) => {
       const node = state[action.payload.nodeId]!
@@ -100,7 +113,7 @@ export const nodesSlice = createSlice({
   },
 })
 
-export const { titleUpdated, nodeSplit, nodeIndented, nodeOutdented } = nodesSlice.actions
+export const { titleUpdated, nodeIndexChanged, nodeSplit, nodeIndented, nodeOutdented } = nodesSlice.actions
 
 /**
  * Returns an object containing the non-link node that the given nodeId points to. If the given node is already a

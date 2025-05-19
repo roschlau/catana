@@ -2,6 +2,7 @@ import {Flex} from '@radix-ui/themes'
 import {useAppDispatch, useAppSelector} from './redux/hooks'
 import {
   indentNode,
+  nodeIndexChanged,
   outdentNode,
   selectContentNodeIds,
   selectResolvedNode,
@@ -82,6 +83,16 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
     if (e.ctrlKey && e.key === 'ArrowDown') {
       e.preventDefault()
       setExpanded(true)
+      return
+    }
+    if (e.key === 'ArrowDown' && e.shiftKey && e.altKey) {
+      e.preventDefault()
+      dispatch(nodeIndexChanged({ nodeId, indexChange: 1 }))
+      return
+    }
+    if (e.key === 'ArrowUp' && e.shiftKey && e.altKey) {
+      e.preventDefault()
+      dispatch(nodeIndexChanged({ nodeId, indexChange: -1 }))
       return
     }
     if (e.key === 'ArrowDown') {
