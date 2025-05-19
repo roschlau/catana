@@ -113,7 +113,9 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
       if (e.currentTarget.selectionEnd !== splitIndex) {
         dispatch(titleUpdated({ nodeId, title: e.currentTarget.value.slice(0, splitIndex) + e.currentTarget.value.slice(e.currentTarget.selectionEnd) }))
       }
-      const parentId = expanded && contentNodeIds.length > 0 ? node.id : (link ?? node).parentNodeId
+      const parentId = expanded && contentNodeIds.length > 0
+        ? node.id
+        : (link ?? node).parentNodeId ?? node.id
       dispatch(nodeSplit({ nodeId, atIndex: splitIndex, parentId }))
     }
   }, [expanded, setExpanded, contentNodeIds])

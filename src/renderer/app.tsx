@@ -1,6 +1,6 @@
 import {createRoot} from 'react-dom/client'
 import {Box, Button, Flex, Heading, Theme, ThemePanel} from '@radix-ui/themes'
-import {KeyboardEvent, useCallback, useEffect, useState} from 'react'
+import {useCallback, useEffect, useState} from 'react'
 import {NodeEditorInline} from './NodeEditorInline'
 import {ThemeProvider} from 'next-themes'
 import {Provider} from 'react-redux'
@@ -28,7 +28,7 @@ function App() {
     console.log(JSON.stringify(store.getState().nodes.present))
   }, [store])
   const dispatch = useAppDispatch()
-  const globalKeydown = useCallback((e: Event & KeyboardEvent) => {
+  const globalKeydown = useCallback((e: KeyboardEvent) => {
     if (e.ctrlKey && e.key === 'z') {
       dispatch(ActionCreators.undo())
     }

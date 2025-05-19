@@ -43,6 +43,10 @@ export const nodesSlice = createSlice({
     nodeIndented: (state, action: PayloadAction<{ nodeId: string }>) => {
       const node = state[action.payload.nodeId]!
       const oldParent = getParentNode(state, node)
+      if (!oldParent) {
+        // Can't indent the root node
+        return
+      }
       const oldSiblings = oldParent.contentNodeIds
       const oldSiblingIndex = oldSiblings.indexOf(action.payload.nodeId)
       if (oldSiblingIndex === 0) {
@@ -87,7 +91,7 @@ export const nodesSlice = createSlice({
       if (newNode.parentNodeId === node.id) {
         node.contentNodeIds.unshift(newNode.id)
       } else {
-        const parentNode = getParentNode(state, newNode)
+        const parentNode = getParentNode(state, newNode)!
         const existingNodeIndex = parentNode.contentNodeIds.indexOf(action.payload.nodeId)
         parentNode.contentNodeIds.splice(existingNodeIndex + 1, 0, newNode.id)
       }
@@ -124,8 +128,8 @@ export const selectContentNodeIds = createSelector(
     const explicitContent = resolveNode(nodes, nodeId).node.contentNodeIds
     const explicitIDsSet = new Set(explicitContent)
     const implicitContent = Object.values(nodes)
-      .filter(node => node.parentNodeId === nodeId && !explicitIDsSet.has(node.id))
-      .map(node => node.id)
+      .filter(node => node && node.parentNodeId === nodeId && !explicitIDsSet.has(node.id))
+      .map(node => node!.id)
     return [...explicitContent, ...implicitContent]
   },
 )
