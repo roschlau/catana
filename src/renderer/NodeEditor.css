@@ -18,3 +18,16 @@
 .NodeEditor_chevron-button:focus-visible {
     outline: 1px solid var(--gray-11);
 }
+
+.NodeEditor_textarea {
+    width: 100%;
+    background: none;
+    border: none;
+    resize: none;
+    color: var(--gray-11);
+    outline: none;
+}
+
+.NodeEditor_textarea:focus {
+    color: var(--gray-12);
+}

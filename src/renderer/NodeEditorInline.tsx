@@ -139,14 +139,7 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
         </button>
         <TextareaAutosize
           ref={textAreaRef}
-          style={{
-            width: '100%',
-            background: 'none',
-            border: 'none',
-            resize: 'none',
-            color: 'var(--gray-11)',
-            outline: 'none',
-          }}
+          className={'NodeEditor_textarea'}
           value={node.title}
           onChange={e => dispatch(titleUpdated({ nodeId: node.id, title: e.target.value }))}
           onKeyDown={keyDown}
