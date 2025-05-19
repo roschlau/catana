@@ -1,6 +1,6 @@
 import {createSelector, createSlice, nanoid, PayloadAction} from '@reduxjs/toolkit'
 import {AppDispatch, RootState} from '../store'
-import {demoGraph} from './demoGraph'
+import {demoGraph, flatten} from './demoGraph'
 import {focusRestoreRequested} from '../ui/uiSlice'
 import {clamp} from '../../util/math'
 
@@ -33,7 +33,7 @@ export interface NodeLink {
 
 export const nodesSlice = createSlice({
   name: 'nodes',
-  initialState: demoGraph,
+  initialState: flatten(demoGraph),
   reducers: {
     titleUpdated: (state, action: PayloadAction<{ nodeId: string, title: string }>) => {
       const node = state[action.payload.nodeId]!
@@ -198,7 +198,10 @@ export default nodesSlice.reducer
  * available in the `link` property, and the `node` property will be the node that the link points to.
  */
 function resolveNode(state: Partial<Record<string, Node>>, nodeId: string): ResolvedNode {
-  const node = state[nodeId]!
+  const node = state[nodeId]
+  if (!node) {
+    throw Error(`Node ${nodeId} doesn't exist`)
+  }
   if (node.type !== 'nodeLink') {
     return { node }
   }
