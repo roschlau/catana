@@ -1,19 +1,20 @@
 import {Flex} from '@radix-ui/themes'
 import {useAppDispatch, useAppSelector} from './redux/hooks'
 import {
-  nodeIndented,
-  nodeOutdented,
-  nodeSplit,
+  indentNode,
+  outdentNode,
   selectContentNodeIds,
   selectResolvedNode,
+  splitNode,
   titleUpdated,
 } from './redux/nodes/nodesSlice'
 import TextareaAutosize from 'react-textarea-autosize'
 import {ChevronRightIcon, DotFilledIcon} from '@radix-ui/react-icons'
-import {KeyboardEvent, Ref, useCallback, useImperativeHandle, useRef, useState} from 'react'
+import {KeyboardEvent, Ref, useCallback, useEffect, useImperativeHandle, useRef, useState} from 'react'
 import './NodeEditor.css'
 import classNames from 'classnames'
 import {calculateCursorPosition} from './util/textarea-measuring'
+import {focusRestored, selectPreparedFocusRestore} from './redux/ui/uiSlice'
 
 interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void
@@ -38,6 +39,7 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
   const dispatch = useAppDispatch()
   const { node, link } = useAppSelector(state => selectResolvedNode(state, nodeId))
   const contentNodeIds = useAppSelector(state => selectContentNodeIds(state, node.id))
+  const preparedFocusRestore = useAppSelector(selectPreparedFocusRestore)
   const [expanded, setExpanded] = useState(viewPath.length < 3) // Only auto-expand the first three levels so the UI doesn't freeze up on cyclic Node graphs
 
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
@@ -57,6 +59,14 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
     textAreaRef.current?.focus()
     return true
   }, [textAreaRef])
+
+  useEffect(() => {
+    if (preparedFocusRestore?.nodeId === nodeId) {
+      textAreaRef.current?.focus()
+      textAreaRef.current?.setSelectionRange(preparedFocusRestore.selectionStart, preparedFocusRestore.selectionEnd)
+      dispatch(focusRestored())
+    }
+  }, [nodeId, preparedFocusRestore, dispatch])
 
   const keyDown = useCallback((e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.ctrlKey && ['z', 'Z'].includes(e.key)) {
@@ -101,22 +111,20 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
     if (e.key === 'Tab') {
       e.preventDefault()
       if (e.shiftKey) {
-        dispatch(nodeOutdented({ nodeId, viewPath }))
+        dispatch(outdentNode(nodeId, viewPath, e.currentTarget))
       } else {
-        dispatch(nodeIndented({ nodeId }))
+        dispatch(indentNode(nodeId, e.currentTarget))
       }
     }
     if (e.key === 'Enter') {
       // Not allowing any line breaks for now to simplify things. Might change my mind on that later.
       e.preventDefault()
-      const splitIndex = e.currentTarget.selectionStart
-      if (e.currentTarget.selectionEnd !== splitIndex) {
-        dispatch(titleUpdated({ nodeId, title: e.currentTarget.value.slice(0, splitIndex) + e.currentTarget.value.slice(e.currentTarget.selectionEnd) }))
-      }
-      const parentId = expanded && contentNodeIds.length > 0
-        ? node.id
-        : (link ?? node).parentNodeId ?? node.id
-      dispatch(nodeSplit({ nodeId, atIndex: splitIndex, parentId }))
+      dispatch(splitNode(
+        nodeId,
+        expanded && contentNodeIds.length > 0,
+        e.currentTarget.selectionStart,
+        e.currentTarget.selectionEnd,
+      ))
     }
   }, [expanded, setExpanded, contentNodeIds])
 

@@ -1,6 +1,7 @@
 import {createSelector, createSlice, nanoid, PayloadAction} from '@reduxjs/toolkit'
-import {RootState} from '../store'
+import {AppDispatch, RootState} from '../store'
 import {demoGraph} from './demoGraph'
+import {focusRestoreRequested} from '../ui/uiSlice'
 
 export type Node = TextNode | NodeLink
 export interface ResolvedNode {
@@ -76,11 +77,11 @@ export const nodesSlice = createSlice({
       newParent.node.contentNodeIds.splice(newSiblingIndex, 0, action.payload.nodeId)
       node.parentNodeId = newParent.node.id
     },
-    nodeSplit: (state, action: PayloadAction<{ nodeId: string, atIndex: number, parentId: string }>) => {
+    nodeSplit: (state, action: PayloadAction<{ nodeId: string, newNodeId: string, atIndex: number, parentId: string }>) => {
       const node = resolveNode(state, action.payload.nodeId).node
       const newNode: TextNode = {
         type: 'text',
-        id: nanoid(),
+        id: action.payload.newNodeId,
         title: node.title.slice(action.payload.atIndex),
         parentNodeId: action.payload.parentId,
         contentNodeIds: [] as string[],
@@ -133,6 +134,48 @@ export const selectContentNodeIds = createSelector(
     return [...explicitContent, ...implicitContent]
   },
 )
+
+export function indentNode(nodeId: string, element: HTMLTextAreaElement) {
+  return (dispatch: AppDispatch) => {
+    dispatch(nodeIndented({ nodeId }))
+    dispatch(focusRestoreRequested({
+      nodeId,
+      selectionStart: element.selectionStart,
+      selectionEnd: element.selectionEnd,
+    }))
+  }
+}
+
+export function outdentNode(nodeId: string, viewPath: string[], element: HTMLTextAreaElement) {
+  return (dispatch: AppDispatch) => {
+    dispatch(nodeOutdented({ nodeId, viewPath }))
+    dispatch(focusRestoreRequested({
+      nodeId,
+      selectionStart: element.selectionStart,
+      selectionEnd: element.selectionEnd,
+    }))
+  }
+}
+
+export function splitNode(nodeId: string, isExpanded: boolean, selectionStart: number, selectionEnd: number) {
+  return (dispatch: AppDispatch, getState: () => RootState) => {
+    const splitIndex = selectionStart
+    const { node, link } = resolveNode(getState().nodes.present, nodeId)
+    if (selectionEnd !== splitIndex) {
+      dispatch(titleUpdated({ nodeId, title: node.title.slice(0, splitIndex) + node.title.slice(selectionEnd) }))
+    }
+    const parentId = isExpanded
+      ? node.id
+      : (link ?? node).parentNodeId ?? node.id
+    const newNodeId = nanoid()
+    dispatch(nodeSplit({ nodeId, newNodeId, atIndex: splitIndex, parentId }))
+    dispatch(focusRestoreRequested({
+      nodeId: newNodeId,
+      selectionStart: 0,
+      selectionEnd: 0,
+    }))
+  }
+}
 
 export default nodesSlice.reducer
 

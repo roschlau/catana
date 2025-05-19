@@ -1,6 +1,7 @@
 import {configureStore} from '@reduxjs/toolkit'
 import nodesReducer, {titleUpdated} from './nodes/nodesSlice'
 import undoable from 'redux-undo'
+import {uiSlice} from './ui/uiSlice'
 
 
 export const store = configureStore({
@@ -10,6 +11,7 @@ export const store = configureStore({
         ? action.type + '/' + (action.payload as any).nodeId
         : null,
     }),
+    ui: uiSlice.reducer,
   },
 })
 
