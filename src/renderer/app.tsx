@@ -7,7 +7,7 @@ import {Provider} from 'react-redux'
 import {store} from './redux/store'
 import {DownloadIcon, GearIcon, HomeIcon} from '@radix-ui/react-icons'
 import {useAppDispatch, useAppStore} from './redux/hooks'
-import {ROOT_NODE} from './redux/nodes/demoGraph'
+import {buildTree, ROOT_NODE} from './redux/nodes/demoGraph'
 import {ActionCreators} from 'redux-undo'
 
 const root = createRoot(document.body)
@@ -25,7 +25,7 @@ function App() {
   const [node, setNode] = useState(ROOT_NODE)
   const store = useAppStore()
   const saveWorkspace = useCallback(() => {
-    console.log(JSON.stringify(store.getState().nodes.present))
+    console.log(JSON.stringify(buildTree(store.getState().nodes.present)))
   }, [store])
   const dispatch = useAppDispatch()
   const globalKeydown = useCallback((e: KeyboardEvent) => {

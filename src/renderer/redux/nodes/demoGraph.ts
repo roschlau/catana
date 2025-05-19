@@ -1,5 +1,6 @@
 import {Node, NodeLink, TextNode} from './nodesSlice'
 import {nanoid} from '@reduxjs/toolkit'
+import {isPresent} from '../../util/optionals'
 
 type TreeNode =
   | PartialBy<Omit<NodeLink, 'parentNodeId'>, 'id'>
@@ -76,4 +77,67 @@ export function flatten(tree: TreeNode): Partial<Record<string, Node>> {
 
   traverse(tree, null)
   return nodes
+}
+
+export function buildTree(nodes: Partial<Record<string, Node>>): TreeNode | null {
+  const processedNodeIds = new Set<string>()
+
+  function build(id: string): TreeNode {
+    processedNodeIds.add(id)
+    const node = nodes[id]
+    if (!node) {
+      throw Error(`Error: Node with id '${id}' not found`)
+    }
+    if (node.type === 'nodeLink') {
+      if (!nodes[node.nodeId]) {
+        console.warn(`Warning: NodeLink with id '${node.id}' points to missing node '${node.nodeId}'`)
+      }
+      // Omit parentNodeId
+      const { parentNodeId, ...rest } = node
+      return rest
+    } else {
+      const { parentNodeId, contentNodeIds, ...rest } = node
+      const result: TreeNode = { ...rest }
+      // Recursively build children
+      if (node.contentNodeIds) {
+        result.content = node.contentNodeIds
+          .map((childId) => {
+            // Check parent relationship integrity
+            const child = nodes[childId]
+            if (child) {
+              if (child.parentNodeId !== id) {
+                console.error(`Error: Node '${childId}' referenced by ${id} but has parentNodeId='${child.parentNodeId}'`)
+              }
+              return build(childId)
+            } else {
+              console.error(`Error: TextNode '${id}' lists missing child nodeId '${childId}' in contentNodeIds`)
+              return undefined
+            }
+          })
+          .filter(isPresent)
+      }
+      return result
+    }
+  }
+
+  if (Object.keys(nodes).length === 0) {
+    return null
+  }
+  const allNodes = Object.values(nodes)
+    .filter(isPresent)
+  const roots = allNodes
+    .filter(node => !node.parentNodeId)
+    .map(node => node.id)
+  if (roots.length > 1) {
+    throw new Error(`Multiple root nodes found: ${roots.join(', ')}`)
+  }
+  if (roots.length === 0) {
+    throw new Error(`No root node found`)
+  }
+  const result = build(roots[0])
+  const unreachableNodes = allNodes.filter(node => !processedNodeIds.has(node?.id))
+  if (unreachableNodes.length > 0) {
+    console.error('Unreachable nodes found', unreachableNodes.map(node => node.id))
+  }
+  return result
 }
