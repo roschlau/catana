@@ -98,7 +98,6 @@ export const nodesSlice = createSlice({
         parentNodeId: action.payload.parentId,
         contentNodeIds: [] as string[],
       }
-      console.log('Adding new node', newNode)
       state[newNode.id] = newNode
       node.title = node.title.slice(0, action.payload.atIndex)
       if (newNode.parentNodeId === node.id) {
