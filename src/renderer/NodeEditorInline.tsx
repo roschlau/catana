@@ -1,14 +1,6 @@
 import {Flex} from '@radix-ui/themes'
 import {useAppDispatch, useAppSelector} from './redux/hooks'
-import {
-  indentNode,
-  nodeIndexChanged,
-  outdentNode,
-  selectContentNodeIds,
-  selectResolvedNode,
-  splitNode,
-  titleUpdated,
-} from './redux/nodes/nodesSlice'
+import {nodeIndexChanged, titleUpdated} from './redux/nodes/nodesSlice'
 import TextareaAutosize from 'react-textarea-autosize'
 import {ChevronRightIcon, DotFilledIcon} from '@radix-ui/react-icons'
 import {KeyboardEvent, Ref, useCallback, useEffect, useImperativeHandle, useRef, useState} from 'react'
@@ -16,6 +8,8 @@ import './NodeEditor.css'
 import classNames from 'classnames'
 import {calculateCursorPosition} from './util/textarea-measuring'
 import {focusRestored, selectPreparedFocusRestore} from './redux/ui/uiSlice'
+import {selectContentNodeIds, selectResolvedNode} from './redux/nodes/selectors'
+import {indentNode, outdentNode, splitNode} from './redux/nodes/thunks'
 
 interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void

@@ -1,12 +1,12 @@
 import {configureStore} from '@reduxjs/toolkit'
-import nodesReducer, {nodeIndexChanged, titleUpdated} from './nodes/nodesSlice'
+import {nodeIndexChanged, nodesSlice, titleUpdated} from './nodes/nodesSlice'
 import undoable from 'redux-undo'
 import {uiSlice} from './ui/uiSlice'
 
 
 export const store = configureStore({
   reducer: {
-    nodes: undoable(nodesReducer, {
+    nodes: undoable(nodesSlice.reducer, {
       groupBy: (action) => {
         const groupPerNode: string[] = [titleUpdated.type, nodeIndexChanged.type]
         return groupPerNode.includes(action.type)
