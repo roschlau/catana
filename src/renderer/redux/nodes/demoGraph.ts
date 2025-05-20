@@ -47,6 +47,22 @@ export const demoGraph: TreeNode = {
         id: '2-2-2',
       }],
     }],
+  }, {
+    type: 'text',
+    title: 'Keyboard Shortcuts',
+    content: [{
+      type: 'text',
+      title: 'Catana has been built to be used efficiently with the keyboard. Below are some of the supported keyboard shortcuts to try!',
+    }, {
+      type: 'text',
+      title: 'Tab / Shift + Tab: Indent / Outdent the focused Node',
+    }, {
+      type: 'text',
+      title: 'Ctrl + Arrow Up/Down: Collapse/Expand the focused Node',
+    }, {
+      type: 'text',
+      title: 'Alt + Shift + Arrow Up/Down: Move the focused Node up/down within its parent Node',
+    }]
   }],
 }
 
