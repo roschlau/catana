@@ -23,7 +23,7 @@ export const demoGraph: TreeNode = {
     id: '2',
     expanded: true,
     content: [{
-      title: 'For one, every Node that has others indented under it has little arrow instead of a bullet which you can click to expand or collapse it. Try it out on this Node!',
+      title: 'For one, every Node that has others indented under it has a little arrow instead of a bullet which you can click to expand or collapse it. Try it out on this Node!',
       type: 'text',
       id: '2-1',
       content: [{
@@ -34,12 +34,19 @@ export const demoGraph: TreeNode = {
         title: 'You can nest Nodes as deeply as you want. Try nesting this one under the one above by pressing Tab!',
         type: 'text',
         id: '2-1-2',
+      }, {
+        title: 'Nodes can also be expanded or collapsed using the Keyboard. Focus on this Node, then press Ctrl + Arrow Down to expand it!',
+        type: 'text',
+        id: '2-1-3',
+        content: [{
+          title: 'Nice! In the same way, you can collapse an expanded node by pressing Ctrl + Arrow Up. You can find even more keyboard shortcuts at the bottom of this page!',
+          type: 'text',
+        }]
       }],
     }, {
-      title: 'Nodes can be linked to be shown in other places. See how the explanation of Node nesting from above is linked within this Node?',
+      title: 'Nodes can be linked to be shown in other places. Open this Node to see a link to the previous Node!',
       type: 'text',
       id: '2-2',
-      expanded: true,
       content: [{
         type: 'nodeLink',
         id: '2-2-1',
