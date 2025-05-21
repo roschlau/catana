@@ -14,6 +14,7 @@ export interface TextNode {
   type: 'text'
   title: string
   parentNodeId: string | null
+  expanded: boolean
   /**
    * A list of Node IDs that are nested under this node. This list _might_ be incomplete if there are nodes that have
    * this one as their parent, but have not been added to this array because of a bug or someone messed with the saved
@@ -28,6 +29,7 @@ export interface NodeLink {
   id: string
   nodeId: string
   parentNodeId: string | null
+  expanded: boolean
 }
 
 export const nodesSlice = createSlice({
@@ -97,6 +99,7 @@ export const nodesSlice = createSlice({
         title: node.title.slice(action.payload.atIndex),
         parentNodeId: action.payload.parentId,
         contentNodeIds: [] as string[],
+        expanded: false,
       }
       state[newNode.id] = newNode
       node.title = node.title.slice(0, action.payload.atIndex)
@@ -108,7 +111,18 @@ export const nodesSlice = createSlice({
         parentNode.contentNodeIds.splice(existingNodeIndex + 1, 0, newNode.id)
       }
     },
+    nodeExpandedChanged: (state, action: PayloadAction<{ nodeId: string, expanded: boolean }>) => {
+      const node = state[action.payload.nodeId]!
+      node.expanded = action.payload.expanded
+    }
   },
 })
 
-export const { titleUpdated, nodeIndexChanged, nodeSplit, nodeIndented, nodeOutdented } = nodesSlice.actions
+export const {
+  titleUpdated,
+  nodeIndexChanged,
+  nodeSplit,
+  nodeIndented,
+  nodeOutdented,
+  nodeExpandedChanged,
+} = nodesSlice.actions

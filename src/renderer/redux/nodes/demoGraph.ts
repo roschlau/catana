@@ -3,8 +3,8 @@ import {nanoid} from '@reduxjs/toolkit'
 import {isPresent} from '../../util/optionals'
 
 type TreeNode =
-  | PartialBy<Omit<NodeLink, 'parentNodeId'>, 'id'>
-  | PartialBy<Omit<TextNode, 'parentNodeId' | 'contentNodeIds'> & { content?: TreeNode[] }, 'id'>
+  | PartialBy<Omit<NodeLink, 'parentNodeId'>, 'id' | 'expanded'>
+  | PartialBy<Omit<TextNode, 'parentNodeId' | 'contentNodeIds'> & { content?: TreeNode[] }, 'id' | 'expanded'>
 
 export const ROOT_NODE = '_root'
 
@@ -12,6 +12,7 @@ export const demoGraph: TreeNode = {
   type: 'text',
   id: ROOT_NODE,
   title: 'Welcome to Catana!',
+  expanded: true,
   content: [{
     title: 'Catana is a (still very much WIP) notetaking software that aims to let you keep control of your data like Obsidian or Logseq, but using a data model that\'s closer to Tana.',
     type: 'text',
@@ -20,6 +21,7 @@ export const demoGraph: TreeNode = {
     title: 'Everything in Catana is a Node. Nodes behave a lot like bullet points in any other notetaking software, but with some twists.',
     type: 'text',
     id: '2',
+    expanded: true,
     content: [{
       title: 'For one, every Node that has others indented under it has little arrow instead of a bullet which you can click to expand or collapse it. Try it out on this Node!',
       type: 'text',
@@ -37,6 +39,7 @@ export const demoGraph: TreeNode = {
       title: 'Nodes can be linked to be shown in other places. See how the explanation of Node nesting from above is linked within this Node?',
       type: 'text',
       id: '2-2',
+      expanded: true,
       content: [{
         type: 'nodeLink',
         id: '2-2-1',
@@ -50,6 +53,7 @@ export const demoGraph: TreeNode = {
   }, {
     type: 'text',
     title: 'Keyboard Shortcuts',
+    expanded: true,
     content: [{
       type: 'text',
       title: 'Catana has been built to be used efficiently with the keyboard. Below are some of the supported keyboard shortcuts to try!',
@@ -77,6 +81,7 @@ export function flatten(tree: TreeNode): Partial<Record<string, Node>> {
         ...node,
         id: nodeId,
         parentNodeId,
+        expanded: node.expanded ?? false,
       } satisfies NodeLink
     } else {
       const contentNodeIds = node.content?.map(child => traverse(child, nodeId)) ?? []
@@ -85,6 +90,7 @@ export function flatten(tree: TreeNode): Partial<Record<string, Node>> {
         ...rest,
         id: nodeId,
         parentNodeId,
+        expanded: node.expanded ?? false,
         contentNodeIds,
       } satisfies TextNode
     }

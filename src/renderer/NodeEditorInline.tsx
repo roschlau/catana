@@ -1,6 +1,6 @@
 import {Flex} from '@radix-ui/themes'
 import {useAppDispatch, useAppSelector} from './redux/hooks'
-import {nodeIndexChanged, titleUpdated} from './redux/nodes/nodesSlice'
+import {nodeExpandedChanged, nodeIndexChanged, titleUpdated} from './redux/nodes/nodesSlice'
 import TextareaAutosize from 'react-textarea-autosize'
 import {ChevronRightIcon, DotFilledIcon} from '@radix-ui/react-icons'
 import {KeyboardEvent, Ref, useCallback, useEffect, useImperativeHandle, useRef, useState} from 'react'
@@ -17,7 +17,8 @@ interface NodeEditorRef {
 
 /**
  * @param nodeId The ID of the node to render
- * @param viewPath A list of ancestor nodes of this editor in the current view. Necessary to correctly outdent nodes.
+ * @param viewPath A list of ancestor nodes of this editor in the current view. If there are node links in the view
+ *                 path, only _their_ ID should be included, and _not_ the ID of the nodes they point to.
  * @param onFocusPrevNode Called when the user presses the up arrow while in the first line of text within this node.
  *                        Should return false if there is no previous node to focus, true otherwise.
  * @param onFocusNextNode Called when the user presses the down arrow while in the last line of text within this node.
@@ -35,7 +36,20 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
   const { node, link } = useAppSelector(state => selectResolvedNode(state, nodeId))
   const contentNodeIds = useAppSelector(state => selectContentNodeIds(state, node.id))
   const preparedFocusRestore = useAppSelector(selectPreparedFocusRestore)
-  const [expanded, setExpanded] = useState(viewPath.length < 3) // Only auto-expand the first three levels so the UI doesn't freeze up on cyclic Node graphs
+
+  const isRecursiveInstance = viewPath.includes(nodeId)
+  // Control node expansion. We'll usually use the global state of the node, but if we're looking at a recursively
+  // nested instance of a node link we need to use a component-local override that defaults to false to make sure the UI
+  // doesn't crash in a recursive loop.
+  const [expandedLocalOverride, setExpandedLocalOverride] = useState(false)
+  const expanded = isRecursiveInstance ? expandedLocalOverride : (link ?? node).expanded
+  const setExpanded = (expanded: boolean) => {
+    if (isRecursiveInstance) {
+      setExpandedLocalOverride(expanded)
+    } else {
+      dispatch(nodeExpandedChanged({ nodeId, expanded }))
+    }
+  }
 
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
   const contentNodesList = useRef<NodeEditorRef | null>(null)
