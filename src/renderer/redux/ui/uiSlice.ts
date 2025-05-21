@@ -14,8 +14,11 @@ export const uiSlice = createSlice({
   name: 'ui',
   initialState: {} as UiState,
   reducers: {
-    focusRestoreRequested: (state, action: PayloadAction<FocusRestoreRequest>) => {
-      state.focusRestoreRequest = action.payload
+    focusRestoreRequested: (state, action: PayloadAction<PartialBy<FocusRestoreRequest, 'selectionEnd'>>) => {
+      state.focusRestoreRequest = {
+        ...action.payload,
+        selectionEnd: action.payload.selectionEnd ?? action.payload.selectionStart,
+      }
     },
     focusRestored: (state) => {
       state.focusRestoreRequest = undefined

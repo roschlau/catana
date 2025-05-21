@@ -1,4 +1,5 @@
-import {Node, ResolvedNode, TextNode} from './nodesSlice'
+import {Node, NodeLink, ResolvedNode, TextNode} from './nodesSlice'
+import {isPresent} from '../../util/optionals'
 
 /**
  * Returns an object containing the non-link node that the given nodeId points to. If the given node is already a
@@ -33,4 +34,40 @@ export function getParentNode(state: Partial<Record<string, Node>>, node: Node):
     throw Error(`Node ${node.id} is illegally owned by a Node Link (${parentNode.id}).`)
   }
   return parentNode
+}
+
+export function deleteNode(state: Partial<Record<string, Node>>, node: Node, moveLinksTo: string): void {
+  // Remove from parent's children
+  const parent = getParentNode(state, node)!
+  parent.contentNodeIds.splice(parent.contentNodeIds.indexOf(node.id), 1)
+  // Move any remaining links
+  findLinksTo(state, node.id)
+    .forEach(link => {
+      link.nodeId = moveLinksTo
+    })
+  delete state[node.id]
+}
+
+export function findLinksTo(state: Partial<Record<string, Node>>, nodeId: string): NodeLink[] {
+  return Object.values(state)
+    .filter(isPresent)
+    .filter((node): node is NodeLink => node.type === 'nodeLink' && node.nodeId === nodeId)
+}
+
+export function moveNodes(
+  state: Partial<Record<string, Node>>,
+  nodes: string[],
+  newParentId: string,
+  childIndex: number,
+): void {
+  const nodesToMove = [...nodes]
+  nodesToMove.forEach(nodeId => {
+    const node = state[nodeId]!
+    const parent = getParentNode(state, node)!
+    const childIndex = parent.contentNodeIds.indexOf(nodeId)
+    parent.contentNodeIds.splice(childIndex, 1)
+    node.parentNodeId = newParentId
+  })
+  const newParent = resolveNode(state, newParentId).node
+  newParent.contentNodeIds.splice(childIndex, 0, ...nodesToMove)
 }

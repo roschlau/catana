@@ -9,7 +9,7 @@ import classNames from 'classnames'
 import {calculateCursorPosition} from './util/textarea-measuring'
 import {focusRestored, selectPreparedFocusRestore} from './redux/ui/uiSlice'
 import {selectContentNodeIds, selectResolvedNode} from './redux/nodes/selectors'
-import {indentNode, outdentNode, splitNode} from './redux/nodes/thunks'
+import {indentNode, mergeNode, outdentNode, splitNode} from './redux/nodes/thunks'
 
 interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void
@@ -147,6 +147,30 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
         e.currentTarget.selectionStart,
         e.currentTarget.selectionEnd,
       ))
+      return
+    }
+    if (e.key === 'Backspace') {
+      if (link) {
+        console.debug(`Can't merge link node ${link.id} into surrounding nodes`)
+        return
+      }
+      const { selectionStart, selectionEnd } = e.currentTarget
+      if (selectionStart === 0 && selectionEnd === selectionStart) {
+        dispatch(mergeNode(node.id, 'prev', expanded))
+        e.preventDefault()
+      }
+      return
+    }
+    if (e.key === 'Delete') {
+      if (link && (!expanded || node.contentNodeIds.length === 0)) {
+        console.debug(`Can't merge link node ${link.id} into surrounding nodes`)
+        return
+      }
+      const { selectionStart, selectionEnd } = e.currentTarget
+      if (selectionStart === node.title.length && selectionEnd === selectionStart) {
+        dispatch(mergeNode(node.id, 'next', expanded))
+        e.preventDefault()
+      }
       return
     }
   }, [expanded, setExpanded, contentNodeIds])

@@ -1,9 +1,10 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {demoGraph, flatten} from './demoGraph'
 import {clamp} from '../../util/math'
-import {getParentNode, resolveNode} from './helpers'
+import {deleteNode, getParentNode, moveNodes, resolveNode} from './helpers'
 
 export type Node = TextNode | NodeLink
+
 export interface ResolvedNode {
   node: Exclude<Node, NodeLink>,
   link?: NodeLink,
@@ -92,7 +93,12 @@ export const nodesSlice = createSlice({
       newParent.node.contentNodeIds.splice(newSiblingIndex, 0, action.payload.nodeId)
       node.parentNodeId = newParent.node.id
     },
-    nodeSplit: (state, action: PayloadAction<{ nodeId: string, newNodeId: string, atIndex: number, parentId: string }>) => {
+    nodeSplit: (state, action: PayloadAction<{
+      nodeId: string,
+      newNodeId: string,
+      atIndex: number,
+      parentId: string
+    }>) => {
       const node = resolveNode(state, action.payload.nodeId).node
       const newNode: TextNode = {
         type: 'text',
@@ -115,7 +121,34 @@ export const nodesSlice = createSlice({
     nodeExpandedChanged: (state, action: PayloadAction<{ nodeId: string, expanded: boolean }>) => {
       const node = state[action.payload.nodeId]!
       node.expanded = action.payload.expanded
-    }
+    },
+    /**
+     * Merges the second node into the first node by appending the second node's title, prepending its children, and
+     * moving any links to it to the first node.
+     */
+    nodesMerged: (state, action: PayloadAction<{ firstNodeId: string, secondNodeId: string }>) => {
+      console.debug('nodesMerged', action.payload)
+      const firstNode = state[action.payload.firstNodeId]!
+      const secondNode = state[action.payload.secondNodeId]!
+      if (firstNode.type !== 'text' || secondNode.type !== 'text') {
+        throw Error('Can\'t merge nodes of type ' + firstNode.type + ' and ' + secondNode.type)
+      }
+      if (firstNode.parentNodeId === secondNode.parentNodeId) {
+        const parent = getParentNode(state, firstNode)!
+        const nodeIndex = parent.contentNodeIds.indexOf(action.payload.firstNodeId)
+        const mergedNodeIndex = parent.contentNodeIds.indexOf(action.payload.secondNodeId)
+        if (nodeIndex + 1 !== mergedNodeIndex) {
+          throw Error('Can\'t merge nodes that are not next to each other')
+        }
+      } else {
+        if (firstNode.id !== secondNode.parentNodeId) {
+          throw Error('Can only merge nodes that are either parent and first child or immediate siblings')
+        }
+      }
+      firstNode.title += secondNode.title
+      moveNodes(state, secondNode.contentNodeIds, firstNode.id, 0)
+      deleteNode(state, secondNode, firstNode.id)
+    },
   },
 })
 
@@ -126,4 +159,5 @@ export const {
   nodeIndented,
   nodeOutdented,
   nodeExpandedChanged,
+  nodesMerged,
 } = nodesSlice.actions
