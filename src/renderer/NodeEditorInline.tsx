@@ -103,6 +103,7 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
           e.preventDefault()
         }
       }
+      return
     }
     if (e.key === 'ArrowUp') {
       const textarea = e.currentTarget
@@ -112,6 +113,7 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
       if (onFocusPrevNode?.()) {
         e.preventDefault()
       }
+      return
     }
     if (e.key === 'Tab') {
       e.preventDefault()
@@ -120,6 +122,7 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
       } else {
         dispatch(indentNode(nodeId, e.currentTarget))
       }
+      return
     }
     if (e.key === 'Enter') {
       // Not allowing any line breaks for now to simplify things. Might change my mind on that later.
@@ -130,6 +133,7 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
         e.currentTarget.selectionStart,
         e.currentTarget.selectionEnd,
       ))
+      return
     }
   }, [expanded, setExpanded, contentNodeIds])
 
