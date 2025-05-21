@@ -75,6 +75,7 @@ export const nodesSlice = createSlice({
       newSiblings.splice(indexUnderNewParent, 0, action.payload.nodeId)
       oldSiblings.splice(oldSiblingIndex, 1)
       node.parentNodeId = newParentId
+      newParent.expanded = true
     },
     nodeOutdented: (state, action: PayloadAction<{ nodeId: string, viewPath: string[] }>) => {
       if (action.payload.viewPath.length < 2) {
