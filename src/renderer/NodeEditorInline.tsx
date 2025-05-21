@@ -38,9 +38,9 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
   const preparedFocusRestore = useAppSelector(selectPreparedFocusRestore)
 
   const isRecursiveInstance = viewPath.includes(nodeId)
-  // Control node expansion. We'll usually use the global state of the node, but if we're looking at a recursively
-  // nested instance of a node link we need to use a component-local override that defaults to false to make sure the UI
-  // doesn't crash in a recursive loop.
+  // Control node expansion. Every node and node link stores its expansion state globally, but if we're looking at a
+  // recursively nested instance of a node link we need to use a component-local override that defaults to false.
+  // If we don't, the UI will crash in a recursive loop when such an instance is expanded.
   const [expandedLocalOverride, setExpandedLocalOverride] = useState(false)
   const expanded = isRecursiveInstance ? expandedLocalOverride : (link ?? node).expanded
   const setExpanded = (expanded: boolean) => {
