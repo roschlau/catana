@@ -44,6 +44,10 @@ export const nodesSlice = createSlice({
       }
       node.title = action.payload.title
     },
+    nodeExpandedChanged: (state, action: PayloadAction<{ nodeId: string, expanded: boolean }>) => {
+      const node = state[action.payload.nodeId]!
+      node.expanded = action.payload.expanded
+    },
     nodeIndexChanged: (state, action: PayloadAction<{ nodeId: string, indexChange: number }>) => {
       const node = state[action.payload.nodeId]!
       const parentNode = getParentNode(state, node)
@@ -117,10 +121,6 @@ export const nodesSlice = createSlice({
         const existingNodeIndex = parentNode.contentNodeIds.indexOf(action.payload.nodeId)
         parentNode.contentNodeIds.splice(existingNodeIndex + 1, 0, newNode.id)
       }
-    },
-    nodeExpandedChanged: (state, action: PayloadAction<{ nodeId: string, expanded: boolean }>) => {
-      const node = state[action.payload.nodeId]!
-      node.expanded = action.payload.expanded
     },
     /**
      * Merges the second node into the first node by appending the second node's title, prepending its children, and
