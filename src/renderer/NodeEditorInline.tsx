@@ -77,18 +77,18 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
     }
   }, [nodeId, preparedFocusRestore, dispatch])
 
-  const keyDown = useCallback((e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.ctrlKey && ['z', 'Z'].includes(e.key)) {
+  const keyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (['z', 'Z'].includes(e.key) && e.ctrlKey) {
       // Undo/Redo is handled globally, so prevent the browser here to prevent weird behavior
       e.preventDefault()
       return
     }
-    if (e.ctrlKey && e.key === 'ArrowUp') {
+    if (e.key === 'ArrowUp' && e.ctrlKey) {
       e.preventDefault()
       setExpanded(false)
       return
     }
-    if (e.ctrlKey && e.key === 'ArrowDown') {
+    if (e.key === 'ArrowDown' && e.ctrlKey) {
       e.preventDefault()
       setExpanded(true)
       return
@@ -173,7 +173,7 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
       }
       return
     }
-  }, [expanded, setExpanded, contentNodeIds])
+  }
 
   const chevronButtonClasses = classNames(
     'NodeEditor_chevron-button',
