@@ -60,6 +60,9 @@ export function moveNodes(
   newParentId: string,
   childIndex: number,
 ): void {
+  // Defensive copy because if all nodes of a specific parent are moved, then `nodes` is likely to be the same array
+  // as `parent.contentNodeIds` that we're splicing in the forEach loop below. Without the defensive copy, that would
+  // cause concurrent modifications and spectacularly break the consistency of the node tree.
   const nodesToMove = [...nodes]
   nodesToMove.forEach(nodeId => {
     const node = state[nodeId]!
