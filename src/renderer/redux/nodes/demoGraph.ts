@@ -1,6 +1,6 @@
-import {Node, NodeLink, TextNode} from './nodesSlice'
 import {nanoid} from '@reduxjs/toolkit'
 import {isPresent} from '../../util/optionals'
+import {NodeGraphFlattened, NodeLink, TextNode} from '../../../common/nodeGraphModel'
 
 type TreeNode =
   | PartialBy<Omit<NodeLink, 'parentNodeId'>, 'id' | 'expanded'>
@@ -77,8 +77,8 @@ export const demoGraph: TreeNode = {
   }],
 }
 
-export function flatten(tree: TreeNode): Partial<Record<string, Node>> {
-  const nodes: Partial<Record<string, Node>> = {}
+export function flatten(tree: TreeNode): NodeGraphFlattened {
+  const nodes: NodeGraphFlattened = {}
 
   function traverse(node: TreeNode, parentNodeId: string | null): string {
     const nodeId = node.id ?? nanoid()
@@ -108,7 +108,7 @@ export function flatten(tree: TreeNode): Partial<Record<string, Node>> {
   return nodes
 }
 
-export function buildTree(nodes: Partial<Record<string, Node>>): TreeNode | null {
+export function buildTree(nodes: NodeGraphFlattened): TreeNode | null {
   const processedNodeIds = new Set<string>()
 
   function build(id: string): TreeNode {

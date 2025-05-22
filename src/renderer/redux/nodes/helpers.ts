@@ -1,5 +1,10 @@
-import {Node, NodeLink, ResolvedNode, TextNode} from './nodesSlice'
 import {isPresent} from '../../util/optionals'
+import {Node, NodeLink, TextNode} from '../../../common/nodeGraphModel'
+
+export interface ResolvedNode {
+  node: Exclude<Node, NodeLink>,
+  link?: NodeLink,
+}
 
 /**
  * Returns an object containing the non-link node that the given nodeId points to. If the given node is already a

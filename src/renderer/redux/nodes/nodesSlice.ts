@@ -1,36 +1,24 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
-import {demoGraph, flatten} from './demoGraph'
 import {clamp} from '../../util/math'
 import {deleteNode, getParentNode, moveNodes, resolveNode} from './helpers'
+import {demoGraph, flatten} from './demoGraph'
+import {NodeGraphFlattened, TextNode} from '../../../common/nodeGraphModel'
 
-export type Node = TextNode | NodeLink
-
-export interface ResolvedNode {
-  node: Exclude<Node, NodeLink>,
-  link?: NodeLink,
-}
-
-export interface TextNode {
-  id: string
-  type: 'text'
-  title: string
-  parentNodeId: string | null
-  expanded: boolean
-  contentNodeIds: string[]
-}
-
-export interface NodeLink {
-  type: 'nodeLink'
-  id: string
-  nodeId: string
-  parentNodeId: string | null
-  expanded: boolean
-}
 
 export const nodesSlice = createSlice({
   name: 'nodes',
   initialState: flatten(demoGraph),
   reducers: {
+    nodeGraphLoaded: (state, action: PayloadAction<NodeGraphFlattened>) => {
+      // Delete all existing nodes
+      Object.keys(state).forEach(nodeId => {
+        delete state[nodeId]
+      })
+      // Add all new nodes
+      Object.keys(action.payload).forEach(nodeId => {
+        state[nodeId] = action.payload[nodeId]
+      })
+    },
     titleUpdated: (state, action: PayloadAction<{ nodeId: string, title: string }>) => {
       const node = state[action.payload.nodeId]!
       if (node.type !== 'text') {
@@ -147,6 +135,7 @@ export const nodesSlice = createSlice({
 })
 
 export const {
+  nodeGraphLoaded,
   titleUpdated,
   nodeIndexChanged,
   nodeSplit,

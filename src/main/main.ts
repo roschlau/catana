@@ -1,7 +1,9 @@
-import {app, BrowserWindow} from 'electron'
+import {app, BrowserWindow, dialog, ipcMain} from 'electron'
 import path from 'node:path'
 import started from 'electron-squirrel-startup'
 import installExtension, {REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS} from 'electron-devtools-installer'
+import fs from 'node:fs'
+import {loadTanaExport} from './tanaImport'
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -30,6 +32,23 @@ const createWindow = async () => {
   } else {
     await mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`))
   }
+
+  ipcMain.handle('load-tana-export', async () => {
+    const openNodeResult = await dialog.showOpenDialog({
+      title: 'Select Tana Export',
+      buttonLabel: 'Load Export',
+      properties: ['openFile'],
+      filters: [
+        { name: 'Tana Export', extensions: ['json'] },
+      ]
+    })
+    if (openNodeResult.canceled || openNodeResult.filePaths.length === 0) {
+      return null
+    }
+    const nodePath = openNodeResult.filePaths[0]
+    const fileContent = fs.readFileSync(nodePath, 'utf8')
+    return loadTanaExport(fileContent)
+  })
 
   mainWindow.maximize()
 

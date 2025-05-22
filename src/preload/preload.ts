@@ -1,7 +1,7 @@
 import {contextBridge, ipcRenderer} from 'electron'
-import {Node} from '../common/ipc-model'
-import {NodesAPI} from './interface'
+import {NodeGraphFlattened} from '../common/nodeGraphModel'
+import {CatanaAPI} from './interface'
 
-contextBridge.exposeInMainWorld('nodesAPI', {
-  openNode: (mode: 'openDirectory' | 'openFile') => ipcRenderer.invoke('open-node', mode) as Promise<Node | null>,
-} satisfies NodesAPI)
+contextBridge.exposeInMainWorld('catanaAPI', {
+  loadTanaExport: () => ipcRenderer.invoke('load-tana-export') as Promise<{ rootId: string, nodes: NodeGraphFlattened } | null>,
+} satisfies CatanaAPI)

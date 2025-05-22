@@ -5,10 +5,11 @@ import {NodeEditorInline} from './NodeEditorInline'
 import {ThemeProvider} from 'next-themes'
 import {Provider} from 'react-redux'
 import {store} from './redux/store'
-import {DownloadIcon, GearIcon, HomeIcon} from '@radix-ui/react-icons'
+import {DownloadIcon, GearIcon, HomeIcon, UploadIcon} from '@radix-ui/react-icons'
 import {useAppDispatch, useAppStore} from './redux/hooks'
 import {buildTree, ROOT_NODE} from './redux/nodes/demoGraph'
 import {ActionCreators} from 'redux-undo'
+import {nodeGraphLoaded} from './redux/nodes/nodesSlice'
 
 const root = createRoot(document.body)
 root.render(
@@ -28,6 +29,15 @@ function App() {
     console.log(JSON.stringify(buildTree(store.getState().nodes.present)))
   }, [store])
   const dispatch = useAppDispatch()
+  const importClicked = async () => {
+    const result = await window.catanaAPI.loadTanaExport()
+    if (!result) {
+      return
+    }
+    const { rootId, nodes } = result
+    dispatch(nodeGraphLoaded(nodes))
+    setNode(rootId)
+  }
   const globalKeydown = useCallback((e: KeyboardEvent) => {
     if (e.ctrlKey && e.key === 'z') {
       dispatch(ActionCreators.undo())
@@ -47,6 +57,7 @@ function App() {
       <Sidebar
         nodeClicked={setNode}
         onSaveWorkspaceClicked={saveWorkspace}
+        onImportClicked={importClicked}
       />
       <Flex
         direction={'column'} align={'center'} flexGrow={'1'} gap={'6'} p={'4'}
@@ -61,9 +72,10 @@ function App() {
   )
 }
 
-function Sidebar({ nodeClicked, onSaveWorkspaceClicked }: {
+function Sidebar({ nodeClicked, onSaveWorkspaceClicked, onImportClicked }: {
   nodeClicked: (nodeId: string) => void,
   onSaveWorkspaceClicked: () => void,
+  onImportClicked: () => void,
 }) {
   const [showThemePanel, setShowThemePanel] = useState(false)
   return (
@@ -74,7 +86,11 @@ function Sidebar({ nodeClicked, onSaveWorkspaceClicked }: {
       </Button>
       <Button onClick={onSaveWorkspaceClicked} variant={'surface'}>
         <DownloadIcon/>
-        Save Workspace
+        Dump Graph
+      </Button>
+      <Button onClick={onImportClicked} variant={'surface'}>
+        <UploadIcon/>
+        Load Tana Export
       </Button>
       <Button
         variant={'surface'}

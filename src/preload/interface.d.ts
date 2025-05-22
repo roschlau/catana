@@ -1,12 +1,12 @@
-import {Node} from '../common/ipc-model'
+import {NodeGraphFlattened} from '../common/nodeGraphModel'
 
-export interface NodesAPI {
-  openNode: (mode: 'openDirectory' | 'openFile') => Promise<Node | null>,
+export interface CatanaAPI {
+  loadTanaExport: () => Promise<{ rootId: string, nodes: NodeGraphFlattened } | null>,
 }
 
 declare global {
   // noinspection JSUnusedGlobalSymbols
   interface Window {
-    nodesAPI: NodesAPI
+    catanaAPI: CatanaAPI
   }
 }
