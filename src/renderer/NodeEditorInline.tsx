@@ -8,7 +8,7 @@ import './NodeEditor.css'
 import classNames from 'classnames'
 import {calculateCursorPosition} from './util/textarea-measuring'
 import {focusRestored, selectPreparedFocusRestore} from './redux/ui/uiSlice'
-import {selectContentNodeIds, selectResolvedNode} from './redux/nodes/selectors'
+import {selectResolvedNode} from './redux/nodes/selectors'
 import {indentNode, mergeNode, outdentNode, splitNode} from './redux/nodes/thunks'
 
 interface NodeEditorRef {
@@ -34,7 +34,7 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
 }) {
   const dispatch = useAppDispatch()
   const { node, link } = useAppSelector(state => selectResolvedNode(state, nodeId))
-  const contentNodeIds = useAppSelector(state => selectContentNodeIds(state, node.id))
+  const contentNodeIds = node.contentNodeIds
   const preparedFocusRestore = useAppSelector(selectPreparedFocusRestore)
 
   const isRecursiveInstance = viewPath.includes(nodeId)

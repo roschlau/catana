@@ -16,12 +16,6 @@ export interface TextNode {
   title: string
   parentNodeId: string | null
   expanded: boolean
-  /**
-   * A list of Node IDs that are nested under this node. This list _might_ be incomplete if there are nodes that have
-   * this one as their parent, but have not been added to this array because of a bug or someone messed with the saved
-   * state manually. Those nodes need to be implicitly appended to this list to get the full content of this node.
-   * `selectContentNodeIds` does that for you.
-   */
   contentNodeIds: string[]
 }
 

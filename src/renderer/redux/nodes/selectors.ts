@@ -17,20 +17,3 @@ export const selectResolvedNode = createSelector(
     return resolveNode(nodes, nodeId)
   },
 )
-/**
- * Returns the IDs of all nodes that are children of the given node.
- */
-export const selectContentNodeIds = createSelector(
-  [
-    (state: RootState) => state.nodes.present,
-    (_: RootState, nodeId: string) => nodeId,
-  ],
-  (nodes, nodeId) => {
-    const explicitContent = resolveNode(nodes, nodeId).node.contentNodeIds
-    const explicitIDsSet = new Set(explicitContent)
-    const implicitContent = Object.values(nodes)
-      .filter(node => node && node.parentNodeId === nodeId && !explicitIDsSet.has(node.id))
-      .map(node => node!.id)
-    return [...explicitContent, ...implicitContent]
-  },
-)
