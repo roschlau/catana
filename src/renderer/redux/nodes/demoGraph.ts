@@ -53,7 +53,7 @@ export const demoGraph: TreeNode = {
         id: '2-2-1',
         nodeId: '2-1',
       }, {
-        title: 'Node Links can be identified by the dashed circle around their bullet point or arrow. You can edit them just like regular nodes, and it will automatically update everywhere it is linked. Try editing the linked node above and see it change live in the other location as well!',
+        title: 'Node Links can be identified by the dashed circle around their bullet point or arrow. If you edit a linked node, it will automatically update everywhere it is linked. Try editing the linked node above and see it change live in the other location as well!',
         type: 'text',
         id: '2-2-2',
       }],
