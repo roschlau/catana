@@ -42,42 +42,17 @@ export const nodesSlice = createSlice({
       parentNode.contentNodeIds.splice(existingNodeIndex, 1)
       parentNode.contentNodeIds.splice(newIndex, 0, action.payload.nodeId)
     },
-    nodeIndented: (state, action: PayloadAction<{ nodeId: string }>) => {
+    nodeMoved: (state, action: PayloadAction<{ nodeId: string, newParentId: string, newIndex: number }>) => {
       const node = state[action.payload.nodeId]!
       const oldParent = getParentNode(state, node)
       if (!oldParent) {
-        // Can't indent the root node
-        return
+        throw Error(`Can't move root node ${action.payload.nodeId}`)
       }
-      const oldSiblings = oldParent.contentNodeIds
-      const oldSiblingIndex = oldSiblings.indexOf(action.payload.nodeId)
-      if (oldSiblingIndex === 0) {
-        // Can't indent node that doesn't have a preceding sibling because that would skip indentation levels
-        return
+      const newParent = state[action.payload.newParentId]!
+      if (newParent.type !== 'text') {
+        throw Error(`Can't move node ${action.payload.nodeId} to non-text node ${action.payload.newParentId}`)
       }
-      const newParentId = oldSiblings[oldSiblingIndex - 1]
-      const newParent = resolveNode(state, newParentId).node
-      const newSiblings = newParent.contentNodeIds
-      const indexUnderNewParent = newSiblings.length
-      newSiblings.splice(indexUnderNewParent, 0, action.payload.nodeId)
-      oldSiblings.splice(oldSiblingIndex, 1)
-      node.parentNodeId = newParentId
-      newParent.expanded = true
-    },
-    nodeOutdented: (state, action: PayloadAction<{ nodeId: string, viewPath: string[] }>) => {
-      if (action.payload.viewPath.length < 2) {
-        // We're already at the root level of the current view, can't outdent any further
-        return
-      }
-      const node = state[action.payload.nodeId]!
-      const oldParent = resolveNode(state, action.payload.viewPath[action.payload.viewPath.length - 1])
-      const newParent = resolveNode(state, action.payload.viewPath[action.payload.viewPath.length - 2])
-      const oldParentIndex = newParent.node.contentNodeIds.indexOf((oldParent.link ?? oldParent.node).id)
-      const newSiblingIndex = oldParentIndex + 1
-      const oldSiblingIndex = oldParent.node.contentNodeIds.indexOf(action.payload.nodeId)
-      oldParent.node.contentNodeIds.splice(oldSiblingIndex, 1)
-      newParent.node.contentNodeIds.splice(newSiblingIndex, 0, action.payload.nodeId)
-      node.parentNodeId = newParent.node.id
+      moveNodes(state, [action.payload.nodeId], action.payload.newParentId, action.payload.newIndex)
     },
     nodeSplit: (state, action: PayloadAction<{
       nodeId: string,
@@ -139,9 +114,8 @@ export const {
   nodeGraphLoaded,
   titleUpdated,
   nodeIndexChanged,
+  nodeMoved,
   nodeSplit,
-  nodeIndented,
-  nodeOutdented,
   nodeExpandedChanged,
   nodesMerged,
 } = nodesSlice.actions

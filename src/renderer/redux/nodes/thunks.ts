@@ -2,16 +2,28 @@ import {AppDispatch, RootState} from '../store'
 import {getParentNode, resolveNode} from './helpers'
 import {nanoid} from '@reduxjs/toolkit'
 import {focusRestoreRequested} from '../ui/uiSlice'
-import {nodeIndented, nodeOutdented, nodesMerged, nodeSplit, titleUpdated} from './nodesSlice'
+import {nodeExpandedChanged, nodeMoved, nodesMerged, nodeSplit, titleUpdated} from './nodesSlice'
 
-interface Selection {
+export interface Selection {
   start: number,
   end: number,
 }
 
-export function indentNode(nodeId: string, currentSelection: Selection) {
-  return (dispatch: AppDispatch) => {
-    dispatch(nodeIndented({ nodeId }))
+export function indentNode(nodeId: string, intoViewParentId: string, currentSelection: Selection) {
+  return (dispatch: AppDispatch, getState: () => RootState) => {
+    const { node: newParent, link: parentLink } = resolveNode(getState().nodes.present, intoViewParentId)
+    // Move Node to new parent
+    dispatch(nodeMoved({
+      nodeId,
+      newParentId: newParent.id,
+      newIndex: newParent.contentNodeIds.length,
+    }))
+    // Make sure the indented node stays in view
+    const viewParent = parentLink ?? newParent
+    if (!viewParent.expanded) {
+      dispatch(nodeExpandedChanged({ nodeId: viewParent.id, expanded: true }))
+    }
+    // Restore focus
     dispatch(focusRestoreRequested({
       nodeId,
       selectionStart: currentSelection.start,
@@ -20,9 +32,9 @@ export function indentNode(nodeId: string, currentSelection: Selection) {
   }
 }
 
-export function outdentNode(nodeId: string, viewPath: string[], currentSelection: Selection) {
+export function outdentNode(nodeId: string, intoNode: string, atIndex: number, currentSelection: Selection) {
   return (dispatch: AppDispatch) => {
-    dispatch(nodeOutdented({ nodeId, viewPath }))
+    dispatch(nodeMoved({ nodeId, newParentId: intoNode, newIndex: atIndex }))
     dispatch(focusRestoreRequested({
       nodeId,
       selectionStart: currentSelection.start,

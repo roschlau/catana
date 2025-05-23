@@ -9,27 +9,30 @@ import classNames from 'classnames'
 import {calculateCursorPosition} from './util/textarea-measuring'
 import {focusRestored, selectPreparedFocusRestore} from './redux/ui/uiSlice'
 import {selectResolvedNode} from './redux/nodes/selectors'
-import {indentNode, mergeNode, outdentNode, splitNode} from './redux/nodes/thunks'
+import {indentNode, mergeNode, outdentNode, Selection, splitNode} from './redux/nodes/thunks'
 
 interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void
 }
 
-/**
- * @param nodeId The ID of the node to render
- * @param viewPath A list of ancestor nodes of this editor in the current view. If there are node links in the view
- *                 path, only _their_ ID should be included, and _not_ the ID of the nodes they point to.
- * @param moveFocusBefore Called when the user presses the up arrow while in the first line of text within this node.
- *                        Should return false if there is no previous node to focus, true otherwise.
- * @param moveFocusAfter Called when the user presses the down arrow while in the last line of text within this node.
- *                       Should return false if there is no next node to focus, true otherwise.
- * @param ref
- */
-export function NodeEditorInline({ nodeId, viewPath, moveFocusBefore, moveFocusAfter, ref }: {
+export function NodeEditorInline({ nodeId, viewPath, moveFocusBefore, moveFocusAfter, indent, outdent, outdentChild, ref }: {
+  /** The ID of the node to render */
   nodeId: string,
+  /** A list of ancestor nodes of this editor in the current view. If there are node links in the view
+      path, only _their_ ID should be included, and _not_ the ID of the nodes they point to. */
   viewPath: string[],
+  /** Called when the user presses the up arrow while in the first line of text within this node.
+      Should return false if there is no previous node to move focus to, true otherwise. */
   moveFocusBefore?: () => boolean,
+  /** Called when the user presses the down arrow while in the last line of text within this node.
+      Should return false if there is no next node to move focus to, true otherwise. */
   moveFocusAfter?: () => boolean,
+  /** Called when the user triggers the indent action on this node. */
+  indent?: (nodeId: string, selection: Selection) => void,
+  /** Called when the user triggers the outdent action on this node. */
+  outdent?: (nodeId: string, selection: Selection) => void,
+  /** Called when the user triggers the outdent action on a child node of this node. */
+  outdentChild?: (nodeId: string, selection: Selection) => void,
   ref?: Ref<NodeEditorRef>,
 }) {
   const dispatch = useAppDispatch()
@@ -141,9 +144,9 @@ export function NodeEditorInline({ nodeId, viewPath, moveFocusBefore, moveFocusA
       e.preventDefault()
       const { selectionStart, selectionEnd } = e.currentTarget
       if (e.shiftKey) {
-        dispatch(outdentNode(nodeId, viewPath, { start: selectionStart, end: selectionEnd }))
+        outdent?.(nodeId, { start: selectionStart, end: selectionEnd })
       } else {
-        dispatch(indentNode(nodeId, { start: selectionStart, end: selectionEnd }))
+        indent?.(nodeId, { start: selectionStart, end: selectionEnd })
       }
       return
     }
@@ -215,16 +218,19 @@ export function NodeEditorInline({ nodeId, viewPath, moveFocusBefore, moveFocusA
           viewPath={[...viewPath, nodeId]}
           moveFocusBefore={focus}
           moveFocusAfter={moveFocusAfter}
+          outdentChild={outdentChild}
       />}
     </Flex>
   )
 }
 
-export function NodeEditorList({ nodeIds, viewPath, moveFocusBefore, moveFocusAfter, ref }: {
+export function NodeEditorList({ nodeIds, viewPath, moveFocusBefore, moveFocusAfter, outdentChild, ref }: {
   nodeIds: string[],
   viewPath: string[],
   moveFocusBefore?: () => boolean,
   moveFocusAfter?: () => boolean,
+  /** Called when the user triggers the outdent action on a node within this list. */
+  outdentChild?: (nodeId: string, selection: Selection) => void,
   ref?: Ref<NodeEditorRef>,
 }) {
   useImperativeHandle(ref, () => ({
@@ -236,6 +242,7 @@ export function NodeEditorList({ nodeIds, viewPath, moveFocusBefore, moveFocusAf
       }
     },
   }))
+  const dispatch = useAppDispatch()
 
   const childNodeRefs = useRef<(NodeEditorRef | null)[]>([])
   if (childNodeRefs.current.length !== nodeIds.length) {
@@ -255,6 +262,21 @@ export function NodeEditorList({ nodeIds, viewPath, moveFocusBefore, moveFocusAf
     return true
   }
 
+  const indent = (index: number, nodeId: string, selection: Selection) => {
+    if (index === 0) {
+      // Can't indent a node that's already the first within its siblings
+      return
+    }
+    // Indent node into previous preceding sibling
+    dispatch(indentNode(nodeId, nodeIds[index - 1], selection))
+  }
+
+  // Handles outdenting a child node of one of this list's nodes into this list
+  const outdentChildOfChild = (index: number, nodeId: string, selection: Selection) => {
+    const parentId = viewPath[viewPath.length - 1]
+    dispatch(outdentNode(nodeId, parentId, index + 1, selection))
+  }
+
   return (
     <ul style={{
       width: '100%',
@@ -268,6 +290,9 @@ export function NodeEditorList({ nodeIds, viewPath, moveFocusBefore, moveFocusAf
           viewPath={viewPath}
           moveFocusBefore={() => focusIndex(i - 1, 'last')}
           moveFocusAfter={() => focusIndex(i + 1, 'first')}
+          indent={(nodeId, selection) => indent(i, nodeId, selection)}
+          outdent={outdentChild}
+          outdentChild={(nodeId, selection) => outdentChildOfChild(i, nodeId, selection)}
           ref={el => {
             childNodeRefs.current[i] = el
           }}
