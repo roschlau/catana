@@ -139,10 +139,11 @@ export function NodeEditorInline({ nodeId, viewPath, moveFocusBefore, moveFocusA
     }
     if (e.key === 'Tab') {
       e.preventDefault()
+      const { selectionStart, selectionEnd } = e.currentTarget
       if (e.shiftKey) {
-        dispatch(outdentNode(nodeId, viewPath, e.currentTarget))
+        dispatch(outdentNode(nodeId, viewPath, { start: selectionStart, end: selectionEnd }))
       } else {
-        dispatch(indentNode(nodeId, e.currentTarget))
+        dispatch(indentNode(nodeId, { start: selectionStart, end: selectionEnd }))
       }
       return
     }

@@ -4,24 +4,29 @@ import {nanoid} from '@reduxjs/toolkit'
 import {focusRestoreRequested} from '../ui/uiSlice'
 import {nodeIndented, nodeOutdented, nodesMerged, nodeSplit, titleUpdated} from './nodesSlice'
 
-export function indentNode(nodeId: string, element: HTMLTextAreaElement) {
+interface Selection {
+  start: number,
+  end: number,
+}
+
+export function indentNode(nodeId: string, currentSelection: Selection) {
   return (dispatch: AppDispatch) => {
     dispatch(nodeIndented({ nodeId }))
     dispatch(focusRestoreRequested({
       nodeId,
-      selectionStart: element.selectionStart,
-      selectionEnd: element.selectionEnd,
+      selectionStart: currentSelection.start,
+      selectionEnd: currentSelection.end,
     }))
   }
 }
 
-export function outdentNode(nodeId: string, viewPath: string[], element: HTMLTextAreaElement) {
+export function outdentNode(nodeId: string, viewPath: string[], currentSelection: Selection) {
   return (dispatch: AppDispatch) => {
     dispatch(nodeOutdented({ nodeId, viewPath }))
     dispatch(focusRestoreRequested({
       nodeId,
-      selectionStart: element.selectionStart,
-      selectionEnd: element.selectionEnd,
+      selectionStart: currentSelection.start,
+      selectionEnd: currentSelection.end,
     }))
   }
 }
