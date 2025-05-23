@@ -34,6 +34,12 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
 }) {
   const dispatch = useAppDispatch()
   const { node, link } = useAppSelector(state => selectResolvedNode(state, nodeId))
+  const isLink = !!link || (node.parentNodeId && !viewPath.includes(node.parentNodeId))
+  if (isLink && node.parentNodeId && !link) {
+    // Implicit linking will work for display, but it breaks assumptions the rest of the app makes about how the node
+    // graph behaves. This indicates a bug somewhere and should not be ignored.
+    console.error(`Node ${node.id} implicitly linked to by ${viewPath[viewPath.length - 1]}`)
+  }
   const contentNodeIds = node.contentNodeIds
   const preparedFocusRestore = useAppSelector(selectPreparedFocusRestore)
 
@@ -150,8 +156,8 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
       return
     }
     if (e.key === 'Backspace') {
-      if (link) {
-        console.debug(`Can't merge link node ${link.id} into surrounding nodes`)
+      if (isLink) {
+        console.debug(`Can't merge link node ${link?.id} into surrounding nodes`)
         return
       }
       const { selectionStart, selectionEnd } = e.currentTarget
@@ -162,8 +168,8 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
       return
     }
     if (e.key === 'Delete') {
-      if (link && (!expanded || node.contentNodeIds.length === 0)) {
-        console.debug(`Can't merge link node ${link.id} into surrounding nodes`)
+      if (isLink && (!expanded || node.contentNodeIds.length === 0)) {
+        console.debug(`Can't merge link node ${link?.id} into surrounding nodes`)
         return
       }
       const { selectionStart, selectionEnd } = e.currentTarget
@@ -177,7 +183,7 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
 
   const chevronButtonClasses = classNames(
     'NodeEditor_chevron-button',
-    { 'NodeEditor_chevron-button--link': !!link },
+    { 'NodeEditor_chevron-button--link': isLink },
   )
 
   return (
