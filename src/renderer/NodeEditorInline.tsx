@@ -19,17 +19,17 @@ interface NodeEditorRef {
  * @param nodeId The ID of the node to render
  * @param viewPath A list of ancestor nodes of this editor in the current view. If there are node links in the view
  *                 path, only _their_ ID should be included, and _not_ the ID of the nodes they point to.
- * @param onFocusPrevNode Called when the user presses the up arrow while in the first line of text within this node.
+ * @param moveFocusBefore Called when the user presses the up arrow while in the first line of text within this node.
  *                        Should return false if there is no previous node to focus, true otherwise.
- * @param onFocusNextNode Called when the user presses the down arrow while in the last line of text within this node.
- *                        Should return false if there is no next node to focus, true otherwise.
+ * @param moveFocusAfter Called when the user presses the down arrow while in the last line of text within this node.
+ *                       Should return false if there is no next node to focus, true otherwise.
  * @param ref
  */
-export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNextNode, ref }: {
+export function NodeEditorInline({ nodeId, viewPath, moveFocusBefore, moveFocusAfter, ref }: {
   nodeId: string,
   viewPath: string[],
-  onFocusPrevNode?: () => boolean,
-  onFocusNextNode?: () => boolean,
+  moveFocusBefore?: () => boolean,
+  moveFocusAfter?: () => boolean,
   ref?: Ref<NodeEditorRef>,
 }) {
   const dispatch = useAppDispatch()
@@ -121,7 +121,7 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
         e.preventDefault()
       } else {
         // Delegate to parent node
-        if (onFocusNextNode?.()) {
+        if (moveFocusAfter?.()) {
           e.preventDefault()
         }
       }
@@ -132,7 +132,7 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
       if (!calculateCursorPosition(textarea).firstLine) {
         return
       }
-      if (onFocusPrevNode?.()) {
+      if (moveFocusBefore?.()) {
         e.preventDefault()
       }
       return
@@ -212,18 +212,18 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
           ref={contentNodesList}
           nodeIds={contentNodeIds}
           viewPath={[...viewPath, nodeId]}
-          onFocusMovedBefore={focus}
-          onFocusMovedAfter={onFocusNextNode}
+          moveFocusBefore={focus}
+          moveFocusAfter={moveFocusAfter}
       />}
     </Flex>
   )
 }
 
-export function NodeEditorList({ nodeIds, viewPath, onFocusMovedAfter, onFocusMovedBefore, ref }: {
+export function NodeEditorList({ nodeIds, viewPath, moveFocusBefore, moveFocusAfter, ref }: {
   nodeIds: string[],
   viewPath: string[],
-  onFocusMovedAfter?: () => boolean,
-  onFocusMovedBefore?: () => boolean,
+  moveFocusBefore?: () => boolean,
+  moveFocusAfter?: () => boolean,
   ref?: Ref<NodeEditorRef>,
 }) {
   useImperativeHandle(ref, () => ({
@@ -244,11 +244,11 @@ export function NodeEditorList({ nodeIds, viewPath, onFocusMovedAfter, onFocusMo
   const focusIndex = (index: number, mode: 'first' | 'last') => {
     if (index >= nodeIds.length) {
       // We stepped past our last child node, delegate to parent node
-      return onFocusMovedAfter?.() || false
+      return moveFocusAfter?.() || false
     }
     if (index < 0) {
       // We stepped before our first child node, delegate to parent node
-      return onFocusMovedBefore?.() || false
+      return moveFocusBefore?.() || false
     }
     childNodeRefs.current[index]?.focus(mode)
     return true
@@ -265,8 +265,8 @@ export function NodeEditorList({ nodeIds, viewPath, onFocusMovedAfter, onFocusMo
         <NodeEditorInline
           nodeId={contentNodeId}
           viewPath={viewPath}
-          onFocusPrevNode={() => focusIndex(i - 1, 'last')}
-          onFocusNextNode={() => focusIndex(i + 1, 'first')}
+          moveFocusBefore={() => focusIndex(i - 1, 'last')}
+          moveFocusAfter={() => focusIndex(i + 1, 'first')}
           ref={el => {
             childNodeRefs.current[i] = el
           }}
