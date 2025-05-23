@@ -34,11 +34,13 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
 }) {
   const dispatch = useAppDispatch()
   const { node, link } = useAppSelector(state => selectResolvedNode(state, nodeId))
-  const isLink = !!link || (node.parentNodeId && !viewPath.includes(node.parentNodeId))
-  if (isLink && node.parentNodeId && !link) {
+  const viewParentId = viewPath[viewPath.length - 1]
+  const viewParent = useAppSelector(state => viewParentId ? selectResolvedNode(state, viewParentId) : undefined)
+  const isLink = !!link || (node.parentNodeId && viewParent && node.parentNodeId !== viewParent.node.id)
+  if (isLink && !link) {
     // Implicit linking will work for display, but it breaks assumptions the rest of the app makes about how the node
     // graph behaves. This indicates a bug somewhere and should not be ignored.
-    console.error(`Node ${node.id} implicitly linked to by ${viewPath[viewPath.length - 1]}`)
+    console.error(`Node ${node.id} implicitly linked to by ${viewParentId}`)
   }
   const contentNodeIds = node.contentNodeIds
   const preparedFocusRestore = useAppSelector(selectPreparedFocusRestore)
@@ -190,7 +192,7 @@ export function NodeEditorInline({ nodeId, viewPath, onFocusPrevNode, onFocusNex
     <Flex direction={'column'} flexGrow={'1'} align={'center'}>
       <Flex direction={'row'} width={'100%'} gap={'1'} align={'start'}>
         <button
-          style={{marginTop: '.4rem'}}
+          style={{ marginTop: '.4rem' }}
           className={chevronButtonClasses}
           onClick={() => setExpanded(!expanded)}
         >
