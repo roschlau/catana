@@ -98,6 +98,7 @@ export const nodesSlice = createSlice({
       node.title = node.title.slice(0, action.payload.atIndex)
       if (newNode.parentNodeId === node.id) {
         node.contentNodeIds.unshift(newNode.id)
+        node.expanded = true
       } else {
         const parentNode = getParentNode(state, newNode)!
         const existingNodeIndex = parentNode.contentNodeIds.indexOf(action.payload.nodeId)
