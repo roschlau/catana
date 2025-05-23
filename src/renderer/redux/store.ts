@@ -10,7 +10,7 @@ export const store = configureStore({
       groupBy: (action) => {
         const groupPerNode: string[] = [titleUpdated.type, nodeIndexChanged.type, nodeExpandedChanged.type]
         return groupPerNode.includes(action.type)
-          ? action.type + '/' + (action.payload as any).nodeId
+          ? action.type + '/' + (action.payload as { nodeId: string }).nodeId
           : null
       },
     }),

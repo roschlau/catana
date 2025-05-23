@@ -1,4 +1,5 @@
 import {nanoid} from '@reduxjs/toolkit'
+import {PartialBy} from '../../util/types'
 import {isPresent} from '../../util/optionals'
 import {NodeGraphFlattened, NodeLink, TextNode} from '../../../common/nodeGraphModel'
 
