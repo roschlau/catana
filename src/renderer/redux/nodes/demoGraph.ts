@@ -1,15 +1,28 @@
 import {nanoid} from '@reduxjs/toolkit'
-import {PartialBy} from '../../util/types'
 import {isPresent} from '../../util/optionals'
-import {NodeGraphFlattened, NodeId, NodeLink, TextNode} from '../../../common/nodeGraphModel'
+import {Node, NodeGraphFlattened, NodeId} from '../../../common/nodeGraphModel'
 
-type TreeNode =
-  | PartialBy<Omit<NodeLink, 'parentNodeId'>, 'id' | 'expanded'>
-  | PartialBy<Omit<TextNode, 'parentNodeId' | 'contentNodeIds'> & { content?: TreeNode[] }, 'id' | 'expanded'>
+type Tree =
+  | NodeLink
+  | TreeNode
+
+type TreeNode = {
+  id?: NodeId
+  type: 'text'
+  title: string
+  content?: Tree[],
+  expanded?: boolean,
+}
+
+export interface NodeLink {
+  type: 'nodeLink'
+  nodeId: NodeId
+  expanded?: boolean
+}
 
 export const ROOT_NODE = '_root'
 
-export const demoGraph: TreeNode = {
+export const demoGraph: Exclude<Tree, NodeLink> = {
   type: 'text',
   id: ROOT_NODE,
   title: 'Welcome to Catana!',
@@ -42,7 +55,7 @@ export const demoGraph: TreeNode = {
         content: [{
           title: 'Nice! In the same way, you can collapse an expanded node by pressing Ctrl + Arrow Up. You can find even more keyboard shortcuts at the bottom of this page!',
           type: 'text',
-        }]
+        }],
       }],
     }, {
       title: 'Nodes can be linked to be shown in other places. Open this Node to see a link to the previous Node!',
@@ -50,7 +63,6 @@ export const demoGraph: TreeNode = {
       id: '2-2',
       content: [{
         type: 'nodeLink',
-        id: '2-2-1',
         nodeId: '2-1',
       }, {
         title: 'Node Links can be identified by the dashed circle around their bullet point or arrow. If you edit a linked node, it will automatically update everywhere it is linked. Try editing the linked node above and see it change live in the other location as well!',
@@ -74,34 +86,28 @@ export const demoGraph: TreeNode = {
     }, {
       type: 'text',
       title: 'Alt + Shift + Arrow Up/Down: Move the focused Node up/down within its parent Node',
-    }]
+    }],
   }],
 }
 
-export function flatten(tree: TreeNode): NodeGraphFlattened {
+export function flatten(tree: Exclude<Tree, NodeLink>): NodeGraphFlattened {
   const nodes: NodeGraphFlattened = {}
 
-  function traverse(node: TreeNode, parentNodeId: NodeId | null): NodeId {
+  function traverse(node: Exclude<Tree, NodeLink>, ownerId: NodeId | null): NodeId {
     const nodeId = node.id ?? nanoid()
-
-    if (node.type === 'nodeLink') {
-      nodes[nodeId] = {
-        ...node,
-        id: nodeId,
-        parentNodeId,
-        expanded: node.expanded ?? false,
-      } satisfies NodeLink
-    } else {
-      const contentNodeIds = node.content?.map(child => traverse(child, nodeId)) ?? []
-      const { content, ...rest } = node // Making sure `content` isn't included in the flattened tree
-      nodes[nodeId] = {
-        ...rest,
-        id: nodeId,
-        parentNodeId,
-        expanded: node.expanded ?? false,
-        contentNodeIds,
-      } satisfies TextNode
-    }
+    const childRefs = node.content?.map(child => {
+      if (child.type === 'nodeLink') {
+        return { nodeId: child.nodeId, expanded: child.expanded }
+      }
+      return { nodeId: traverse(child, nodeId), expanded: child.expanded }
+    }) ?? []
+    const { content, ...rest } = node // Making sure `content` isn't included in the flattened tree
+    nodes[nodeId] = {
+      ...rest,
+      id: nodeId,
+      ownerId,
+      content: childRefs,
+    } satisfies Node
     return nodeId
   }
 
@@ -109,45 +115,37 @@ export function flatten(tree: TreeNode): NodeGraphFlattened {
   return nodes
 }
 
-export function buildTree(nodes: NodeGraphFlattened): TreeNode | null {
+export function buildTree(nodes: NodeGraphFlattened): Tree | null {
   const processedNodeIds = new Set<NodeId>()
 
-  function build(id: NodeId): TreeNode {
+  function build(id: NodeId): Exclude<Tree, NodeLink> {
     processedNodeIds.add(id)
     const node = nodes[id]
     if (!node) {
       throw Error(`Error: Node with id '${id}' not found`)
     }
-    if (node.type === 'nodeLink') {
-      if (!nodes[node.nodeId]) {
-        console.warn(`Warning: NodeLink with id '${node.id}' points to missing node '${node.nodeId}'`)
-      }
-      // Omit parentNodeId
-      const { parentNodeId, ...rest } = node
-      return rest
-    } else {
-      const { parentNodeId, contentNodeIds, ...rest } = node
-      const result: TreeNode = { ...rest }
-      // Recursively build children
-      if (node.contentNodeIds) {
-        result.content = node.contentNodeIds
-          .map((childId) => {
-            // Check parent relationship integrity
-            const child = nodes[childId]
-            if (child) {
-              if (child.parentNodeId !== id) {
-                console.error(`Error: Node '${childId}' referenced by ${id} but has parentNodeId='${child.parentNodeId}'`)
-              }
-              return build(childId)
+    const { ownerId, content, ...rest } = node
+    const result: TreeNode = { ...rest, type: 'text', id }
+    // Recursively build children
+    if (node.content) {
+      result.content = node.content
+        .map(({ nodeId: childId, expanded }) => {
+          // Check parent relationship integrity
+          const child = nodes[childId]
+          if (child) {
+            if (child.ownerId !== id) {
+              return { type: 'nodeLink', nodeId: childId, expanded } satisfies NodeLink
             } else {
-              console.error(`Error: TextNode '${id}' lists missing child nodeId '${childId}' in contentNodeIds`)
-              return undefined
+              return { ...build(childId), expanded } satisfies Exclude<Tree, NodeLink>
             }
-          })
-          .filter(isPresent)
-      }
-      return result
+          } else {
+            console.error(`Error: TextNode '${id}' lists missing child nodeId '${childId}' in content`)
+            return undefined
+          }
+        })
+        .filter(isPresent)
     }
+    return result
   }
 
   if (Object.keys(nodes).length === 0) {
@@ -156,7 +154,7 @@ export function buildTree(nodes: NodeGraphFlattened): TreeNode | null {
   const allNodes = Object.values(nodes)
     .filter(isPresent)
   const roots = allNodes
-    .filter(node => !node.parentNodeId)
+    .filter(node => !node.ownerId)
     .map(node => node.id)
   if (roots.length > 1) {
     throw new Error(`Multiple root nodes found: ${roots.join(', ')}`)

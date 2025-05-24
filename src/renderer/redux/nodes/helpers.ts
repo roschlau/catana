@@ -1,81 +1,82 @@
-import {isPresent} from '../../util/optionals'
-import {Node, NodeId, NodeLink, TextNode} from '../../../common/nodeGraphModel'
+import {Node, NodeId, NodeReference} from '../../../common/nodeGraphModel'
 
-export interface ResolvedNode {
-  node: Exclude<Node, NodeLink>,
-  link?: NodeLink,
+export type ResolvedNodeReference = {
+  node: Node,
+  parentInfo?: {
+    parent: Node,
+    childIndex: number,
+    /** Shorthand equivalent `parent.content[childIndex]` */
+    childRef: Node['content'][number],
+  },
 }
 
-/**
- * Returns an object containing the non-link node that the given nodeId points to. If the given node is already a
- * non-link node, it is returned directly as the `node` property. If the given node is a link node, then it will be
- * available in the `link` property, and the `node` property will be the node that the link points to.
- */
-export function resolveNode(state: Partial<Record<NodeId, Node>>, nodeId: NodeId): ResolvedNode {
-  const node = state[nodeId]
-  if (!node) {
-    throw Error(`Node ${nodeId} doesn't exist`)
-  }
-  if (node.type !== 'nodeLink') {
-    return { node }
-  }
-  const linkedNode = state[node.nodeId]!
-  if (linkedNode.type === 'nodeLink') {
-    throw Error(`Link node ${node.nodeId} points to another link node ${linkedNode.nodeId}. This is not supported.`)
-  }
-  return { node: linkedNode, link: node }
+export function resolveNodeRef(
+  state: Partial<Record<NodeId, Node>>,
+  nodeRef: NodeReference,
+): ResolvedNodeReference {
+  const node = state[nodeRef.nodeId]!
+  const parentInfo = nodeRef.parentId
+    ? getParentInfo(state[nodeRef.parentId]!, nodeRef.nodeId)
+    : undefined
+  return { node, parentInfo: parentInfo }
 }
 
-export function getParentNode(state: Partial<Record<NodeId, Node>>, node: Node): TextNode | null {
-  const parentNodeId = node.parentNodeId
-  if (!parentNodeId) {
-    return null
+function getParentInfo(parent: Node, childId: NodeId): ResolvedNodeReference['parentInfo'] {
+  const contentChildIndex = parent.content.findIndex(it => it.nodeId === childId)
+  if (contentChildIndex === -1) {
+    throw Error(`Invalid reference: ${childId} is not a child of ${parent.id}`)
   }
-  const parentNode = state[parentNodeId]!
-  if (parentNode.type === 'nodeLink') {
-    // Currently, node links can't have children, so if this happens, we got a bug somewhere or someone messed with the
-    // saved state manually. This might change in the future - we could add support for node links having child nodes
-    // that are nested under them and are separate from the linked node's content.
-    throw Error(`Node ${node.id} is illegally owned by a Node Link (${parentNode.id}).`)
+  return {
+    parent: parent,
+    childIndex: contentChildIndex,
+    childRef: parent.content[contentChildIndex],
   }
-  return parentNode
 }
 
-export function deleteNode(state: Partial<Record<NodeId, Node>>, node: Node, moveLinksTo: NodeId): void {
+export function deleteNode(state: Partial<Record<NodeId, Node>>, nodeRef: NodeReference, moveLinksTo: NodeId): void {
   // Remove from parent's children
-  const parent = getParentNode(state, node)!
-  parent.contentNodeIds.splice(parent.contentNodeIds.indexOf(node.id), 1)
+  const { node, parentInfo } = resolveNodeRef(state, nodeRef)
+  const {parent, childIndex} = parentInfo!
+  parent.content.splice(childIndex, 1)
   // Move any remaining links
-  findLinksTo(state, node.id)
-    .forEach(link => {
-      link.nodeId = moveLinksTo
+  findBacklinks(state, node.id)
+    .forEach(childReference => {
+      childReference.nodeId = moveLinksTo
     })
   delete state[node.id]
 }
 
-export function findLinksTo(state: Partial<Record<NodeId, Node>>, nodeId: NodeId): NodeLink[] {
+export function findBacklinks(state: Partial<Record<NodeId, Node>>, nodeId: NodeId): {
+  nodeId: NodeId,
+  expanded?: boolean,
+}[] {
   return Object.values(state)
-    .filter(isPresent)
-    .filter((node): node is NodeLink => node.type === 'nodeLink' && node.nodeId === nodeId)
+    .flatMap((node) => node!.content.filter(child => child.nodeId === nodeId))
 }
 
-export function moveNodes(
+export function moveNodeRefs(
   state: Partial<Record<NodeId, Node>>,
-  nodes: NodeId[],
+  nodes: NodeReference[],
   newParentId: NodeId,
   childIndex: number,
 ): void {
   // Defensive copy because if all nodes of a specific parent are moved, then `nodes` is likely to be the same array
-  // as `parent.contentNodeIds` that we're splicing in the forEach loop below. Without the defensive copy, that would
+  // as `parent.content` that we're splicing in the forEach loop below. Without the defensive copy, that would
   // cause concurrent modifications and spectacularly break the consistency of the node tree.
   const nodesToMove = [...nodes]
-  nodesToMove.forEach(nodeId => {
-    const node = state[nodeId]!
-    const parent = getParentNode(state, node)!
-    const childIndex = parent.contentNodeIds.indexOf(nodeId)
-    parent.contentNodeIds.splice(childIndex, 1)
-    node.parentNodeId = newParentId
+  // Remove nodes from their old parents
+  const childRefs = nodesToMove.flatMap(nodeRef => {
+    const { node, parentInfo } = resolveNodeRef(state, nodeRef)
+    const parent = parentInfo!.parent
+    const childIndex = parentInfo!.childIndex
+    if (node.ownerId === parent.id) {
+      // This is the actual owner of the node, so we need to update that as well
+      node.ownerId = newParentId
+    }
+    return parent.content.splice(childIndex, 1)
   })
-  const newParent = resolveNode(state, newParentId).node
-  newParent.contentNodeIds.splice(childIndex, 0, ...nodesToMove)
+  // Add nodes to the new parent
+  const newParent = state[newParentId]!
+  const nonDuplicateNodes = childRefs.filter(nodeRef => !newParent.content.some(it => it.nodeId === nodeRef.nodeId))
+  newParent.content.splice(childIndex, 0, ...nonDuplicateNodes)
 }

@@ -1,8 +1,9 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {PartialBy} from '../../util/types'
+import {NodeReference} from '../../../common/nodeGraphModel'
 
 interface FocusRestoreRequest {
-  nodeId: string
+  nodeRef: NodeReference
   selectionStart: number
   selectionEnd: number
 }

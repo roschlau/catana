@@ -66,7 +66,7 @@ function App() {
       >
         <Heading size={'7'}>Catana</Heading>
         <Box width={'100%'} maxWidth={'600px'}>
-          <NodeEditorInline nodeId={node} viewPath={[]}/>
+          <NodeEditorInline nodeRef={{ nodeId: node }} expanded={true} viewPath={[]}/>
         </Box>
       </Flex>
     </Flex>

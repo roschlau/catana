@@ -1,8 +1,8 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {clamp} from '../../util/math'
-import {deleteNode, getParentNode, moveNodes, resolveNode} from './helpers'
+import {deleteNode, moveNodeRefs, resolveNodeRef} from './helpers'
 import {demoGraph, flatten} from './demoGraph'
-import {NodeGraphFlattened, NodeId, TextNode} from '../../../common/nodeGraphModel'
+import {Node, NodeGraphFlattened, NodeId, NodeReference} from '../../../common/nodeGraphModel'
 
 
 export const nodesSlice = createSlice({
@@ -21,91 +21,74 @@ export const nodesSlice = createSlice({
     },
     titleUpdated: (state, action: PayloadAction<{ nodeId: NodeId, title: string }>) => {
       const node = state[action.payload.nodeId]!
-      if (node.type !== 'text') {
-        throw Error('Can\'t update title for elements of type ' + node.type)
-      }
       node.title = action.payload.title
     },
-    nodeExpandedChanged: (state, action: PayloadAction<{ nodeId: NodeId, expanded: boolean }>) => {
-      const node = state[action.payload.nodeId]!
-      node.expanded = action.payload.expanded
-    },
-    nodeIndexChanged: (state, action: PayloadAction<{ nodeId: NodeId, indexChange: number }>) => {
-      const node = state[action.payload.nodeId]!
-      const parentNode = getParentNode(state, node)
-      if (!parentNode) {
-        // Can't move around the root node
-        return
+    nodeExpandedChanged: (state, action: PayloadAction<{ nodeRef: NodeReference, expanded: boolean }>) => {
+      const { parentInfo } = resolveNodeRef(state, action.payload.nodeRef)
+      if (!parentInfo) {
+        throw Error(`Can't change expansion of root node of current view`)
       }
-      const existingNodeIndex = parentNode.contentNodeIds.indexOf(action.payload.nodeId)
-      const newIndex = clamp(existingNodeIndex + action.payload.indexChange, 0, parentNode.contentNodeIds.length - 1)
-      parentNode.contentNodeIds.splice(existingNodeIndex, 1)
-      parentNode.contentNodeIds.splice(newIndex, 0, action.payload.nodeId)
+      parentInfo.childRef.expanded = action.payload.expanded
     },
-    nodeMoved: (state, action: PayloadAction<{ nodeId: NodeId, newParentId: NodeId, newIndex: number }>) => {
-      const node = state[action.payload.nodeId]!
-      const oldParent = getParentNode(state, node)
+    nodeIndexChanged: (state, action: PayloadAction<{ nodeRef: NodeReference, indexChange: number }>) => {
+      const {node, parentInfo} = resolveNodeRef(state, action.payload.nodeRef)
+      if (!parentInfo) {
+        throw Error(`Can't change index of node ${node.id} outside of parent context`)
+      }
+      const parentNode = parentInfo.parent
+      const { childRef, childIndex: existingNodeIndex } = parentInfo
+      const newIndex = clamp(existingNodeIndex + action.payload.indexChange, 0, parentNode.content.length - 1)
+      parentNode.content.splice(existingNodeIndex, 1)
+      parentNode.content.splice(newIndex, 0, childRef)
+    },
+    nodeMoved: (state, action: PayloadAction<{ nodeRef: NodeReference, newParentId: NodeId, newIndex: number }>) => {
+      const { parentInfo } = resolveNodeRef(state, action.payload.nodeRef)
+      const oldParent = parentInfo?.parent
       if (!oldParent) {
-        throw Error(`Can't move root node ${action.payload.nodeId}`)
+        throw Error(`Can't move root node ${action.payload.nodeRef.nodeId}`)
       }
-      const newParent = state[action.payload.newParentId]!
-      if (newParent.type !== 'text') {
-        throw Error(`Can't move node ${action.payload.nodeId} to non-text node ${action.payload.newParentId}`)
-      }
-      moveNodes(state, [action.payload.nodeId], action.payload.newParentId, action.payload.newIndex)
+      moveNodeRefs(state, [action.payload.nodeRef], action.payload.newParentId, action.payload.newIndex)
     },
     nodeSplit: (state, action: PayloadAction<{
-      nodeId: NodeId,
+      nodeRef: NodeReference,
       newNodeId: NodeId,
       atIndex: number,
       parentId: NodeId
     }>) => {
-      const node = resolveNode(state, action.payload.nodeId).node
-      const newNode: TextNode = {
-        type: 'text',
+      const { node, parentInfo } = resolveNodeRef(state, action.payload.nodeRef)
+      const newNode: Node = {
         id: action.payload.newNodeId,
         title: node.title.slice(action.payload.atIndex),
-        parentNodeId: action.payload.parentId,
-        contentNodeIds: [] as NodeId[],
-        expanded: false,
+        ownerId: action.payload.parentId,
+        content: [] as Node['content'],
       }
       state[newNode.id] = newNode
       node.title = node.title.slice(0, action.payload.atIndex)
-      if (newNode.parentNodeId === node.id) {
-        node.contentNodeIds.unshift(newNode.id)
-        node.expanded = true
+      if (newNode.ownerId === node.id) {
+        // Adding as first child
+        node.content.unshift({ nodeId: newNode.id })
+        if (parentInfo?.childRef) {
+          parentInfo.childRef.expanded = true
+        }
       } else {
-        const parentNode = getParentNode(state, newNode)!
-        const existingNodeIndex = parentNode.contentNodeIds.indexOf(action.payload.nodeId)
-        parentNode.contentNodeIds.splice(existingNodeIndex + 1, 0, newNode.id)
+        // Adding as next sibling
+        if (!parentInfo?.parent) {
+          throw Error(`Can't split node ${node.id} outside of parent context`)
+        }
+        const existingNodeIndex = parentInfo.childIndex
+        parentInfo.parent.content.splice(existingNodeIndex + 1, 0, { nodeId: newNode.id })
       }
     },
     /**
      * Merges the second node into the first node by appending the second node's title, prepending its children, and
      * moving any links to it to the first node.
      */
-    nodesMerged: (state, action: PayloadAction<{ firstNodeId: NodeId, secondNodeId: NodeId }>) => {
-      console.debug('nodesMerged', action.payload)
+    nodesMerged: (state, action: PayloadAction<{ firstNodeId: NodeId, secondNodeRef: NodeReference }>) => {
       const firstNode = state[action.payload.firstNodeId]!
-      const secondNode = state[action.payload.secondNodeId]!
-      if (firstNode.type !== 'text' || secondNode.type !== 'text') {
-        throw Error('Can\'t merge nodes of type ' + firstNode.type + ' and ' + secondNode.type)
-      }
-      if (firstNode.parentNodeId === secondNode.parentNodeId) {
-        const parent = getParentNode(state, firstNode)!
-        const nodeIndex = parent.contentNodeIds.indexOf(action.payload.firstNodeId)
-        const mergedNodeIndex = parent.contentNodeIds.indexOf(action.payload.secondNodeId)
-        if (nodeIndex + 1 !== mergedNodeIndex) {
-          throw Error('Can\'t merge nodes that are not next to each other')
-        }
-      } else {
-        if (firstNode.id !== secondNode.parentNodeId) {
-          throw Error('Can only merge nodes that are either parent and first child or immediate siblings')
-        }
-      }
+      const secondNode = state[action.payload.secondNodeRef.nodeId]!
       firstNode.title += secondNode.title
-      moveNodes(state, secondNode.contentNodeIds, firstNode.id, 0)
-      deleteNode(state, secondNode, firstNode.id)
+      moveNodeRefs(state, secondNode.content.map(it => ({ nodeId: it.nodeId, parentId: secondNode.id })), firstNode.id, 0)
+      deleteNode(state, action.payload.secondNodeRef, firstNode.id)
     },
   },
 })
