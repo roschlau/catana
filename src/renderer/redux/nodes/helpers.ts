@@ -1,5 +1,5 @@
 import {isPresent} from '../../util/optionals'
-import {Node, NodeLink, TextNode} from '../../../common/nodeGraphModel'
+import {Node, NodeId, NodeLink, TextNode} from '../../../common/nodeGraphModel'
 
 export interface ResolvedNode {
   node: Exclude<Node, NodeLink>,
@@ -11,7 +11,7 @@ export interface ResolvedNode {
  * non-link node, it is returned directly as the `node` property. If the given node is a link node, then it will be
  * available in the `link` property, and the `node` property will be the node that the link points to.
  */
-export function resolveNode(state: Partial<Record<string, Node>>, nodeId: string): ResolvedNode {
+export function resolveNode(state: Partial<Record<NodeId, Node>>, nodeId: NodeId): ResolvedNode {
   const node = state[nodeId]
   if (!node) {
     throw Error(`Node ${nodeId} doesn't exist`)
@@ -26,7 +26,7 @@ export function resolveNode(state: Partial<Record<string, Node>>, nodeId: string
   return { node: linkedNode, link: node }
 }
 
-export function getParentNode(state: Partial<Record<string, Node>>, node: Node): TextNode | null {
+export function getParentNode(state: Partial<Record<NodeId, Node>>, node: Node): TextNode | null {
   const parentNodeId = node.parentNodeId
   if (!parentNodeId) {
     return null
@@ -41,7 +41,7 @@ export function getParentNode(state: Partial<Record<string, Node>>, node: Node):
   return parentNode
 }
 
-export function deleteNode(state: Partial<Record<string, Node>>, node: Node, moveLinksTo: string): void {
+export function deleteNode(state: Partial<Record<NodeId, Node>>, node: Node, moveLinksTo: NodeId): void {
   // Remove from parent's children
   const parent = getParentNode(state, node)!
   parent.contentNodeIds.splice(parent.contentNodeIds.indexOf(node.id), 1)
@@ -53,16 +53,16 @@ export function deleteNode(state: Partial<Record<string, Node>>, node: Node, mov
   delete state[node.id]
 }
 
-export function findLinksTo(state: Partial<Record<string, Node>>, nodeId: string): NodeLink[] {
+export function findLinksTo(state: Partial<Record<NodeId, Node>>, nodeId: NodeId): NodeLink[] {
   return Object.values(state)
     .filter(isPresent)
     .filter((node): node is NodeLink => node.type === 'nodeLink' && node.nodeId === nodeId)
 }
 
 export function moveNodes(
-  state: Partial<Record<string, Node>>,
-  nodes: string[],
-  newParentId: string,
+  state: Partial<Record<NodeId, Node>>,
+  nodes: NodeId[],
+  newParentId: NodeId,
   childIndex: number,
 ): void {
   // Defensive copy because if all nodes of a specific parent are moved, then `nodes` is likely to be the same array

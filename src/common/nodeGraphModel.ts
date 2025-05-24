@@ -1,19 +1,23 @@
 export type NodeGraphFlattened = Partial<Record<string, Node>>
 export type Node = TextNode | NodeLink
 
+// Just an alias to make it easier to spot which strings are supposed to be NodeIDs and which aren't.
+// I wish typescript supported nominal typing...
+export type NodeId = string
+
 export interface TextNode {
-  id: string
+  id: NodeId
   type: 'text'
   title: string
-  parentNodeId: string | null
+  parentNodeId: NodeId | null
   expanded: boolean
-  contentNodeIds: string[]
+  contentNodeIds: NodeId[]
 }
 
 export interface NodeLink {
   type: 'nodeLink'
-  id: string
-  nodeId: string
-  parentNodeId: string | null
+  id: NodeId
+  nodeId: NodeId
+  parentNodeId: NodeId | null
   expanded: boolean
 }

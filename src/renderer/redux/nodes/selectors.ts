@@ -2,6 +2,7 @@ import {createSelector} from '@reduxjs/toolkit'
 import {RootState} from '../store'
 
 import {resolveNode} from './helpers'
+import {NodeId} from '../../../common/nodeGraphModel'
 
 /**
  * Returns an object containing the non-link node that the given nodeId points to. If the given node is already a
@@ -11,7 +12,7 @@ import {resolveNode} from './helpers'
 export const selectResolvedNode = createSelector(
   [
     (state: RootState) => state.nodes.present,
-    (_: RootState, nodeId: string) => nodeId,
+    (_: RootState, nodeId: NodeId) => nodeId,
   ],
   (nodes, nodeId) => {
     return resolveNode(nodes, nodeId)

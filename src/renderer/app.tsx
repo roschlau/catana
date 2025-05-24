@@ -10,6 +10,7 @@ import {useAppDispatch, useAppStore} from './redux/hooks'
 import {buildTree, ROOT_NODE} from './redux/nodes/demoGraph'
 import {ActionCreators} from 'redux-undo'
 import {nodeGraphLoaded} from './redux/nodes/nodesSlice'
+import {NodeId} from '../common/nodeGraphModel'
 
 const root = createRoot(document.body)
 root.render(
@@ -73,7 +74,7 @@ function App() {
 }
 
 function Sidebar({ nodeClicked, onSaveWorkspaceClicked, onImportClicked }: {
-  nodeClicked: (nodeId: string) => void,
+  nodeClicked: (nodeId: NodeId) => void,
   onSaveWorkspaceClicked: () => void,
   onImportClicked: () => void,
 }) {

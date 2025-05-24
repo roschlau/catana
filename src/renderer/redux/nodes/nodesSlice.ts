@@ -2,7 +2,7 @@ import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {clamp} from '../../util/math'
 import {deleteNode, getParentNode, moveNodes, resolveNode} from './helpers'
 import {demoGraph, flatten} from './demoGraph'
-import {NodeGraphFlattened, TextNode} from '../../../common/nodeGraphModel'
+import {NodeGraphFlattened, NodeId, TextNode} from '../../../common/nodeGraphModel'
 
 
 export const nodesSlice = createSlice({
@@ -19,18 +19,18 @@ export const nodesSlice = createSlice({
         state[nodeId] = action.payload[nodeId]
       })
     },
-    titleUpdated: (state, action: PayloadAction<{ nodeId: string, title: string }>) => {
+    titleUpdated: (state, action: PayloadAction<{ nodeId: NodeId, title: string }>) => {
       const node = state[action.payload.nodeId]!
       if (node.type !== 'text') {
         throw Error('Can\'t update title for elements of type ' + node.type)
       }
       node.title = action.payload.title
     },
-    nodeExpandedChanged: (state, action: PayloadAction<{ nodeId: string, expanded: boolean }>) => {
+    nodeExpandedChanged: (state, action: PayloadAction<{ nodeId: NodeId, expanded: boolean }>) => {
       const node = state[action.payload.nodeId]!
       node.expanded = action.payload.expanded
     },
-    nodeIndexChanged: (state, action: PayloadAction<{ nodeId: string, indexChange: number }>) => {
+    nodeIndexChanged: (state, action: PayloadAction<{ nodeId: NodeId, indexChange: number }>) => {
       const node = state[action.payload.nodeId]!
       const parentNode = getParentNode(state, node)
       if (!parentNode) {
@@ -42,7 +42,7 @@ export const nodesSlice = createSlice({
       parentNode.contentNodeIds.splice(existingNodeIndex, 1)
       parentNode.contentNodeIds.splice(newIndex, 0, action.payload.nodeId)
     },
-    nodeMoved: (state, action: PayloadAction<{ nodeId: string, newParentId: string, newIndex: number }>) => {
+    nodeMoved: (state, action: PayloadAction<{ nodeId: NodeId, newParentId: NodeId, newIndex: number }>) => {
       const node = state[action.payload.nodeId]!
       const oldParent = getParentNode(state, node)
       if (!oldParent) {
@@ -55,10 +55,10 @@ export const nodesSlice = createSlice({
       moveNodes(state, [action.payload.nodeId], action.payload.newParentId, action.payload.newIndex)
     },
     nodeSplit: (state, action: PayloadAction<{
-      nodeId: string,
-      newNodeId: string,
+      nodeId: NodeId,
+      newNodeId: NodeId,
       atIndex: number,
-      parentId: string
+      parentId: NodeId
     }>) => {
       const node = resolveNode(state, action.payload.nodeId).node
       const newNode: TextNode = {
@@ -66,7 +66,7 @@ export const nodesSlice = createSlice({
         id: action.payload.newNodeId,
         title: node.title.slice(action.payload.atIndex),
         parentNodeId: action.payload.parentId,
-        contentNodeIds: [] as string[],
+        contentNodeIds: [] as NodeId[],
         expanded: false,
       }
       state[newNode.id] = newNode
@@ -84,7 +84,7 @@ export const nodesSlice = createSlice({
      * Merges the second node into the first node by appending the second node's title, prepending its children, and
      * moving any links to it to the first node.
      */
-    nodesMerged: (state, action: PayloadAction<{ firstNodeId: string, secondNodeId: string }>) => {
+    nodesMerged: (state, action: PayloadAction<{ firstNodeId: NodeId, secondNodeId: NodeId }>) => {
       console.debug('nodesMerged', action.payload)
       const firstNode = state[action.payload.firstNodeId]!
       const secondNode = state[action.payload.secondNodeId]!

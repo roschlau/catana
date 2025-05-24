@@ -3,13 +3,14 @@ import {getParentNode, resolveNode} from './helpers'
 import {nanoid} from '@reduxjs/toolkit'
 import {focusRestoreRequested} from '../ui/uiSlice'
 import {nodeExpandedChanged, nodeMoved, nodesMerged, nodeSplit, titleUpdated} from './nodesSlice'
+import {NodeId} from '../../../common/nodeGraphModel'
 
 export interface Selection {
   start: number,
   end: number,
 }
 
-export function indentNode(nodeId: string, intoViewParentId: string, currentSelection: Selection) {
+export function indentNode(nodeId: NodeId, intoViewParentId: NodeId, currentSelection: Selection) {
   return (dispatch: AppDispatch, getState: () => RootState) => {
     const { node: newParent, link: parentLink } = resolveNode(getState().nodes.present, intoViewParentId)
     // Move Node to new parent
@@ -32,7 +33,7 @@ export function indentNode(nodeId: string, intoViewParentId: string, currentSele
   }
 }
 
-export function outdentNode(nodeId: string, intoNode: string, atIndex: number, currentSelection: Selection) {
+export function outdentNode(nodeId: NodeId, intoNode: NodeId, atIndex: number, currentSelection: Selection) {
   return (dispatch: AppDispatch) => {
     dispatch(nodeMoved({ nodeId, newParentId: intoNode, newIndex: atIndex }))
     dispatch(focusRestoreRequested({
@@ -43,7 +44,7 @@ export function outdentNode(nodeId: string, intoNode: string, atIndex: number, c
   }
 }
 
-export function splitNode(nodeId: string, isExpanded: boolean, selectionStart: number, selectionEnd: number) {
+export function splitNode(nodeId: NodeId, isExpanded: boolean, selectionStart: number, selectionEnd: number) {
   return (dispatch: AppDispatch, getState: () => RootState) => {
     const splitIndex = selectionStart
     const { node, link } = resolveNode(getState().nodes.present, nodeId)
@@ -62,7 +63,7 @@ export function splitNode(nodeId: string, isExpanded: boolean, selectionStart: n
   }
 }
 
-export function mergeNode(nodeId: string, direction: 'prev' | 'next', isExpanded: boolean) {
+export function mergeNode(nodeId: NodeId, direction: 'prev' | 'next', isExpanded: boolean) {
   console.debug('mergeNode', nodeId, direction, isExpanded)
   return (dispatch: AppDispatch, getState: () => RootState) => {
     const state = getState().nodes.present
@@ -92,7 +93,7 @@ export function mergeNode(nodeId: string, direction: 'prev' | 'next', isExpanded
     }
     if (direction === 'next') {
       const selectionStart = node.title.length
-      let nodeToMergeWithId: string
+      let nodeToMergeWithId: NodeId
       if (isExpanded && node.contentNodeIds.length > 0) {
         // Merge with first child node
         nodeToMergeWithId = node.contentNodeIds[0] // No undefined check necessary because we already checked that
