@@ -15,18 +15,28 @@ interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void
 }
 
-export function NodeEditorInline({ nodeRef, expanded, viewPath, moveFocusBefore, moveFocusAfter, indent, outdent, outdentChild, ref }: {
+export function NodeEditorInline({
+                                   nodeRef,
+                                   expanded,
+                                   viewPath,
+                                   moveFocusBefore,
+                                   moveFocusAfter,
+                                   indent,
+                                   outdent,
+                                   outdentChild,
+                                   ref,
+                                 }: {
   /** The node reference to render */
   nodeRef: NodeReference,
   expanded: boolean,
   /** A list of ancestor nodes of this editor in the current view. If there are node links in the view
-      path, only _their_ ID should be included, and _not_ the ID of the nodes they point to. */
+   path, only _their_ ID should be included, and _not_ the ID of the nodes they point to. */
   viewPath: NodeId[],
   /** Called when the user presses the up arrow while in the first line of text within this node.
-      Should return false if there is no previous node to move focus to, true otherwise. */
+   Should return false if there is no previous node to move focus to, true otherwise. */
   moveFocusBefore?: () => boolean,
   /** Called when the user presses the down arrow while in the last line of text within this node.
-      Should return false if there is no next node to move focus to, true otherwise. */
+   Should return false if there is no next node to move focus to, true otherwise. */
   moveFocusAfter?: () => boolean,
   /** Called when the user triggers the indent action on this node. */
   indent?: (nodeId: NodeId, selection: Selection) => void,
@@ -84,6 +94,8 @@ export function NodeEditorInline({ nodeRef, expanded, viewPath, moveFocusBefore,
   }, [node.id, preparedFocusRestore, dispatch, parent?.id])
 
   const keyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    const textarea = e.currentTarget
+    const { selectionStart, selectionEnd } = e.currentTarget
     if (['z', 'Z'].includes(e.key) && e.ctrlKey) {
       // Undo/Redo is handled globally, so prevent the browser here to prevent weird behavior
       e.preventDefault()
@@ -109,11 +121,8 @@ export function NodeEditorInline({ nodeRef, expanded, viewPath, moveFocusBefore,
       dispatch(nodeIndexChanged({ nodeRef, indexChange: -1 }))
       return
     }
-    if (e.key === 'ArrowDown') {
-      const textarea = e.currentTarget
-      if (!calculateCursorPosition(textarea).lastLine) {
-        return
-      }
+    if ((e.key === 'ArrowDown' && calculateCursorPosition(textarea).lastLine)
+      || (e.key === 'ArrowRight' && selectionStart === textarea.value.length)) {
       if (isExpanded && childRefs.length > 0) {
         contentNodesList.current?.focus('first')
         e.preventDefault()
@@ -125,11 +134,8 @@ export function NodeEditorInline({ nodeRef, expanded, viewPath, moveFocusBefore,
       }
       return
     }
-    if (e.key === 'ArrowUp') {
-      const textarea = e.currentTarget
-      if (!calculateCursorPosition(textarea).firstLine) {
-        return
-      }
+    if ((e.key === 'ArrowUp' && calculateCursorPosition(textarea).firstLine)
+      || (e.key === 'ArrowLeft' && selectionEnd === 0)) {
       if (moveFocusBefore?.()) {
         e.preventDefault()
       }
@@ -137,7 +143,6 @@ export function NodeEditorInline({ nodeRef, expanded, viewPath, moveFocusBefore,
     }
     if (e.key === 'Tab') {
       e.preventDefault()
-      const { selectionStart, selectionEnd } = e.currentTarget
       if (e.shiftKey) {
         outdent?.(nodeRef, { start: selectionStart, end: selectionEnd })
       } else {
@@ -150,8 +155,8 @@ export function NodeEditorInline({ nodeRef, expanded, viewPath, moveFocusBefore,
       e.preventDefault()
       dispatch(splitNode(
         nodeRef,
-        e.currentTarget.selectionStart,
-        e.currentTarget.selectionEnd,
+        selectionStart,
+        selectionEnd,
       ))
       return
     }
@@ -160,7 +165,6 @@ export function NodeEditorInline({ nodeRef, expanded, viewPath, moveFocusBefore,
         console.debug(`Can't merge linked node ${node.id} into surrounding nodes`)
         return
       }
-      const { selectionStart, selectionEnd } = e.currentTarget
       if (selectionStart === 0 && selectionEnd === selectionStart) {
         dispatch(mergeNode(nodeRef, 'prev'))
         e.preventDefault()
@@ -172,7 +176,6 @@ export function NodeEditorInline({ nodeRef, expanded, viewPath, moveFocusBefore,
         console.debug(`Can't merge linked node ${node.id} into surrounding nodes`)
         return
       }
-      const { selectionStart, selectionEnd } = e.currentTarget
       if (selectionStart === node.title.length && selectionEnd === selectionStart) {
         dispatch(mergeNode(nodeRef, 'next'))
         e.preventDefault()
