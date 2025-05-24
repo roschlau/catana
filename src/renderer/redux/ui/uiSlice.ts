@@ -1,4 +1,5 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
+import {PartialBy} from '../../util/types'
 
 interface FocusRestoreRequest {
   nodeId: string
@@ -22,10 +23,10 @@ export const uiSlice = createSlice({
     },
     focusRestored: (state) => {
       state.focusRestoreRequest = undefined
-    }
-  }
+    },
+  },
 })
 
 export const { focusRestoreRequested, focusRestored } = uiSlice.actions
 
-export const selectPreparedFocusRestore = (state: {ui: UiState}) => state.ui.focusRestoreRequest
+export const selectPreparedFocusRestore = (state: { ui: UiState }) => state.ui.focusRestoreRequest
