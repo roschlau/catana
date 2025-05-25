@@ -50,7 +50,8 @@ export function NodeEditorInline({
   const dispatch = useAppDispatch()
   const node = useAppSelector(state => state.nodes.present[nodeRef.nodeId]!)
   const parent = useAppSelector(state => nodeRef.parentId ? state.nodes.present[nodeRef.parentId] : undefined)
-  const isLink = node.ownerId && parent && node.ownerId !== parent.id
+  /** True if this node editor is shown under a different node than the node's owner. */
+  const isLink = !!parent && (!node.ownerId || node.ownerId !== parent.id)
   const childRefs = node.content
 
   const isRecursiveInstance = viewPath.includes(node.id)
