@@ -1,4 +1,4 @@
-import {app, BrowserWindow, dialog, ipcMain} from 'electron'
+import {app, BrowserWindow, dialog, ipcMain, session} from 'electron'
 import path from 'node:path'
 import started from 'electron-squirrel-startup'
 import installExtension, {REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS} from 'electron-devtools-installer'
@@ -17,6 +17,14 @@ app.whenReady().then(() => {
 });
 
 const createWindow = async () => {
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': [`default-src 'self'; style-src 'unsafe-inline'`]
+      }
+    })
+  })
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 1800,
