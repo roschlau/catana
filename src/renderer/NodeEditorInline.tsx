@@ -32,10 +32,10 @@ export function NodeEditorInline({
   /** A list of ancestor nodes of this editor in the current view. If there are node links in the view
    path, only _their_ ID should be included, and _not_ the ID of the nodes they point to. */
   viewPath: NodeId[],
-  /** Called when the user presses the up arrow while in the first line of text within this node.
+  /** Called when the user attempts to move focus out of and before this node.
    Should return false if there is no previous node to move focus to, true otherwise. */
   moveFocusBefore?: () => boolean,
-  /** Called when the user presses the down arrow while in the last line of text within this node.
+  /** Called when the user attempts to move focus out of and after this node.
    Should return false if there is no next node to move focus to, true otherwise. */
   moveFocusAfter?: () => boolean,
   /** Called when the user triggers the indent action on this node. */
