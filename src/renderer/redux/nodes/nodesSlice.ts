@@ -1,6 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {clamp} from '../../util/math'
-import {deleteNode, moveNodeRefs, resolveNodeRef} from './helpers'
+import {addChildReference, deleteNode, moveNode, resolveNodeRef} from './helpers'
 import {demoGraph, flatten} from './demoGraph'
 import {Node, NodeGraphFlattened, NodeId, NodeReference} from '../../../common/nodeGraphModel'
 
@@ -40,18 +40,17 @@ export const nodesSlice = createSlice({
         throw Error(`Can't change index of node ${node.id} outside of parent context`)
       }
       const parentNode = parentInfo.parent
-      const { childRef, childIndex: existingNodeIndex } = parentInfo
-      const newIndex = clamp(existingNodeIndex + action.payload.indexChange, 0, parentNode.content.length - 1)
-      parentNode.content.splice(existingNodeIndex, 1)
-      parentNode.content.splice(newIndex, 0, childRef)
+      const { childIndex: currentChildIndex } = parentInfo
+      const newIndex = clamp(currentChildIndex + action.payload.indexChange, 0, parentNode.content.length - 1)
+      moveNode(state, node.id, parentInfo.parent.id, parentInfo.parent.id, newIndex)
     },
     nodeMoved: (state, action: PayloadAction<{ nodeRef: NodeReference, newParentId: NodeId, newIndex: number }>) => {
-      const { parentInfo } = resolveNodeRef(state, action.payload.nodeRef)
-      const oldParent = parentInfo?.parent
-      if (!oldParent) {
-        throw Error(`Can't move root node ${action.payload.nodeRef.nodeId}`)
+      const {nodeRef, newParentId, newIndex} = action.payload
+      const { parentInfo } = resolveNodeRef(state, nodeRef)
+      if (!parentInfo) {
+        throw Error(`Can't move root node ${nodeRef.nodeId}`)
       }
-      moveNodeRefs(state, [action.payload.nodeRef], action.payload.newParentId, action.payload.newIndex)
+      moveNode(state, nodeRef.nodeId, parentInfo.parent.id, newParentId, newIndex)
     },
     nodeSplit: (state, action: PayloadAction<{
       nodeRef: NodeReference,
@@ -70,17 +69,14 @@ export const nodesSlice = createSlice({
       node.title = node.title.slice(0, action.payload.atIndex)
       if (newNode.ownerId === node.id) {
         // Adding as first child
-        node.content.unshift({ nodeId: newNode.id })
-        if (parentInfo?.childRef) {
-          parentInfo.childRef.expanded = true
-        }
+        addChildReference(state, newNode.id, node.id, 0, parentInfo?.childRef.expanded ?? false)
       } else {
         // Adding as next sibling
         if (!parentInfo?.parent) {
           throw Error(`Can't split node ${node.id} outside of parent context`)
         }
         const existingNodeIndex = parentInfo.childIndex
-        parentInfo.parent.content.splice(existingNodeIndex + 1, 0, { nodeId: newNode.id })
+        addChildReference(state, newNode.id, parentInfo.parent.id, existingNodeIndex + 1)
       }
     },
     /**
@@ -90,8 +86,13 @@ export const nodesSlice = createSlice({
     nodesMerged: (state, action: PayloadAction<{ firstNodeId: NodeId, secondNodeRef: NodeReference }>) => {
       const firstNode = state[action.payload.firstNodeId]!
       const secondNode = state[action.payload.secondNodeRef.nodeId]!
+      // Merge titles
       firstNode.title += secondNode.title
-      moveNodeRefs(state, secondNode.content.map(it => ({ nodeId: it.nodeId, parentId: secondNode.id })), firstNode.id, 0)
+      // Merge children
+      secondNode.content.forEach(child => {
+        moveNode(state, child.nodeId, secondNode.id, firstNode.id, 0)
+      })
+      // Delete second node
       deleteNode(state, action.payload.secondNodeRef, firstNode.id)
     },
   },
