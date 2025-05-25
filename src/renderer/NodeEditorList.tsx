@@ -28,6 +28,9 @@ export function NodeEditorList({ nodes, viewPath, moveFocusBefore, moveFocusAfte
   }))
   const dispatch = useAppDispatch()
   const parentId = viewPath[viewPath.length - 1]
+  if (!parentId) {
+    throw new Error('NodeEditorList must have a parent node ID')
+  }
 
   const childNodeRefs = useRef<(NodeEditorListRef | null)[]>([])
   if (childNodeRefs.current.length !== nodes.length) {

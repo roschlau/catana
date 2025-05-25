@@ -28,29 +28,30 @@ export const nodesSlice = createSlice({
       node.title = action.payload.title
     },
     nodeExpandedChanged: (state, action: PayloadAction<{ nodeRef: NodeReference, expanded: boolean }>) => {
-      const { parentInfo } = resolveNodeRef(state, action.payload.nodeRef)
-      if (!parentInfo) {
+      const { viewContext } = resolveNodeRef(state, action.payload.nodeRef)
+      if (!viewContext) {
         throw Error(`Can't change expansion of root node of current view`)
       }
-      parentInfo.childRef.expanded = action.payload.expanded
+      const { parent, childIndex } = viewContext
+      parent.content[childIndex].expanded = action.payload.expanded
     },
     nodeIndexChanged: (state, action: PayloadAction<{ nodeRef: NodeReference, indexChange: number }>) => {
-      const {node, parentInfo} = resolveNodeRef(state, action.payload.nodeRef)
-      if (!parentInfo) {
+      const {node, viewContext} = resolveNodeRef(state, action.payload.nodeRef)
+      if (!viewContext) {
         throw Error(`Can't change index of node ${node.id} outside of parent context`)
       }
-      const parentNode = parentInfo.parent
-      const { childIndex: currentChildIndex } = parentInfo
+      const parentNode = viewContext.parent
+      const { childIndex: currentChildIndex } = viewContext
       const newIndex = clamp(currentChildIndex + action.payload.indexChange, 0, parentNode.content.length - 1)
-      moveNode(state, node.id, parentInfo.parent.id, parentInfo.parent.id, newIndex)
+      moveNode(state, node.id, viewContext.parent.id, viewContext.parent.id, newIndex)
     },
     nodeMoved: (state, action: PayloadAction<{ nodeRef: NodeReference, newParentId: NodeId, newIndex: number }>) => {
       const {nodeRef, newParentId, newIndex} = action.payload
-      const { parentInfo } = resolveNodeRef(state, nodeRef)
-      if (!parentInfo) {
+      const { viewContext } = resolveNodeRef(state, nodeRef)
+      if (!viewContext) {
         throw Error(`Can't move root node ${nodeRef.nodeId}`)
       }
-      moveNode(state, nodeRef.nodeId, parentInfo.parent.id, newParentId, newIndex)
+      moveNode(state, nodeRef.nodeId, viewContext.parent.id, newParentId, newIndex)
     },
     nodeSplit: (state, action: PayloadAction<{
       nodeRef: NodeReference,
@@ -58,7 +59,7 @@ export const nodesSlice = createSlice({
       atIndex: number,
       parentId: NodeId
     }>) => {
-      const { node, parentInfo } = resolveNodeRef(state, action.payload.nodeRef)
+      const { node, viewContext } = resolveNodeRef(state, action.payload.nodeRef)
       const newNode: Node = {
         id: action.payload.newNodeId,
         title: node.title.slice(action.payload.atIndex),
@@ -69,14 +70,14 @@ export const nodesSlice = createSlice({
       node.title = node.title.slice(0, action.payload.atIndex)
       if (newNode.ownerId === node.id) {
         // Adding as first child
-        addChildReference(state, newNode.id, node.id, 0, parentInfo?.childRef.expanded ?? false)
+        addChildReference(state, newNode.id, node.id, 0, viewContext?.isExpanded ?? false)
       } else {
         // Adding as next sibling
-        if (!parentInfo?.parent) {
+        if (!viewContext?.parent) {
           throw Error(`Can't split node ${node.id} outside of parent context`)
         }
-        const existingNodeIndex = parentInfo.childIndex
-        addChildReference(state, newNode.id, parentInfo.parent.id, existingNodeIndex + 1)
+        const existingNodeIndex = viewContext.childIndex
+        addChildReference(state, newNode.id, viewContext.parent.id, existingNodeIndex + 1)
       }
     },
     /**

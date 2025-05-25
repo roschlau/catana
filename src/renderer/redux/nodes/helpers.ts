@@ -1,27 +1,26 @@
 import {Node, NodeId, NodeReference} from '../../../common/nodeGraphModel'
 
-export type ResolvedNodeReference = {
+export type NodeWithContext = {
   node: Node,
-  parentInfo?: {
+  viewContext?: {
     parent: Node,
     childIndex: number,
-    /** Shorthand equivalent `parent.content[childIndex]` */
-    childRef: Node['content'][number],
+    isExpanded: boolean,
   },
 }
 
 export function resolveNodeRef(
   state: Partial<Record<NodeId, Node>>,
   nodeRef: NodeReference,
-): ResolvedNodeReference {
+): NodeWithContext {
   const node = state[nodeRef.nodeId]!
-  const parentInfo = nodeRef.parentId
+  const viewContext = nodeRef.parentId
     ? getViewContext(state[nodeRef.parentId]!, nodeRef.nodeId)
     : undefined
-  return { node, parentInfo }
+  return { node, viewContext }
 }
 
-function getViewContext(parent: Node, childId: NodeId): NonNullable<ResolvedNodeReference['parentInfo']> {
+function getViewContext(parent: Node, childId: NodeId): NonNullable<NodeWithContext['viewContext']> {
   const contentChildIndex = parent.content.findIndex(it => it.nodeId === childId)
   if (contentChildIndex === -1) {
     throw Error(`Invalid reference: ${childId} is not a child of ${parent.id}`)
@@ -29,14 +28,14 @@ function getViewContext(parent: Node, childId: NodeId): NonNullable<ResolvedNode
   return {
     parent: parent,
     childIndex: contentChildIndex,
-    childRef: parent.content[contentChildIndex],
+    isExpanded: parent.content[contentChildIndex].expanded ?? false,
   }
 }
 
 export function deleteNode(state: Partial<Record<NodeId, Node>>, nodeRef: NodeReference, moveLinksTo: NodeId): void {
   // Remove from parent's children
-  const { node, parentInfo } = resolveNodeRef(state, nodeRef)
-  const {parent, childIndex} = parentInfo!
+  const { node, viewContext } = resolveNodeRef(state, nodeRef)
+  const { parent, childIndex } = viewContext!
   parent.content.splice(childIndex, 1)
   // Move any remaining links
   findBacklinks(state, node.id)
