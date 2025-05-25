@@ -21,6 +21,10 @@ export const nodesSlice = createSlice({
     },
     titleUpdated: (state, action: PayloadAction<{ nodeId: NodeId, title: string }>) => {
       const node = state[action.payload.nodeId]!
+      if (action.payload.title.includes('\n')){
+        console.warn(`Stripping newline from updated title of node ${action.payload.nodeId}`)
+        action.payload.title = action.payload.title.replace(/\n/g, '')
+      }
       node.title = action.payload.title
     },
     nodeExpandedChanged: (state, action: PayloadAction<{ nodeRef: NodeReference, expanded: boolean }>) => {

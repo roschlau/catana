@@ -67,14 +67,14 @@ export function mergeNode(nodeRef: NodeReference, viewPath: NodeId[], direction:
   return (dispatch: AppDispatch, getState: () => RootState) => {
     const state = getState().nodes.present
     const { node, parentInfo } = resolveNodeRef(state, nodeRef)
-    if (node.ownerId !== parentInfo?.parent.id) {
+    if (parentInfo && node.ownerId !== parentInfo?.parent.id) {
       console.debug(`Node Merge canceled: Can't merge node link ${node.id} into surrounding nodes`)
       return
     }
     if (direction === 'prev') {
       // Merge with previous sibling or parent
       if (!parentInfo) {
-        console.debug(`Node Merge canceled: Can't merge node ${node.id} with previous node because it has no parent node`)
+        console.debug(`Node Merge canceled: Can't merge node ${node.id} with previous outside of parent context`)
         return
       }
       const childIndex = parentInfo.childIndex
@@ -90,7 +90,14 @@ export function mergeNode(nodeRef: NodeReference, viewPath: NodeId[], direction:
     }
     if (direction === 'next') {
       let nodeToMergeWithRef: NodeReference
-      if (parentInfo.childRef.expanded && node.content.length > 0) {
+      if (!parentInfo) {
+        // Merge with first child node
+        if (node.content.length === 0) {
+          console.debug(`Node Merge canceled: ${node.id} has no children to merge with outside of parent context`)
+          return
+        }
+        nodeToMergeWithRef = { nodeId: node.content[0].nodeId, parentId: node.id }
+      } else if (parentInfo.childRef.expanded && node.content.length > 0) {
         // Merge with first child node
         nodeToMergeWithRef = { nodeId: node.content[0].nodeId, parentId: node.id }
       } else {
@@ -106,7 +113,7 @@ export function mergeNode(nodeRef: NodeReference, viewPath: NodeId[], direction:
       }
       dispatch(nodesMerged({ firstNodeId: node.id, secondNodeRef: nodeToMergeWithRef }))
       dispatch(focusRestoreRequested({
-        nodeRef: { nodeId: node.id, parentId: parentInfo.parent.id },
+        nodeRef: { nodeId: node.id, parentId: parentInfo?.parent.id },
         selection: { start: node.title.length },
       }))
     }

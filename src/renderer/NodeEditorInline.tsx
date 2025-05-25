@@ -2,16 +2,17 @@ import {Flex} from '@radix-ui/themes'
 import {useAppDispatch, useAppSelector} from './redux/hooks'
 import {nodeExpandedChanged, nodeIndexChanged} from './redux/nodes/nodesSlice'
 import {ChevronRightIcon, DotFilledIcon} from '@radix-ui/react-icons'
-import {KeyboardEvent, Ref, useCallback, useEffect, useImperativeHandle, useRef, useState} from 'react'
+import {KeyboardEvent, Ref, useCallback, useImperativeHandle, useRef, useState} from 'react'
 import './NodeEditor.css'
 import classNames from 'classnames'
 import {calculateCursorPosition} from './util/textarea-measuring'
-import {focusRestored, selectPreparedFocusRestore} from './redux/ui/uiSlice'
-import {indentNode, mergeNode, outdentNode, Selection, splitNode} from './redux/nodes/thunks'
-import {Node, NodeId, NodeReference} from '../common/nodeGraphModel'
+import {useFocusRestore} from './redux/ui/uiSlice'
+import {mergeNode, Selection, splitNode} from './redux/nodes/thunks'
+import {NodeId, NodeReference} from '../common/nodeGraphModel'
 import {NodeTitleEditorTextField, NodeTitleEditorTextFieldRef} from './NodeTitleEditorTextField'
+import {NodeEditorList, NodeEditorListRef} from './NodeEditorList'
 
-interface NodeEditorRef {
+export interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void
 }
 
@@ -51,7 +52,6 @@ export function NodeEditorInline({
   const parent = useAppSelector(state => nodeRef.parentId ? state.nodes.present[nodeRef.parentId] : undefined)
   const isLink = node.ownerId && parent && node.ownerId !== parent.id
   const childRefs = node.content
-  const preparedFocusRestore = useAppSelector(selectPreparedFocusRestore)
 
   const isRecursiveInstance = viewPath.includes(node.id)
   // Control node expansion. Every node and node link stores its expansion state globally, but if we're looking at a
@@ -68,7 +68,7 @@ export function NodeEditorInline({
   }
 
   const titleEditorRef = useRef<NodeTitleEditorTextFieldRef | null>(null)
-  const contentNodesList = useRef<NodeEditorRef | null>(null)
+  const contentNodesList = useRef<NodeEditorListRef | null>(null)
 
   useImperativeHandle(ref, () => ({
     focus: (mode: 'first' | 'last') => {
@@ -85,12 +85,9 @@ export function NodeEditorInline({
     return true
   }, [titleEditorRef])
 
-  useEffect(() => {
-    if (preparedFocusRestore?.nodeRef.nodeId === node.id && preparedFocusRestore?.nodeRef.parentId === parent?.id) {
-      titleEditorRef.current?.focus(preparedFocusRestore?.selection)
-      dispatch(focusRestored())
-    }
-  }, [node.id, preparedFocusRestore, dispatch, parent?.id])
+  useFocusRestore(nodeRef, (selection) => {
+    titleEditorRef.current?.focus(selection)
+  })
 
   const keyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     const textarea = e.currentTarget
@@ -201,97 +198,17 @@ export function NodeEditorInline({
           node={node}
         />
       </Flex>
-      {isExpanded && childRefs.length > 0 && <NodeEditorList
-          ref={contentNodesList}
-          nodes={childRefs}
-          viewPath={[...viewPath, node.id]}
-          moveFocusBefore={focus}
-          moveFocusAfter={moveFocusAfter}
-          outdentChild={outdentChild}
-      />}
+      {isExpanded && childRefs.length > 0 && <Flex direction={'row'} width={'100%'}>
+          <div style={{ width: '2px', margin: '0 12px 0 6px', background: 'var(--gray-5)' }}></div>
+          <NodeEditorList
+              ref={contentNodesList}
+              nodes={childRefs}
+              viewPath={[...viewPath, node.id]}
+              moveFocusBefore={focus}
+              moveFocusAfter={moveFocusAfter}
+              outdentChild={outdentChild}
+          />
+      </Flex>}
     </Flex>
-  )
-}
-
-export function NodeEditorList({ nodes, viewPath, moveFocusBefore, moveFocusAfter, outdentChild, ref }: {
-  nodes: Node['content'],
-  viewPath: NodeId[],
-  moveFocusBefore?: () => boolean,
-  moveFocusAfter?: () => boolean,
-  /** Called when the user triggers the outdent action on a node within this list. */
-  outdentChild?: (nodeRef: NodeReference, selection: Selection) => void,
-  ref?: Ref<NodeEditorRef>,
-}) {
-  useImperativeHandle(ref, () => ({
-    focus: (mode: 'first' | 'last') => {
-      if (mode === 'last') {
-        focusIndex(nodes.length - 1, 'last')
-      } else {
-        focusIndex(0, 'first')
-      }
-    },
-  }))
-  const dispatch = useAppDispatch()
-  const parentId = viewPath[viewPath.length - 1]
-
-  const childNodeRefs = useRef<(NodeEditorRef | null)[]>([])
-  if (childNodeRefs.current.length !== nodes.length) {
-    childNodeRefs.current = Array(nodes.length).fill(null)
-  }
-
-  const focusIndex = (index: number, mode: 'first' | 'last') => {
-    if (index >= nodes.length) {
-      // We stepped past our last child node, delegate to parent node
-      return moveFocusAfter?.() || false
-    }
-    if (index < 0) {
-      // We stepped before our first child node, delegate to parent node
-      return moveFocusBefore?.() || false
-    }
-    childNodeRefs.current[index]?.focus(mode)
-    return true
-  }
-
-  const indent = (index: number, childId: NodeId, selection: Selection) => {
-    if (index === 0) {
-      // Can't indent a node that's already the first within its siblings
-      return
-    }
-    // Indent node into previous preceding sibling
-    dispatch(indentNode(
-      { nodeId: childId, parentId },
-      { nodeId: nodes[index - 1].nodeId, parentId },
-      selection,
-    ))
-  }
-
-  // Handles outdenting a child node of one of this list's nodes into this list
-  const outdentChildOfChild = (index: number, nodeRef: NodeReference, selection: Selection) => {
-    dispatch(outdentNode(nodeRef, parentId, index + 1, selection))
-  }
-
-  return (
-    <ul style={{
-      width: '100%',
-      marginInlineStart: '12px',
-      paddingInlineStart: '12px',
-      borderLeft: '2px solid var(--gray-5)',
-    }}>
-      {nodes.map((contentNode, i) => <li key={contentNode.nodeId}>
-        <NodeEditorInline
-          nodeRef={{ nodeId: contentNode.nodeId, parentId: viewPath[viewPath.length - 1] }}
-          expanded={contentNode.expanded ?? false}
-          viewPath={viewPath}
-          moveFocusBefore={() => focusIndex(i - 1, 'last')}
-          moveFocusAfter={() => focusIndex(i + 1, 'first')}
-          indent={(nodeId, selection) => indent(i, nodeId, selection)}
-          outdent={outdentChild}
-          outdentChild={(nodeRef, selection) => outdentChildOfChild(i, nodeRef, selection)}
-          ref={el => {
-            childNodeRefs.current[i] = el
-          }}
-        />
-      </li>)}
-    </ul>
   )
 }

@@ -1,7 +1,6 @@
 import {createRoot} from 'react-dom/client'
-import {Box, Button, Flex, Heading, Theme, ThemePanel} from '@radix-ui/themes'
+import {Button, Flex, Theme, ThemePanel} from '@radix-ui/themes'
 import {useCallback, useEffect, useState} from 'react'
-import {NodeEditorInline} from './NodeEditorInline'
 import {ThemeProvider} from 'next-themes'
 import {Provider} from 'react-redux'
 import {store} from './redux/store'
@@ -11,6 +10,7 @@ import {buildTree, ROOT_NODE} from './redux/nodes/demoGraph'
 import {ActionCreators} from 'redux-undo'
 import {nodeGraphLoaded} from './redux/nodes/nodesSlice'
 import {NodeId} from '../common/nodeGraphModel'
+import {NodeEditorPage} from './NodeEditorPage'
 
 const root = createRoot(document.body)
 root.render(
@@ -24,7 +24,7 @@ root.render(
 )
 
 function App() {
-  const [node, setNode] = useState(ROOT_NODE)
+  const [nodeId, setNodeId] = useState(ROOT_NODE)
   const store = useAppStore()
   const saveWorkspace = useCallback(() => {
     console.log(JSON.stringify(buildTree(store.getState().nodes.present)))
@@ -37,7 +37,7 @@ function App() {
     }
     const { rootId, nodes } = result
     dispatch(nodeGraphLoaded(nodes))
-    setNode(rootId)
+    setNodeId(rootId)
   }
   const globalKeydown = useCallback((e: KeyboardEvent) => {
     if (e.ctrlKey && e.key === 'z') {
@@ -56,19 +56,11 @@ function App() {
   return (
     <Flex direction={'row'} p={'2'} gap={'2'} align={'stretch'} style={{ background: 'var(--gray-3)' }}>
       <Sidebar
-        nodeClicked={setNode}
+        nodeClicked={setNodeId}
         onSaveWorkspaceClicked={saveWorkspace}
         onImportClicked={importClicked}
       />
-      <Flex
-        direction={'column'} align={'center'} flexGrow={'1'} gap={'6'} p={'4'}
-        style={{ background: 'var(--gray-1)', borderRadius: 'var(--radius-5)', padding: 'var(--space-4)' }}
-      >
-        <Heading size={'7'}>Catana</Heading>
-        <Box width={'100%'} maxWidth={'600px'}>
-          <NodeEditorInline nodeRef={{ nodeId: node }} expanded={true} viewPath={[]}/>
-        </Box>
-      </Flex>
+      <NodeEditorPage nodeId={nodeId}/>
     </Flex>
   )
 }
