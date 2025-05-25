@@ -1,11 +1,11 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {PartialBy} from '../../util/types'
 import {NodeReference} from '../../../common/nodeGraphModel'
+import {Selection} from '../nodes/thunks'
 
 interface FocusRestoreRequest {
   nodeRef: NodeReference
-  selectionStart: number
-  selectionEnd: number
+  selection: Selection
 }
 
 export interface UiState {
@@ -16,10 +16,18 @@ export const uiSlice = createSlice({
   name: 'ui',
   initialState: {} as UiState,
   reducers: {
-    focusRestoreRequested: (state, action: PayloadAction<PartialBy<FocusRestoreRequest, 'selectionEnd'>>) => {
+    focusRestoreRequested: (state, action: PayloadAction<{
+      nodeRef: NodeReference,
+      selection: PartialBy<Selection, 'end'>
+    }>) => {
+      console.log('Reqesting focus', action)
       state.focusRestoreRequest = {
         ...action.payload,
-        selectionEnd: action.payload.selectionEnd ?? action.payload.selectionStart,
+        nodeRef: action.payload.nodeRef,
+        selection: {
+          ...action.payload.selection,
+          end: action.payload.selection.end ?? action.payload.selection.start,
+        },
       }
     },
     focusRestored: (state) => {

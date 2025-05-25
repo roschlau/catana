@@ -26,8 +26,7 @@ export function indentNode(nodeRef: NodeReference, intoNewParentRef: NodeReferen
     // Restore focus
     dispatch(focusRestoreRequested({
       nodeRef: { nodeId: nodeRef.nodeId, parentId: newParent.id },
-      selectionStart: currentSelection.start,
-      selectionEnd: currentSelection.end,
+      selection: currentSelection,
     }))
   }
 }
@@ -37,8 +36,7 @@ export function outdentNode(nodeRef: NodeReference, intoNode: NodeId, atIndex: n
     dispatch(nodeMoved({ nodeRef, newParentId: intoNode, newIndex: atIndex }))
     dispatch(focusRestoreRequested({
       nodeRef: { nodeId: nodeRef.nodeId, parentId: intoNode },
-      selectionStart: currentSelection.start,
-      selectionEnd: currentSelection.end,
+      selection: currentSelection,
     }))
   }
 }
@@ -48,7 +46,10 @@ export function splitNode(nodeRef: NodeReference, selectionStart: number, select
     const splitIndex = selectionStart
     const { node, parentInfo } = resolveNodeRef(getState().nodes.present, nodeRef)
     if (selectionEnd !== splitIndex) {
-      dispatch(titleUpdated({ nodeId: node.id, title: node.title.slice(0, splitIndex) + node.title.slice(selectionEnd) }))
+      dispatch(titleUpdated({
+        nodeId: node.id,
+        title: node.title.slice(0, splitIndex) + node.title.slice(selectionEnd),
+      }))
     }
     const newParentId = (parentInfo?.childRef.expanded && node.content.length > 0)
       ? node.id
@@ -57,12 +58,12 @@ export function splitNode(nodeRef: NodeReference, selectionStart: number, select
     dispatch(nodeSplit({ nodeRef, newNodeId, atIndex: splitIndex, parentId: newParentId }))
     dispatch(focusRestoreRequested({
       nodeRef: { nodeId: newNodeId, parentId: newParentId },
-      selectionStart: 0,
+      selection: { start: 0 },
     }))
   }
 }
 
-export function mergeNode(nodeRef: NodeReference, direction: 'prev' | 'next') {
+export function mergeNode(nodeRef: NodeReference, viewPath: NodeId[], direction: 'prev' | 'next') {
   return (dispatch: AppDispatch, getState: () => RootState) => {
     const state = getState().nodes.present
     const { node, parentInfo } = resolveNodeRef(state, nodeRef)
@@ -79,13 +80,15 @@ export function mergeNode(nodeRef: NodeReference, direction: 'prev' | 'next') {
       const childIndex = parentInfo.childIndex
       const previousSiblingRef = parentInfo.parent.content[childIndex - 1]
       const nodeToMergeWith = state[previousSiblingRef?.nodeId ?? parentInfo.parent.id]!
-      const selectionStart = nodeToMergeWith.title.length
+      const parentOfMerge = previousSiblingRef ? parentInfo.parent.id : viewPath[viewPath.length - 2]
       dispatch(nodesMerged({ firstNodeId: nodeToMergeWith.id, secondNodeRef: nodeRef }))
-      dispatch(focusRestoreRequested({ nodeRef: { nodeId: nodeToMergeWith.id, parentId: parentInfo.parent.id }, selectionStart }))
+      dispatch(focusRestoreRequested({
+        nodeRef: { nodeId: nodeToMergeWith.id, parentId: parentOfMerge },
+        selection: { start: nodeToMergeWith.title.length },
+      }))
       return
     }
     if (direction === 'next') {
-      const selectionStart = node.title.length
       let nodeToMergeWithRef: NodeReference
       if (parentInfo.childRef.expanded && node.content.length > 0) {
         // Merge with first child node
@@ -99,10 +102,13 @@ export function mergeNode(nodeRef: NodeReference, direction: 'prev' | 'next') {
           console.debug(`Node Merge canceled: Node ${node.id} is the last in its parent and can't be merged forward`)
           return
         }
-        nodeToMergeWithRef = { nodeId: nextSibling.nodeId, parentId: parent.id}
+        nodeToMergeWithRef = { nodeId: nextSibling.nodeId, parentId: parent.id }
       }
       dispatch(nodesMerged({ firstNodeId: node.id, secondNodeRef: nodeToMergeWithRef }))
-      dispatch(focusRestoreRequested({ nodeRef: { nodeId: node.id, parentId: parentInfo.parent.id }, selectionStart }))
+      dispatch(focusRestoreRequested({
+        nodeRef: { nodeId: node.id, parentId: parentInfo.parent.id },
+        selection: { start: node.title.length },
+      }))
     }
   }
 }

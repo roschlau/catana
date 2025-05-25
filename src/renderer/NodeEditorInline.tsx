@@ -1,7 +1,6 @@
 import {Flex} from '@radix-ui/themes'
 import {useAppDispatch, useAppSelector} from './redux/hooks'
-import {nodeExpandedChanged, nodeIndexChanged, titleUpdated} from './redux/nodes/nodesSlice'
-import TextareaAutosize from 'react-textarea-autosize'
+import {nodeExpandedChanged, nodeIndexChanged} from './redux/nodes/nodesSlice'
 import {ChevronRightIcon, DotFilledIcon} from '@radix-ui/react-icons'
 import {KeyboardEvent, Ref, useCallback, useEffect, useImperativeHandle, useRef, useState} from 'react'
 import './NodeEditor.css'
@@ -10,6 +9,7 @@ import {calculateCursorPosition} from './util/textarea-measuring'
 import {focusRestored, selectPreparedFocusRestore} from './redux/ui/uiSlice'
 import {indentNode, mergeNode, outdentNode, Selection, splitNode} from './redux/nodes/thunks'
 import {Node, NodeId, NodeReference} from '../common/nodeGraphModel'
+import {NodeTitleEditorTextField, NodeTitleEditorTextFieldRef} from './NodeTitleEditorTextField'
 
 interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void
@@ -67,7 +67,7 @@ export function NodeEditorInline({
     }
   }
 
-  const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
+  const titleEditorRef = useRef<NodeTitleEditorTextFieldRef | null>(null)
   const contentNodesList = useRef<NodeEditorRef | null>(null)
 
   useImperativeHandle(ref, () => ({
@@ -75,20 +75,19 @@ export function NodeEditorInline({
       if (mode === 'last' && isExpanded && childRefs.length > 0) {
         contentNodesList.current?.focus(mode)
       } else {
-        textAreaRef.current?.focus()
+        titleEditorRef.current?.focus()
       }
     },
   }))
 
   const focus = useCallback(() => {
-    textAreaRef.current?.focus()
+    titleEditorRef.current?.focus()
     return true
-  }, [textAreaRef])
+  }, [titleEditorRef])
 
   useEffect(() => {
     if (preparedFocusRestore?.nodeRef.nodeId === node.id && preparedFocusRestore?.nodeRef.parentId === parent?.id) {
-      textAreaRef.current?.focus()
-      textAreaRef.current?.setSelectionRange(preparedFocusRestore.selectionStart, preparedFocusRestore.selectionEnd)
+      titleEditorRef.current?.focus(preparedFocusRestore?.selection)
       dispatch(focusRestored())
     }
   }, [node.id, preparedFocusRestore, dispatch, parent?.id])
@@ -96,11 +95,6 @@ export function NodeEditorInline({
   const keyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     const textarea = e.currentTarget
     const { selectionStart, selectionEnd } = e.currentTarget
-    if (['z', 'Z'].includes(e.key) && e.ctrlKey) {
-      // Undo/Redo is handled globally, so prevent the browser here to prevent weird behavior
-      e.preventDefault()
-      return
-    }
     if (e.key === 'ArrowUp' && e.ctrlKey) {
       e.preventDefault()
       setExpanded(false)
@@ -166,7 +160,7 @@ export function NodeEditorInline({
         return
       }
       if (selectionStart === 0 && selectionEnd === selectionStart) {
-        dispatch(mergeNode(nodeRef, 'prev'))
+        dispatch(mergeNode(nodeRef, viewPath, 'prev'))
         e.preventDefault()
       }
       return
@@ -177,7 +171,7 @@ export function NodeEditorInline({
         return
       }
       if (selectionStart === node.title.length && selectionEnd === selectionStart) {
-        dispatch(mergeNode(nodeRef, 'next'))
+        dispatch(mergeNode(nodeRef, viewPath, 'next'))
         e.preventDefault()
       }
       return
@@ -201,12 +195,10 @@ export function NodeEditorInline({
             ? <ChevronRightIcon style={{ rotate: isExpanded ? '90deg' : '0deg' }} color={'var(--gray-10)'}/>
             : <DotFilledIcon color={'var(--gray-10)'}/>}
         </button>
-        <TextareaAutosize
-          ref={textAreaRef}
-          className={'NodeEditor_textarea'}
-          value={node.title}
-          onChange={e => dispatch(titleUpdated({ nodeId: node.id, title: e.target.value }))}
-          onKeyDown={keyDown}
+        <NodeTitleEditorTextField
+          ref={titleEditorRef}
+          keyDown={keyDown}
+          node={node}
         />
       </Flex>
       {isExpanded && childRefs.length > 0 && <NodeEditorList
