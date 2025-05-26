@@ -1,8 +1,9 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {clamp} from '../../util/math'
-import {addChildReference, deleteNode, moveNode, resolveNodeRef} from './helpers'
+import {resolveNodeRef} from './helpers'
 import {demoGraph, flatten} from './demoGraph'
 import {NodeGraphFlattened, NodeId, NodeViewWithParent} from '../../../common/nodeGraphModel'
+import {addChildReference, deleteNodeAfterMerge, moveNode} from './stateMutations'
 
 export const nodesSlice = createSlice({
   name: 'nodes',
@@ -70,12 +71,12 @@ export const nodesSlice = createSlice({
       const secondNode = state[action.payload.secondNodeRef.nodeId]!
       // Merge titles
       firstNode.title += secondNode.title
-      // Merge children
+      // Move children
       secondNode.content.forEach(child => {
         moveNode(state, child.nodeId, secondNode.id, firstNode.id, 0)
       })
       // Delete second node
-      deleteNode(state, action.payload.secondNodeRef, firstNode.id)
+      deleteNodeAfterMerge(state, action.payload.secondNodeRef, firstNode.id)
     },
   },
 })
