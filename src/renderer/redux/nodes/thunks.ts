@@ -4,6 +4,7 @@ import {nanoid} from '@reduxjs/toolkit'
 import {focusRestoreRequested} from '../ui/uiSlice'
 import {nodeCreated, nodeExpandedChanged, nodeMoved, nodesMerged, titleUpdated} from './nodesSlice'
 import {NodeView, NodeViewWithParent} from '../../../common/nodeGraphModel'
+import {createUndoTransaction} from '../undoTransactions'
 
 export interface Selection {
   start: number,
@@ -11,7 +12,7 @@ export interface Selection {
 }
 
 export function indentNode(nodeView: NodeViewWithParent, intoNewParentRef: NodeViewWithParent, currentSelection: Selection) {
-  return (dispatch: AppDispatch, getState: () => RootState) => {
+  return createUndoTransaction((dispatch: AppDispatch, getState: () => RootState) => {
     const { node: newParent, viewContext: newParentContext } = resolveNodeRef(getState().nodes.present, intoNewParentRef)
     // Move Node to new parent
     dispatch(nodeMoved({
@@ -28,7 +29,7 @@ export function indentNode(nodeView: NodeViewWithParent, intoNewParentRef: NodeV
       nodeRef: { nodeId: nodeView.nodeId, parent: intoNewParentRef },
       selection: currentSelection,
     }))
-  }
+  })
 }
 
 export function outdentNode(nodeView: NodeViewWithParent, intoParentView: NodeView, atIndex: number, currentSelection: Selection) {
@@ -42,8 +43,7 @@ export function outdentNode(nodeView: NodeViewWithParent, intoParentView: NodeVi
 }
 
 export function splitNode(nodeView: NodeView, selectionStart: number, selectionEnd: number) {
-  // TODO either implement transactions to make this whole thing undoable as one, or move all this into a reducer again
-  return (dispatch: AppDispatch, getState: () => RootState) => {
+  return createUndoTransaction((dispatch: AppDispatch, getState: () => RootState) => {
     const { node, viewContext } = resolveNodeRef(getState().nodes.present, nodeView)
     if (selectionStart !== selectionEnd) {
       dispatch(titleUpdated({
@@ -87,7 +87,7 @@ export function splitNode(nodeView: NodeView, selectionStart: number, selectionE
       }))
     }
     dispatch(titleUpdated({ nodeId: node.id, title: node.title.slice(0, splitIndex) }))
-  }
+  })
 }
 
 /**
