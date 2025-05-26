@@ -1,4 +1,4 @@
-import {Node, NodeId, NodeReference} from '../common/nodeGraphModel'
+import {Node, NodeView, NodeViewWithParent} from '../common/nodeGraphModel'
 import {indentNode, outdentNode, Selection} from './redux/nodes/thunks'
 import {Ref, useImperativeHandle, useRef} from 'react'
 import {useAppDispatch} from './redux/hooks'
@@ -8,13 +8,13 @@ export interface NodeEditorListRef {
   focus: (mode: 'first' | 'last') => void
 }
 
-export function NodeEditorList({ nodes, viewPath, moveFocusBefore, moveFocusAfter, outdentChild, ref }: {
+export function NodeEditorList({ nodes, parentView, moveFocusBefore, moveFocusAfter, outdentChild, ref }: {
   nodes: Node['content'],
-  viewPath: NodeId[],
+  parentView: NodeView,
   moveFocusBefore?: () => boolean,
   moveFocusAfter?: () => boolean,
   /** Called when the user triggers the outdent action on a node within this list. */
-  outdentChild?: (nodeRef: NodeReference, selection: Selection) => void,
+  outdentChild?: (nodeView: NodeViewWithParent, selection: Selection) => void,
   ref?: Ref<NodeEditorListRef>,
 }) {
   useImperativeHandle(ref, () => ({
@@ -27,7 +27,7 @@ export function NodeEditorList({ nodes, viewPath, moveFocusBefore, moveFocusAfte
     },
   }))
   const dispatch = useAppDispatch()
-  const parentId = viewPath[viewPath.length - 1]
+  const parentId = parentView.nodeId
   if (!parentId) {
     throw new Error('NodeEditorList must have a parent node ID')
   }
@@ -50,22 +50,22 @@ export function NodeEditorList({ nodes, viewPath, moveFocusBefore, moveFocusAfte
     return true
   }
 
-  const indent = (index: number, childId: NodeId, selection: Selection) => {
+  const indent = (index: number, childView: NodeViewWithParent, selection: Selection) => {
     if (index === 0) {
       // Can't indent a node that's already the first within its siblings
       return
     }
     // Indent node into previous preceding sibling
     dispatch(indentNode(
-      { nodeId: childId, parentId },
-      { nodeId: nodes[index - 1].nodeId, parentId },
+      childView,
+      { nodeId: nodes[index - 1].nodeId, parent: parentView },
       selection,
     ))
   }
 
   // Handles outdenting a child node of one of this list's nodes into this list
-  const outdentChildOfChild = (index: number, nodeRef: NodeReference, selection: Selection) => {
-    dispatch(outdentNode(nodeRef, parentId, index + 1, selection))
+  const outdentChildOfChild = (index: number, nodeRef: NodeViewWithParent, selection: Selection) => {
+    dispatch(outdentNode(nodeRef, parentView, index + 1, selection))
   }
 
   return (
@@ -73,21 +73,25 @@ export function NodeEditorList({ nodes, viewPath, moveFocusBefore, moveFocusAfte
       paddingInlineStart: '0',
       width: '100%',
     }}>
-      {nodes.map((contentNode, i) => <li key={contentNode.nodeId}>
-        <NodeEditorInline
-          nodeRef={{ nodeId: contentNode.nodeId, parentId: viewPath[viewPath.length - 1] }}
-          expanded={contentNode.expanded ?? false}
-          viewPath={viewPath}
-          moveFocusBefore={() => focusIndex(i - 1, 'last')}
-          moveFocusAfter={() => focusIndex(i + 1, 'first')}
-          indent={(nodeId, selection) => indent(i, nodeId, selection)}
-          outdent={outdentChild}
-          outdentChild={(nodeRef, selection) => outdentChildOfChild(i, nodeRef, selection)}
-          ref={el => {
-            childNodeRefs.current[i] = el
-          }}
-        />
-      </li>)}
+      {nodes.map((contentNode, i) => {
+        const childView: NodeViewWithParent = { nodeId: contentNode.nodeId, parent: parentView }
+        return (
+          <li key={contentNode.nodeId}>
+            <NodeEditorInline
+              nodeView={childView}
+              expanded={contentNode.expanded ?? false}
+              moveFocusBefore={() => focusIndex(i - 1, 'last')}
+              moveFocusAfter={() => focusIndex(i + 1, 'first')}
+              indent={(selection) => indent(i, childView, selection)}
+              outdent={outdentChild ? (selection) => outdentChild(childView, selection) : undefined}
+              outdentChild={(nodeRef, selection) => outdentChildOfChild(i, nodeRef, selection)}
+              ref={el => {
+                childNodeRefs.current[i] = el
+              }}
+            />
+          </li>
+        )
+      })}
     </ul>
   )
 }

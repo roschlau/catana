@@ -2,13 +2,13 @@ import {Flex} from '@radix-ui/themes'
 import {useAppDispatch, useAppSelector} from './redux/hooks'
 import {nodeExpandedChanged, nodeIndexChanged} from './redux/nodes/nodesSlice'
 import {ChevronRightIcon, DotFilledIcon} from '@radix-ui/react-icons'
-import {KeyboardEvent, Ref, useCallback, useImperativeHandle, useRef, useState} from 'react'
+import {KeyboardEvent, Ref, useCallback, useImperativeHandle, useMemo, useRef, useState} from 'react'
 import './NodeEditor.css'
 import classNames from 'classnames'
 import {calculateCursorPosition} from './util/textarea-measuring'
 import {useFocusRestore} from './redux/ui/uiSlice'
-import {mergeNode, Selection, splitNode} from './redux/nodes/thunks'
-import {NodeId, NodeReference} from '../common/nodeGraphModel'
+import {mergeNodeBackward, mergeNodeForward, Selection, splitNode} from './redux/nodes/thunks'
+import {isRecursive, NodeViewWithParent} from '../common/nodeGraphModel'
 import {NodeTitleEditorTextField, NodeTitleEditorTextFieldRef} from './NodeTitleEditorTextField'
 import {NodeEditorList, NodeEditorListRef} from './NodeEditorList'
 
@@ -17,9 +17,8 @@ export interface NodeEditorRef {
 }
 
 export function NodeEditorInline({
-                                   nodeRef,
+                                   nodeView,
                                    expanded,
-                                   viewPath,
                                    moveFocusBefore,
                                    moveFocusAfter,
                                    indent,
@@ -27,12 +26,9 @@ export function NodeEditorInline({
                                    outdentChild,
                                    ref,
                                  }: {
-  /** The node reference to render */
-  nodeRef: NodeReference,
+  /** The node view to render */
+  nodeView: NodeViewWithParent,
   expanded: boolean,
-  /** A list of ancestor nodes of this editor in the current view. If there are node links in the view
-   path, only _their_ ID should be included, and _not_ the ID of the nodes they point to. */
-  viewPath: NodeId[],
   /** Called when the user attempts to move focus out of and before this node.
    Should return false if there is no previous node to move focus to, true otherwise. */
   moveFocusBefore?: () => boolean,
@@ -40,31 +36,31 @@ export function NodeEditorInline({
    Should return false if there is no next node to move focus to, true otherwise. */
   moveFocusAfter?: () => boolean,
   /** Called when the user triggers the indent action on this node. */
-  indent?: (nodeId: NodeId, selection: Selection) => void,
+  indent?: (selection: Selection) => void,
   /** Called when the user triggers the outdent action on this node. */
-  outdent?: (nodeRef: NodeReference, selection: Selection) => void,
+  outdent?: (selection: Selection) => void,
   /** Called when the user triggers the outdent action on a child node of this node. */
-  outdentChild?: (nodeRef: NodeReference, selection: Selection) => void,
+  outdentChild?: (nodeRef: NodeViewWithParent, selection: Selection) => void,
   ref?: Ref<NodeEditorRef>,
 }) {
   const dispatch = useAppDispatch()
-  const node = useAppSelector(state => state.nodes.present[nodeRef.nodeId]!)
-  const parent = useAppSelector(state => nodeRef.parentId ? state.nodes.present[nodeRef.parentId] : undefined)
+  const node = useAppSelector(state => state.nodes.present[nodeView.nodeId]!)
+  const parent = useAppSelector(state => state.nodes.present[nodeView.parent.nodeId]!)
   /** True if this node editor is shown under a different node than the node's owner. */
   const isLink = !!parent && (!node.ownerId || node.ownerId !== parent.id)
   const childRefs = node.content
 
-  const isRecursiveInstance = viewPath.includes(node.id)
-  // Control node expansion. Every node and node link stores its expansion state globally, but if we're looking at a
-  // recursively nested instance of a node link we need to use a component-local override that defaults to false.
-  // If we don't, the UI will crash in a recursive loop when such an instance is expanded.
+  const isRecursiveInstance = useMemo(() => isRecursive(nodeView.parent), [nodeView])
+  // Control node expansion. Every node stores the expansion state of its children globally, but if we're looking at a
+  // node that's already shown under the same parent further up the view tree, we need to use a component-local override
+  // that defaults to false. If we don't, the UI will crash in a recursive loop.
   const [expandedLocalOverride, setExpandedLocalOverride] = useState(false)
   const isExpanded = isRecursiveInstance ? expandedLocalOverride : expanded
   const setExpanded = (expanded: boolean) => {
     if (isRecursiveInstance) {
       setExpandedLocalOverride(expanded)
     } else {
-      dispatch(nodeExpandedChanged({ nodeRef, expanded }))
+      dispatch(nodeExpandedChanged({ nodeView, expanded }))
     }
   }
 
@@ -86,7 +82,7 @@ export function NodeEditorInline({
     return true
   }, [titleEditorRef])
 
-  useFocusRestore(nodeRef, (selection) => {
+  useFocusRestore(nodeView, (selection) => {
     titleEditorRef.current?.focus(selection)
   })
 
@@ -105,12 +101,12 @@ export function NodeEditorInline({
     }
     if (e.key === 'ArrowDown' && e.shiftKey && e.altKey) {
       e.preventDefault()
-      dispatch(nodeIndexChanged({ nodeRef, indexChange: 1 }))
+      dispatch(nodeIndexChanged({ nodeView, indexChange: 1 }))
       return
     }
     if (e.key === 'ArrowUp' && e.shiftKey && e.altKey) {
       e.preventDefault()
-      dispatch(nodeIndexChanged({ nodeRef, indexChange: -1 }))
+      dispatch(nodeIndexChanged({ nodeView, indexChange: -1 }))
       return
     }
     if ((e.key === 'ArrowDown' && calculateCursorPosition(textarea).lastLine)
@@ -136,9 +132,9 @@ export function NodeEditorInline({
     if (e.key === 'Tab') {
       e.preventDefault()
       if (e.shiftKey) {
-        outdent?.(nodeRef, { start: selectionStart, end: selectionEnd })
+        outdent?.({ start: selectionStart, end: selectionEnd })
       } else {
-        indent?.(node.id, { start: selectionStart, end: selectionEnd })
+        indent?.({ start: selectionStart, end: selectionEnd })
       }
       return
     }
@@ -146,7 +142,7 @@ export function NodeEditorInline({
       // Not allowing any line breaks for now to simplify things. Might change my mind on that later.
       e.preventDefault()
       dispatch(splitNode(
-        nodeRef,
+        nodeView,
         selectionStart,
         selectionEnd,
       ))
@@ -158,7 +154,7 @@ export function NodeEditorInline({
         return
       }
       if (selectionStart === 0 && selectionEnd === selectionStart) {
-        dispatch(mergeNode(nodeRef, viewPath, 'prev'))
+        dispatch(mergeNodeBackward(nodeView))
         e.preventDefault()
       }
       return
@@ -169,7 +165,7 @@ export function NodeEditorInline({
         return
       }
       if (selectionStart === node.title.length && selectionEnd === selectionStart) {
-        dispatch(mergeNode(nodeRef, viewPath, 'next'))
+        dispatch(mergeNodeForward(nodeView))
         e.preventDefault()
       }
       return
@@ -204,7 +200,7 @@ export function NodeEditorInline({
           <NodeEditorList
               ref={contentNodesList}
               nodes={childRefs}
-              viewPath={[...viewPath, node.id]}
+              parentView={nodeView}
               moveFocusBefore={focus}
               moveFocusAfter={moveFocusAfter}
               outdentChild={outdentChild}

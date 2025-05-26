@@ -1,38 +1,41 @@
-import {Node, NodeId, NodeReference} from '../../../common/nodeGraphModel'
+import {Node, NodeId, NodeView, NodeViewWithParent} from '../../../common/nodeGraphModel'
 
 export type NodeWithContext = {
   node: Node,
   viewContext?: {
+    parentView: NodeView,
     parent: Node,
     childIndex: number,
     isExpanded: boolean,
   },
 }
 
+export function resolveNodeRef(state: Partial<Record<NodeId, Node>>, nodeRef: NodeViewWithParent): Required<NodeWithContext>
+export function resolveNodeRef(state: Partial<Record<NodeId, Node>>, nodeRef: NodeView): NodeWithContext
 export function resolveNodeRef(
   state: Partial<Record<NodeId, Node>>,
-  nodeRef: NodeReference,
+  nodeRef: NodeView,
 ): NodeWithContext {
   const node = state[nodeRef.nodeId]!
-  const viewContext = nodeRef.parentId
-    ? getViewContext(state[nodeRef.parentId]!, nodeRef.nodeId)
+  const viewContext = nodeRef.parent
+    ? { ...getViewContext(state[nodeRef.parent.nodeId]!, nodeRef.nodeId), parentView: nodeRef.parent }
     : undefined
   return { node, viewContext }
 }
 
-function getViewContext(parent: Node, childId: NodeId): NonNullable<NodeWithContext['viewContext']> {
+function getViewContext(parent: Node, childId: NodeId) {
   const contentChildIndex = parent.content.findIndex(it => it.nodeId === childId)
   if (contentChildIndex === -1) {
     throw Error(`Invalid reference: ${childId} is not a child of ${parent.id}`)
   }
   return {
-    parent: parent,
+    parent,
     childIndex: contentChildIndex,
     isExpanded: parent.content[contentChildIndex].expanded ?? false,
   }
 }
 
-export function deleteNode(state: Partial<Record<NodeId, Node>>, nodeRef: NodeReference, moveLinksTo: NodeId): void {
+export function deleteNode(state: Partial<Record<NodeId, Node>>, nodeRef: NodeViewWithParent, moveLinksTo: NodeId): void {
   // Remove from parent's children
   const { node, viewContext } = resolveNodeRef(state, nodeRef)
   const { parent, childIndex } = viewContext!

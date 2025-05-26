@@ -5,7 +5,7 @@ import {useAppDispatch, useAppSelector} from './redux/hooks'
 import {KeyboardEvent, useCallback, useRef} from 'react'
 import {NodeEditorList, NodeEditorListRef} from './NodeEditorList'
 import {calculateCursorPosition} from './util/textarea-measuring'
-import {mergeNode, splitNode} from './redux/nodes/thunks'
+import {mergeNodeForward, splitNode} from './redux/nodes/thunks'
 import {useFocusRestore} from './redux/ui/uiSlice'
 
 export function NodeEditorPage({ nodeId }: {
@@ -15,7 +15,7 @@ export function NodeEditorPage({ nodeId }: {
   const node = useAppSelector(state => state.nodes.present[nodeId]!)
   const contentNodesList = useRef<NodeEditorListRef | null>(null)
   const titleEditorRef = useRef<NodeTitleEditorTextFieldRef | null>(null)
-  const viewPath = [nodeId]
+  const nodeView = { nodeId }
 
   const focus = useCallback(() => {
     titleEditorRef.current?.focus()
@@ -41,7 +41,7 @@ export function NodeEditorPage({ nodeId }: {
       // Not allowing any line breaks for now to simplify things. Might change my mind on that later.
       e.preventDefault()
       dispatch(splitNode(
-        { nodeId },
+        nodeView,
         selectionStart,
         selectionEnd,
       ))
@@ -52,7 +52,7 @@ export function NodeEditorPage({ nodeId }: {
         return
       }
       if (selectionStart === node.title.length && selectionEnd === selectionStart) {
-        dispatch(mergeNode({ nodeId }, viewPath, 'next'))
+        dispatch(mergeNodeForward(nodeView))
         e.preventDefault()
       }
       return
@@ -75,7 +75,7 @@ export function NodeEditorPage({ nodeId }: {
         <NodeEditorList
           ref={contentNodesList}
           nodes={node.content}
-          viewPath={viewPath}
+          parentView={nodeView}
           moveFocusBefore={focus}
         />
       </Flex>

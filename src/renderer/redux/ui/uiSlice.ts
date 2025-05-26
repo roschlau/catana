@@ -1,12 +1,12 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {PartialBy} from '../../util/types'
-import {NodeReference} from '../../../common/nodeGraphModel'
+import {isSameView, NodeView} from '../../../common/nodeGraphModel'
 import {Selection} from '../nodes/thunks'
 import {useAppDispatch, useAppSelector} from '../hooks'
 import {useEffect} from 'react'
 
 interface FocusRestoreRequest {
-  nodeRef: NodeReference
+  nodeRef: NodeView
   selection: Selection
 }
 
@@ -19,7 +19,7 @@ export const uiSlice = createSlice({
   initialState: {} as UiState,
   reducers: {
     focusRestoreRequested: (state, action: PayloadAction<{
-      nodeRef: NodeReference,
+      nodeRef: NodeView,
       selection: PartialBy<Selection, 'end'>
     }>) => {
       state.focusRestoreRequest = {
@@ -45,7 +45,7 @@ export const selectPreparedFocusRestore = (state: { ui: UiState }) => state.ui.f
  * Calls `focus` as an effect if a focus restore has been requested for the passed nodeRef.
  */
 export function useFocusRestore(
-  nodeRef: NodeReference,
+  nodeRef: NodeView,
   focus: (selection: Selection) => void,
 ) {
   const preparedFocusRestore = useAppSelector(selectPreparedFocusRestore)
@@ -53,10 +53,10 @@ export function useFocusRestore(
   useEffect(() => {
     if (preparedFocusRestore) {
       const { nodeRef: focusNodeRef, selection: focusSelection } = preparedFocusRestore
-      if (focusNodeRef.nodeId === nodeRef.nodeId && focusNodeRef.parentId === nodeRef.parentId) {
+      if (isSameView(focusNodeRef, nodeRef)) {
         focus(focusSelection)
         dispatch(focusRestored())
       }
     }
-  }, [preparedFocusRestore, dispatch, nodeRef.nodeId, nodeRef.parentId, focus])
+  }, [preparedFocusRestore, dispatch, nodeRef, focus])
 }
