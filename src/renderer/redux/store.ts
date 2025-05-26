@@ -1,13 +1,17 @@
-import {configureStore} from '@reduxjs/toolkit'
+import {combineReducers, configureStore} from '@reduxjs/toolkit'
 import {nodeExpandedChanged, nodeIndexChanged, nodesSlice, titleUpdated} from './nodes/nodesSlice'
 import undoable from 'redux-undo'
-import {uiSlice} from './ui/uiSlice'
+import {ephemeralUiSlice, undoableUiSlice} from './ui/uiSlice'
 import {getUndoTransactionKey} from './undoTransactions'
 
+const undoableStateReducer = combineReducers({
+  nodes: nodesSlice.reducer,
+  ui: undoableUiSlice.reducer,
+})
 
 export const store = configureStore({
   reducer: {
-    nodes: undoable(nodesSlice.reducer, {
+    undoable: undoable(undoableStateReducer, {
       groupBy: (action) => {
         const transactionKey = getUndoTransactionKey(action)
         if (transactionKey) {
@@ -20,7 +24,7 @@ export const store = configureStore({
           : null
       },
     }),
-    ui: uiSlice.reducer,
+    ui: ephemeralUiSlice.reducer,
   },
 })
 

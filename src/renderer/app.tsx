@@ -5,12 +5,13 @@ import {ThemeProvider} from 'next-themes'
 import {Provider} from 'react-redux'
 import {store} from './redux/store'
 import {DownloadIcon, GearIcon, HomeIcon, UploadIcon} from '@radix-ui/react-icons'
-import {useAppDispatch, useAppStore} from './redux/hooks'
+import {useAppDispatch, useAppSelector, useAppStore} from './redux/hooks'
 import {buildTree, ROOT_NODE} from './redux/nodes/demoGraph'
 import {ActionCreators} from 'redux-undo'
 import {nodeGraphLoaded} from './redux/nodes/nodesSlice'
 import {Id} from '../common/nodeGraphModel'
 import {NodeEditorPage} from './NodeEditorPage'
+import {rootNodeSet} from './redux/ui/uiSlice'
 
 const root = createRoot(document.body)
 root.render(
@@ -24,12 +25,13 @@ root.render(
 )
 
 function App() {
-  const [nodeId, setNodeId] = useState(ROOT_NODE)
+  const dispatch = useAppDispatch()
+  const nodeId = useAppSelector((state) => state.undoable.present.ui.rootNode)
   const store = useAppStore()
   const saveWorkspace = useCallback(() => {
-    console.log(JSON.stringify(buildTree(store.getState().nodes.present)))
+    console.log(JSON.stringify(buildTree(store.getState().undoable.present.nodes)))
   }, [store])
-  const dispatch = useAppDispatch()
+  const setNodeId = (nodeId: Id<'node'>) => { dispatch(rootNodeSet({ nodeId })) }
   const importClicked = async () => {
     const result = await window.catanaAPI.loadTanaExport()
     if (!result) {

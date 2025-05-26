@@ -12,7 +12,7 @@ export function NodeEditorPage({ nodeId }: {
   nodeId: Id<'node'>,
 }) {
   const dispatch = useAppDispatch()
-  const node = useAppSelector(state => state.nodes.present[nodeId]!)
+  const node = useAppSelector(state => state.undoable.present.nodes[nodeId]!)
   const contentNodesList = useRef<NodeEditorListRef | null>(null)
   const titleEditorRef = useRef<NodeTitleEditorTextFieldRef | null>(null)
   const nodeView = { nodeId }

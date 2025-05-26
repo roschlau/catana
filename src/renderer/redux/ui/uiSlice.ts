@@ -1,22 +1,43 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {PartialBy} from '../../util/types'
-import {isSameView, NodeView} from '../../../common/nodeGraphModel'
+import {Id, isSameView, NodeView} from '../../../common/nodeGraphModel'
 import {Selection} from '../nodes/thunks'
 import {useAppDispatch, useAppSelector} from '../hooks'
 import {useEffect} from 'react'
+import {ROOT_NODE} from '../nodes/demoGraph'
+
+export interface UndoableUiState {
+  rootNode: Id<'node'>
+}
+
+/**
+ * All parts of UI state that should be captured in global undo history
+ */
+export const undoableUiSlice = createSlice({
+  name: 'ui',
+  initialState: { rootNode: ROOT_NODE } as UndoableUiState,
+  reducers: {
+    rootNodeSet: (state, action: PayloadAction<{ nodeId: Id<'node'> }>) => {
+      state.rootNode = action.payload.nodeId
+    },
+  },
+})
+
+export interface EphemeralUiState {
+  focusRestoreRequest?: FocusRestoreRequest
+}
 
 interface FocusRestoreRequest {
   nodeRef: NodeView
   selection: Selection
 }
 
-export interface UiState {
-  focusRestoreRequest?: FocusRestoreRequest
-}
-
-export const uiSlice = createSlice({
+/**
+ * All parts of UI state that should _not_ be captured in global undo history
+ */
+export const ephemeralUiSlice = createSlice({
   name: 'ui',
-  initialState: {} as UiState,
+  initialState: {} as EphemeralUiState,
   reducers: {
     focusRestoreRequested: (state, action: PayloadAction<{
       nodeRef: NodeView,
@@ -37,9 +58,10 @@ export const uiSlice = createSlice({
   },
 })
 
-export const { focusRestoreRequested, focusRestored } = uiSlice.actions
+export const { rootNodeSet } = undoableUiSlice.actions
+export const { focusRestoreRequested, focusRestored } = ephemeralUiSlice.actions
 
-export const selectPreparedFocusRestore = (state: { ui: UiState }) => state.ui.focusRestoreRequest
+export const selectPreparedFocusRestore = (state: { ui: EphemeralUiState }) => state.ui.focusRestoreRequest
 
 /**
  * Calls `focus` as an effect if a focus restore has been requested for the passed nodeRef.

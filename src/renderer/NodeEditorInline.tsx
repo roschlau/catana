@@ -2,11 +2,11 @@ import {Flex} from '@radix-ui/themes'
 import {useAppDispatch, useAppSelector} from './redux/hooks'
 import {nodeExpandedChanged, nodeIndexChanged} from './redux/nodes/nodesSlice'
 import {ChevronRightIcon, DotFilledIcon} from '@radix-ui/react-icons'
-import {KeyboardEvent, Ref, useCallback, useImperativeHandle, useMemo, useRef, useState} from 'react'
+import {KeyboardEvent, MouseEvent, Ref, useCallback, useImperativeHandle, useMemo, useRef, useState} from 'react'
 import './NodeEditor.css'
 import classNames from 'classnames'
 import {calculateCursorPosition} from './util/textarea-measuring'
-import {useFocusRestore} from './redux/ui/uiSlice'
+import {rootNodeSet, useFocusRestore} from './redux/ui/uiSlice'
 import {mergeNodeBackward, mergeNodeForward, Selection, splitNode} from './redux/nodes/thunks'
 import {isRecursive, NodeViewWithParent} from '../common/nodeGraphModel'
 import {NodeTitleEditorTextField, NodeTitleEditorTextFieldRef} from './NodeTitleEditorTextField'
@@ -44,8 +44,8 @@ export function NodeEditorInline({
   ref?: Ref<NodeEditorRef>,
 }) {
   const dispatch = useAppDispatch()
-  const node = useAppSelector(state => state.nodes.present[nodeView.nodeId]!)
-  const parent = useAppSelector(state => state.nodes.present[nodeView.parent.nodeId]!)
+  const node = useAppSelector(state => state.undoable.present.nodes[nodeView.nodeId]!)
+  const parent = useAppSelector(state => state.undoable.present.nodes[nodeView.parent.nodeId]!)
   /** True if this node editor is shown under a different node than the node's owner. */
   const isLink = !!parent && (!node.ownerId || node.ownerId !== parent.id)
   const childRefs = node.content
@@ -61,6 +61,13 @@ export function NodeEditorInline({
       setExpandedLocalOverride(expanded)
     } else {
       dispatch(nodeExpandedChanged({ nodeView, expanded }))
+    }
+  }
+  const bulletClicked = (e: MouseEvent) => {
+    if (e.ctrlKey) {
+      dispatch(rootNodeSet({ nodeId: node.id }))
+    } else {
+      setExpanded(!isExpanded)
     }
   }
 
@@ -183,7 +190,7 @@ export function NodeEditorInline({
         <button
           style={{ marginTop: '.4rem' }}
           className={chevronButtonClasses}
-          onClick={() => setExpanded(!isExpanded)}
+          onClick={bulletClicked}
         >
           {childRefs.length > 0
             ? <ChevronRightIcon style={{ rotate: isExpanded ? '90deg' : '0deg' }} color={'var(--gray-10)'}/>

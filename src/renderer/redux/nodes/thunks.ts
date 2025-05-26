@@ -13,7 +13,7 @@ export interface Selection {
 
 export function indentNode(nodeView: NodeViewWithParent, intoNewParentRef: NodeViewWithParent, currentSelection: Selection) {
   return createUndoTransaction((dispatch: AppDispatch, getState: () => RootState) => {
-    const { node: newParent, viewContext: newParentContext } = resolveNodeRef(getState().nodes.present, intoNewParentRef)
+    const { node: newParent, viewContext: newParentContext } = resolveNodeRef(getState().undoable.present.nodes, intoNewParentRef)
     // Move Node to new parent
     dispatch(nodeMoved({
       nodeView: nodeView,
@@ -44,7 +44,7 @@ export function outdentNode(nodeView: NodeViewWithParent, intoParentView: NodeVi
 
 export function splitNode(nodeView: NodeView, selectionStart: number, selectionEnd: number) {
   return createUndoTransaction((dispatch: AppDispatch, getState: () => RootState) => {
-    const { node, viewContext } = resolveNodeRef(getState().nodes.present, nodeView)
+    const { node, viewContext } = resolveNodeRef(getState().undoable.present.nodes, nodeView)
     if (selectionStart !== selectionEnd) {
       dispatch(titleUpdated({
         nodeId: node.id,
@@ -98,7 +98,7 @@ export function splitNode(nodeView: NodeView, selectionStart: number, selectionE
  */
 export function mergeNodeBackward(nodeView: NodeViewWithParent) {
   return (dispatch: AppDispatch, getState: () => RootState) => {
-    const state = getState().nodes.present
+    const state = getState().undoable.present.nodes
     const { node, viewContext } = resolveNodeRef(state, nodeView)
     if (node.ownerId !== viewContext?.parent.id) {
       console.debug(`Node Merge canceled: Can't merge node link ${node.id} into surrounding nodes`)
@@ -126,7 +126,7 @@ export function mergeNodeBackward(nodeView: NodeViewWithParent) {
  */
 export function mergeNodeForward(nodeView: NodeView) {
   return (dispatch: AppDispatch, getState: () => RootState) => {
-    const state = getState().nodes.present
+    const state = getState().undoable.present.nodes
     const { node, viewContext } = resolveNodeRef(state, nodeView)
     if (node.ownerId !== viewContext?.parent.id) {
       console.debug(`Node Merge canceled: Can't merge node link ${node.id} into surrounding nodes`)
