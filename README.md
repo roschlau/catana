@@ -6,7 +6,7 @@
 ## What is Catana?
 Catana was born from my desire to have an outliner / note taker / "second brain" that works similar to [Tana](https://tana.inc), but without having to put all my data into yet another web service that I don't control.
 
-Catana aspires to be _the_ central hub for your personal, digital life, without making you give up control over you data. That includes being:
+Catana aspires to be _the_ central hub for your personal, digital life, without making you give up control over your data. That includes being:
 - A place to put and link all your notes, thoughts, etc. (Some people call this a "Second Brain", even though I don't particularly like that term)
 - A personal journal
 - A management tool for your personal tasks and projects
