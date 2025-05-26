@@ -3,7 +3,7 @@ import {resolveNodeRef} from './helpers'
 import {nanoid} from '@reduxjs/toolkit'
 import {focusRestoreRequested} from '../ui/uiSlice'
 import {nodeCreated, nodeExpandedChanged, nodeMoved, nodesMerged, titleUpdated} from './nodesSlice'
-import {NodeView, NodeViewWithParent} from '../../../common/nodeGraphModel'
+import {Id, NodeView, NodeViewWithParent} from '../../../common/nodeGraphModel'
 import {createUndoTransaction} from '../undoTransactions'
 
 export interface Selection {
@@ -52,7 +52,7 @@ export function splitNode(nodeView: NodeView, selectionStart: number, selectionE
       }))
     }
     const splitIndex = selectionStart
-    const newNodeId = nanoid()
+    const newNodeId = nanoid() as Id<'node'>
     const newNodeBase = {
       nodeId: newNodeId,
       title: node.title.slice(splitIndex),

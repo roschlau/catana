@@ -1,7 +1,7 @@
-import {NodeGraphFlattened} from '../common/nodeGraphModel'
+import {Id, NodeGraphFlattened} from '../common/nodeGraphModel'
 
 export interface CatanaAPI {
-  loadTanaExport: () => Promise<{ rootId: string, nodes: NodeGraphFlattened } | null>,
+  loadTanaExport: () => Promise<{ rootId: Id<'node'>, nodes: NodeGraphFlattened } | null>,
 }
 
 declare global {

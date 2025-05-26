@@ -1,4 +1,4 @@
-import {NodeId} from '../common/nodeGraphModel'
+import {Id} from '../common/nodeGraphModel'
 import {Flex, Heading} from '@radix-ui/themes'
 import {NodeTitleEditorTextField, NodeTitleEditorTextFieldRef} from './NodeTitleEditorTextField'
 import {useAppDispatch, useAppSelector} from './redux/hooks'
@@ -9,7 +9,7 @@ import {mergeNodeForward, splitNode} from './redux/nodes/thunks'
 import {useFocusRestore} from './redux/ui/uiSlice'
 
 export function NodeEditorPage({ nodeId }: {
-  nodeId: NodeId,
+  nodeId: Id<'node'>,
 }) {
   const dispatch = useAppDispatch()
   const node = useAppSelector(state => state.nodes.present[nodeId]!)

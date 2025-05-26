@@ -1,4 +1,4 @@
-import {Node, NodeId, NodeViewWithParent} from '../../../common/nodeGraphModel'
+import {Id, Node, NodeViewWithParent} from '../../../common/nodeGraphModel'
 import {findBacklinks, getViewContext, resolveNodeRef} from './helpers'
 
 /**
@@ -6,9 +6,9 @@ import {findBacklinks, getViewContext, resolveNodeRef} from './helpers'
  * finalizing the merge of two nodes.
  */
 export function deleteNodeAfterMerge(
-  state: Partial<Record<NodeId, Node>>,
+  state: Partial<Record<Id<'node'>, Node>>,
   nodeRef: NodeViewWithParent,
-  mergedNode: NodeId,
+  mergedNode: Id<'node'>,
 ) {
   // Remove from parent's children
   const { node, viewContext } = resolveNodeRef(state, nodeRef)
@@ -32,10 +32,10 @@ export function deleteNodeAfterMerge(
  * changed as necessary, but no second link will be created in the new parent.
  */
 export function moveNode(
-  state: Partial<Record<NodeId, Node>>,
-  nodeId: NodeId,
-  oldParentId: NodeId,
-  newParentId: NodeId,
+  state: Partial<Record<Id<'node'>, Node>>,
+  nodeId: Id<'node'>,
+  oldParentId: Id<'node'>,
+  newParentId: Id<'node'>,
   childIndex: number,
 ) {
   const node = state[nodeId]!
@@ -52,9 +52,9 @@ export function moveNode(
 }
 
 export function addChildReference(
-  state: Partial<Record<NodeId, Node>>,
-  childId: NodeId,
-  parentId: NodeId,
+  state: Partial<Record<Id<'node'>, Node>>,
+  childId: Id<'node'>,
+  parentId: Id<'node'>,
   atIndex: number,
   expanded: boolean = false,
 ) {

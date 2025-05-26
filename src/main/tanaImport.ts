@@ -1,24 +1,24 @@
 import {nanoid} from '@reduxjs/toolkit'
-import {Node, NodeGraphFlattened, NodeId} from '../common/nodeGraphModel'
+import {Id, Node, NodeGraphFlattened} from '../common/nodeGraphModel'
 
 interface TanaExport {
   formatVersion: 1,
   docs: {
-    id: string,
+    id: Id<'node'>,
     props: {
       name: string,
       description: string,
       _docType: string,
-      _ownerId: string | null,
-      _metaNodeId: string | null,
-    } & Record<string, unknown>
-    children: string[] | null,
+      _ownerId: Id<'node'> | null,
+      _metaNodeId: Id<'node'> | null,
+    } & Record<Id<'node'>, unknown>
+    children: Id<'node'>[] | null,
   }[]
 }
 
-export function loadTanaExport(fileContent: string): { rootId: NodeId, nodes: NodeGraphFlattened } {
+export function loadTanaExport(fileContent: string): { rootId: Id<'node'>, nodes: NodeGraphFlattened } {
   const { docs } = JSON.parse(fileContent) as TanaExport
-  const nodes: Record<NodeId, Node> = {}
+  const nodes: Record<Id<'node'>, Node> = {}
   docs.forEach(doc => {
     const node: Node = {
       id: doc.id,
@@ -31,7 +31,7 @@ export function loadTanaExport(fileContent: string): { rootId: NodeId, nodes: No
     }
     const { id, children, ...details } = doc
     const detailsNode: Node = {
-      id: doc.id + '_details',
+      id: doc.id + '_details' as Id<'node'>,
       title: JSON.stringify(details),
       ownerId: doc.id,
       content: [],
@@ -44,7 +44,7 @@ export function loadTanaExport(fileContent: string): { rootId: NodeId, nodes: No
   if (roots.length === 1) {
     return { rootId: roots[0].id, nodes }
   }
-  const rootId = 't_import_' + nanoid()
+  const rootId = 't_import_' + nanoid() as Id<'node'>
   nodes[rootId] = {
     id: rootId,
     title: 'Tana Import Root',

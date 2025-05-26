@@ -2,7 +2,7 @@ import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {clamp} from '../../util/math'
 import {resolveNodeRef} from './helpers'
 import {demoGraph, flatten} from './demoGraph'
-import {NodeGraphFlattened, NodeId, NodeViewWithParent} from '../../../common/nodeGraphModel'
+import {Id, NodeGraphFlattened, NodeViewWithParent} from '../../../common/nodeGraphModel'
 import {addChildReference, deleteNodeAfterMerge, moveNode} from './stateMutations'
 
 export const nodesSlice = createSlice({
@@ -20,9 +20,9 @@ export const nodesSlice = createSlice({
       })
     },
     nodeCreated: (state, action: PayloadAction<{
-      nodeId: NodeId,
+      nodeId: Id<'node'>,
       title: string,
-      ownerId: NodeId,
+      ownerId: Id<'node'>,
       indexInOwner: number
     }>) => {
       const node = action.payload
@@ -34,7 +34,7 @@ export const nodesSlice = createSlice({
       }
       addChildReference(state, node.nodeId, node.ownerId, node.indexInOwner, false)
     },
-    titleUpdated: (state, action: PayloadAction<{ nodeId: NodeId, title: string }>) => {
+    titleUpdated: (state, action: PayloadAction<{ nodeId: Id<'node'>, title: string }>) => {
       const node = state[action.payload.nodeId]!
       if (action.payload.title.includes('\n')) {
         console.warn(`Stripping newline from updated title of node ${action.payload.nodeId}`)
@@ -56,7 +56,7 @@ export const nodesSlice = createSlice({
     },
     nodeMoved: (state, action: PayloadAction<{
       nodeView: NodeViewWithParent,
-      newParentId: NodeId,
+      newParentId: Id<'node'>,
       newIndex: number
     }>) => {
       const { nodeView: { nodeId, parent }, newParentId, newIndex } = action.payload
@@ -66,7 +66,7 @@ export const nodesSlice = createSlice({
      * Merges the second node into the first node by appending the second node's title, prepending its children, and
      * moving any links to it to the first node.
      */
-    nodesMerged: (state, action: PayloadAction<{ firstNodeId: NodeId, secondNodeRef: NodeViewWithParent }>) => {
+    nodesMerged: (state, action: PayloadAction<{ firstNodeId: Id<'node'>, secondNodeRef: NodeViewWithParent }>) => {
       const firstNode = state[action.payload.firstNodeId]!
       const secondNode = state[action.payload.secondNodeRef.nodeId]!
       // Merge titles

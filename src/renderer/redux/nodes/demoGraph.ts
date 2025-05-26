@@ -1,13 +1,13 @@
 import {nanoid} from '@reduxjs/toolkit'
 import {isPresent} from '../../util/optionals'
-import {Node, NodeGraphFlattened, NodeId} from '../../../common/nodeGraphModel'
+import {Id, Node, NodeGraphFlattened} from '../../../common/nodeGraphModel'
 
 type Tree =
   | NodeLink
   | TreeNode
 
 type TreeNode = {
-  id?: NodeId
+  id?: string
   type: 'text'
   title: string
   content?: Tree[],
@@ -16,11 +16,11 @@ type TreeNode = {
 
 export interface NodeLink {
   type: 'nodeLink'
-  nodeId: NodeId
+  nodeId: string
   expanded?: boolean
 }
 
-export const ROOT_NODE = '_root'
+export const ROOT_NODE = '_root' as Id<'node'>
 
 export const demoGraph: Exclude<Tree, NodeLink> = {
   type: 'text',
@@ -93,11 +93,11 @@ export const demoGraph: Exclude<Tree, NodeLink> = {
 export function flatten(tree: Exclude<Tree, NodeLink>): NodeGraphFlattened {
   const nodes: NodeGraphFlattened = {}
 
-  function traverse(node: Exclude<Tree, NodeLink>, ownerId: NodeId | null): NodeId {
-    const nodeId = node.id ?? nanoid()
+  function traverse(node: Exclude<Tree, NodeLink>, ownerId: Id<'node'> | null): Id<'node'> {
+    const nodeId = (node.id ?? nanoid()) as Id<'node'>
     const childRefs = node.content?.map(child => {
       if (child.type === 'nodeLink') {
-        return { nodeId: child.nodeId, expanded: child.expanded }
+        return { nodeId: child.nodeId as Id<'node'>, expanded: child.expanded }
       }
       return { nodeId: traverse(child, nodeId), expanded: child.expanded }
     }) ?? []
@@ -116,9 +116,9 @@ export function flatten(tree: Exclude<Tree, NodeLink>): NodeGraphFlattened {
 }
 
 export function buildTree(nodes: NodeGraphFlattened): Tree | null {
-  const processedNodeIds = new Set<NodeId>()
+  const processedNodeIds = new Set<Id<'node'>>()
 
-  function build(id: NodeId): Exclude<Tree, NodeLink> {
+  function build(id: Id<'node'>): Exclude<Tree, NodeLink> {
     processedNodeIds.add(id)
     const node = nodes[id]
     if (!node) {
