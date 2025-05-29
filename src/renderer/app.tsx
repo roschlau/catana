@@ -1,5 +1,4 @@
 import {createRoot} from 'react-dom/client'
-import {Theme} from '@radix-ui/themes'
 import {useCallback, useEffect} from 'react'
 import {ThemeProvider, useTheme} from 'next-themes'
 import {Provider as ReduxProvider} from 'react-redux'
@@ -18,9 +17,7 @@ const root = createRoot(document.body)
 root.render(
   <ReduxProvider store={store}>
     <ThemeProvider attribute={'class'}>
-      <Theme appearance={'inherit'} className={'grid h-full'}>
-        <App/>
-      </Theme>
+      <App/>
     </ThemeProvider>
   </ReduxProvider>,
 )
@@ -57,7 +54,7 @@ function App() {
     }
   }, [globalKeydown])
   return (
-    <div className={'flex flex-row p-2 gap-2 items-stretch bg-muted place-self-stretch overflow-hidden'}>
+    <div className={'h-full flex flex-row p-2 gap-2 items-stretch bg-muted overflow-hidden'}>
       <Sidebar
         nodeClicked={setNodeId}
         onSaveWorkspaceClicked={saveWorkspace}

@@ -28,6 +28,5 @@
 
 import './reset.css'
 import './globals.css'
-import '@radix-ui/themes/styles.css'
 
 import './app'

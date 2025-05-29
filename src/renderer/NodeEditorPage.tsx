@@ -1,5 +1,4 @@
 import {Id} from '@/common/nodeGraphModel'
-import {Heading} from '@radix-ui/themes'
 import {NodeTitleEditorTextField, NodeTitleEditorTextFieldRef} from './NodeTitleEditorTextField'
 import {useAppDispatch, useAppSelector} from './redux/hooks'
 import {KeyboardEvent, useCallback, useRef} from 'react'
@@ -66,14 +65,14 @@ export function NodeEditorPage({ nodeId }: {
         node={node}
         className={'self-start'}
       />
-      <div className={'flex flex-col w-full max-w-[600px]'}>
-        <Heading size={'7'} weight={'medium'}>
+      <div className={'flex flex-col gap-4 w-full max-w-[600px]'}>
+        <h1 className={'font-medium text-3xl'}>
           <NodeTitleEditorTextField
             ref={titleEditorRef}
             node={node}
             keyDown={titleKeyDown}
           />
-        </Heading>
+        </h1>
         <NodeEditorList
           ref={contentNodesList}
           nodes={node.content}

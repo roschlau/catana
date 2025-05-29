@@ -76,6 +76,9 @@
 }
 
 @theme inline {
+    --font-sans: Geist, sans-serif;
+    --font-mono: Geist Mono, monospace;
+
     --color-background: var(--background);
     --color-foreground: var(--foreground);
     --color-card: var(--card);
@@ -115,6 +118,17 @@
 }
 
 @layer base {
+    @font-face {
+        font-family: "Geist";
+
+        src: url("./assets/fonts/Geist[wght].ttf") format("truetype");
+    }
+    @font-face {
+        font-family: "Geist Mono";
+        font-display: swap;
+
+        src: url("./assets/fonts/GeistMono[wght].ttf") format("truetype");
+    }
     * {
         @apply border-border outline-ring/50;
         scrollbar-width: thin;
@@ -124,7 +138,7 @@
     }
     body {
         height: 100%;
-        @apply bg-background text-foreground;
+        @apply bg-background text-foreground font-sans;
     }
 }
 
