@@ -64,12 +64,4 @@
     :target {
         scroll-margin-block: 5ex;
     }
-
-    /* We're assuming that regular buttons are using components, so if we're using one manually we're going to
-       strip default styles to make it easier to get a custom button going. */
-    button {
-        background: none;
-        border: none;
-        padding: 0;
-    }
 }

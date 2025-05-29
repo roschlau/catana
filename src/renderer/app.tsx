@@ -1,6 +1,6 @@
 import {createRoot} from 'react-dom/client'
-import {Button, Theme, ThemePanel} from '@radix-ui/themes'
-import {useCallback, useEffect, useState} from 'react'
+import {Theme} from '@radix-ui/themes'
+import {useCallback, useEffect} from 'react'
 import {ThemeProvider, useTheme} from 'next-themes'
 import {Provider as ReduxProvider} from 'react-redux'
 import {store} from './redux/store'
@@ -11,7 +11,8 @@ import {nodeGraphLoaded} from './redux/nodes/nodesSlice'
 import {Id} from '@/common/nodeGraphModel'
 import {NodeEditorPage} from './NodeEditorPage'
 import {rootNodeSet} from './redux/ui/uiSlice'
-import {ArrowDownToLine, ArrowUpFromLine, House, Palette} from 'lucide-react'
+import {ArrowDownToLine, ArrowUpFromLine, House, SunMoon} from 'lucide-react'
+import {Button} from '@/renderer/components/ui/button'
 
 const root = createRoot(document.body)
 root.render(
@@ -72,29 +73,29 @@ function Sidebar({ nodeClicked, onSaveWorkspaceClicked, onImportClicked }: {
   onSaveWorkspaceClicked: () => void,
   onImportClicked: () => void,
 }) {
-  const [showThemePanel, setShowThemePanel] = useState(false)
+  const { resolvedTheme, setTheme } = useTheme()
+
   return (
     <div className={'flex flex-col gap-2'}>
       <Button onClick={() => nodeClicked(ROOT_NODE)}>
         <House size={16}/>
         Home
       </Button>
-      <Button onClick={onSaveWorkspaceClicked} variant={'surface'}>
+      <Button onClick={onSaveWorkspaceClicked} variant={'outline'}>
         <ArrowDownToLine size={16}/>
         Dump Graph
       </Button>
-      <Button onClick={onImportClicked} variant={'surface'}>
+      <Button onClick={onImportClicked} variant={'outline'}>
         <ArrowUpFromLine size={16} />
         Load Tana Export
       </Button>
       <Button
-        variant={'surface'}
-        onClick={() => setShowThemePanel(!showThemePanel)}
+        variant={'ghost'}
+        onClick={() => setTheme(() => resolvedTheme === 'dark' ? 'light' : 'dark')}
       >
-        <Palette size={16} />
-        Theme
+        <SunMoon size={16} />
+        Toggle Theme
       </Button>
-      {showThemePanel && <ThemePanel/>}
     </div>
   )
 }
