@@ -27,7 +27,7 @@
  */
 
 import './reset.css'
-import './tailwind.css'
+import './globals.css'
 import '@radix-ui/themes/styles.css'
 
 import './app'

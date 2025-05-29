@@ -1,4 +1,4 @@
-import {Id} from '../common/nodeGraphModel'
+import {Id} from '@/common/nodeGraphModel'
 import {Flex, Heading} from '@radix-ui/themes'
 import {NodeTitleEditorTextField, NodeTitleEditorTextFieldRef} from './NodeTitleEditorTextField'
 import {useAppDispatch, useAppSelector} from './redux/hooks'
@@ -7,6 +7,7 @@ import {NodeEditorList, NodeEditorListRef} from './NodeEditorList'
 import {calculateCursorPosition} from './util/textarea-measuring'
 import {mergeNodeForward, splitNode} from './redux/nodes/thunks'
 import {useFocusRestore} from './redux/ui/uiSlice'
+import {EditorPageBreadcrumbs} from '@/renderer/EditorPageBreadcrumbs'
 
 export function NodeEditorPage({ nodeId }: {
   nodeId: Id<'node'>,
@@ -61,9 +62,13 @@ export function NodeEditorPage({ nodeId }: {
 
   return (
     <Flex
-      direction={'column'} align={'center'} flexGrow={'1'} p={'6'}
+      direction={'column'} align={'center'} flexGrow={'1'} p={'4'} gap={'6'}
       style={{ background: 'var(--gray-1)', borderRadius: 'var(--radius-5)' }}
     >
+      <EditorPageBreadcrumbs
+        node={node}
+        className={'self-start'}
+      />
       <Flex direction={'column'} width={'100%'} maxWidth={'600px'}>
         <Heading size={'7'} weight={'medium'}>
           <NodeTitleEditorTextField
