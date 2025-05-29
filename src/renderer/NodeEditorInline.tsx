@@ -1,16 +1,15 @@
 import {Flex} from '@radix-ui/themes'
 import {useAppDispatch, useAppSelector} from './redux/hooks'
 import {nodeExpandedChanged, nodeIndexChanged} from './redux/nodes/nodesSlice'
-import {ChevronRightIcon, DotFilledIcon} from '@radix-ui/react-icons'
 import {KeyboardEvent, MouseEvent, Ref, useCallback, useImperativeHandle, useMemo, useRef, useState} from 'react'
-import './NodeEditor.css'
 import classNames from 'classnames'
 import {calculateCursorPosition} from './util/textarea-measuring'
 import {rootNodeSet, useFocusRestore} from './redux/ui/uiSlice'
 import {mergeNodeBackward, mergeNodeForward, Selection, splitNode} from './redux/nodes/thunks'
-import {isRecursive, NodeViewWithParent} from '../common/nodeGraphModel'
+import {isRecursive, NodeViewWithParent} from '@/common/nodeGraphModel'
 import {NodeTitleEditorTextField, NodeTitleEditorTextFieldRef} from './NodeTitleEditorTextField'
 import {NodeEditorList, NodeEditorListRef} from './NodeEditorList'
+import {ChevronRight} from 'lucide-react'
 
 export interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void
@@ -180,21 +179,26 @@ export function NodeEditorInline({
   }
 
   const chevronButtonClasses = classNames(
-    'NodeEditor_chevron-button',
-    { 'NodeEditor_chevron-button--link': isLink },
+    'mt-1 size-4 grid place-content-center rounded-full cursor-pointer text-foreground/50',
+    'hover:bg-accent hover:text-foreground',
+    { 'outline outline-dashed outline-foreground/40': isLink },
+  )
+
+  const chevronIconClasses = classNames(
+    'transition-all',
+    isExpanded ? 'rotate-90' : 'rotate-0',
   )
 
   return (
     <Flex direction={'column'} flexGrow={'1'} align={'center'}>
       <Flex direction={'row'} width={'100%'} gap={'1'} align={'start'}>
         <button
-          style={{ marginTop: '.4rem' }}
           className={chevronButtonClasses}
           onClick={bulletClicked}
         >
           {childRefs.length > 0
-            ? <ChevronRightIcon style={{ rotate: isExpanded ? '90deg' : '0deg' }} color={'var(--gray-10)'}/>
-            : <DotFilledIcon color={'var(--gray-10)'}/>}
+            ? <ChevronRight size={16} className={chevronIconClasses}/>
+            : <div className={'size-1 rounded-full bg-current'}/>}
         </button>
         <NodeTitleEditorTextField
           ref={titleEditorRef}
@@ -203,7 +207,7 @@ export function NodeEditorInline({
         />
       </Flex>
       {isExpanded && childRefs.length > 0 && <Flex direction={'row'} width={'100%'}>
-          <div style={{ width: '2px', margin: '0 12px 0 6px', background: 'var(--gray-5)' }}></div>
+          <div className={'w-0.5 mr-3 ml-1.5 bg-border'}></div>
           <NodeEditorList
               ref={contentNodesList}
               nodes={childRefs}

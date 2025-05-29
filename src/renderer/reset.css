@@ -1,74 +1,75 @@
 /* Most of the code in here taken from https://piccalil.li/blog/a-more-modern-css-reset/ under https://creativecommons.org/licenses/by/3.0/ */
+@layer base {
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
 
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-}
-
-/* Prevent font size inflation */
-html {
-    -moz-text-size-adjust: none;
-    -webkit-text-size-adjust: none;
-    text-size-adjust: none;
-}
+    /* Prevent font size inflation */
+    html {
+        -moz-text-size-adjust: none;
+        -webkit-text-size-adjust: none;
+        text-size-adjust: none;
+    }
 
 
-/* Remove default margin in favour of better control in authored CSS */
-h1, h2, h3, h4, p,
-figure, blockquote, dl, dd {
-    margin-block-end: 0;
-}
+    /* Remove default margin in favour of better control in authored CSS */
+    h1, h2, h3, h4, p,
+    figure, blockquote, dl, dd {
+        margin-block-end: 0;
+    }
 
-body {
-    min-height: 100vh;
-    line-height: 1.5;
-    margin: 0;
-}
+    body {
+        min-height: 100vh;
+        line-height: 1.5;
+        margin: 0;
+    }
 
-/* Set shorter line heights on headings and interactive elements */
-h1, h2, h3, h4,
-button, input, label {
-    line-height: 1.1;
-}
+    /* Set shorter line heights on headings and interactive elements */
+    h1, h2, h3, h4,
+    button, input, label {
+        line-height: 1.1;
+    }
 
-h1, h2, h3, h4 {
-    text-wrap: balance;
-}
+    h1, h2, h3, h4 {
+        text-wrap: balance;
+    }
 
-ul, ol {
-    list-style: none;
-    margin-block: 0;
-}
-a:not([class]) {
-    text-decoration-skip-ink: auto;
-    color: currentColor;
-}
+    ul, ol {
+        list-style: none;
+        margin-block: 0;
+    }
+    a:not([class]) {
+        text-decoration-skip-ink: auto;
+        color: currentColor;
+    }
 
-/* Inherit fonts for inputs and buttons */
-input,
-button,
-textarea,
-select {
-    font-family: inherit;
-    font-size: inherit;
-    font-weight: inherit;
-    color: currentColor;
-}
+    /* Inherit fonts for inputs and buttons */
+    input,
+    button,
+    textarea,
+    select {
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        color: currentColor;
+    }
 
-textarea {
-    line-height: inherit;
-}
+    textarea {
+        line-height: inherit;
+    }
 
-/* Anything that has been anchored to should have extra scroll margin */
-:target {
-    scroll-margin-block: 5ex;
-}
+    /* Anything that has been anchored to should have extra scroll margin */
+    :target {
+        scroll-margin-block: 5ex;
+    }
 
-/* We're assuming that regular buttons are handled through Radix Themes, so if we're using one manually we're going to
-   strip default styles to make it easier to get a custom button going. */
-button {
-    background: none;
-    border: none;
-    padding: 0;
+    /* We're assuming that regular buttons are using components, so if we're using one manually we're going to
+       strip default styles to make it easier to get a custom button going. */
+    button {
+        background: none;
+        border: none;
+        padding: 0;
+    }
 }
