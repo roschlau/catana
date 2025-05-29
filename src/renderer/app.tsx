@@ -18,7 +18,7 @@ const root = createRoot(document.body)
 root.render(
   <ReduxProvider store={store}>
     <ThemeProvider attribute={'class'}>
-      <Theme appearance={'inherit'} style={{ display: 'grid' }}>
+      <Theme appearance={'inherit'} className={'grid h-full'}>
         <App/>
       </Theme>
     </ThemeProvider>
@@ -57,7 +57,7 @@ function App() {
     }
   }, [globalKeydown])
   return (
-    <div className={'flex flex-row p-2 gap-2 items-stretch bg-muted'}>
+    <div className={'flex flex-row p-2 gap-2 items-stretch bg-muted place-self-stretch overflow-hidden'}>
       <Sidebar
         nodeClicked={setNodeId}
         onSaveWorkspaceClicked={saveWorkspace}

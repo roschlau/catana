@@ -117,8 +117,19 @@
 @layer base {
     * {
         @apply border-border outline-ring/50;
+        scrollbar-width: thin;
+    }
+    html {
+        height: 100%;
     }
     body {
+        height: 100%;
         @apply bg-background text-foreground;
+    }
+}
+
+@layer utilities {
+    .scrollbar-stable {
+        scrollbar-gutter: stable;
     }
 }
