@@ -1,7 +1,7 @@
 import {combineReducers, configureStore} from '@reduxjs/toolkit'
 import {nodeExpandedChanged, nodeIndexChanged, nodesSlice, titleUpdated} from './nodes/nodesSlice'
 import undoable from 'redux-undo'
-import {ephemeralUiSlice, undoableUiSlice} from './ui/uiSlice'
+import {ephemeralUiSlice, rootNodeSet, undoableUiSlice} from './ui/uiSlice'
 import {getUndoTransactionKey} from './undoTransactions'
 
 const undoableStateReducer = combineReducers({
@@ -17,6 +17,10 @@ export const store = configureStore({
         if (transactionKey) {
           // If we have an explicit transaction, then that overrules any other grouping behavior.
           return transactionKey
+        }
+        if (action.type === rootNodeSet.type) {
+          // Navigation actions are undone all together.
+          return action.type
         }
         const groupPerNode: string[] = [titleUpdated.type, nodeIndexChanged.type, nodeExpandedChanged.type]
         return groupPerNode.includes(action.type)
