@@ -12,7 +12,7 @@
 }
 
 .NodeEditor_chevron-button.NodeEditor_chevron-button--link {
-    outline: 1px dashed var(--gray-7);
+    outline: 1px dashed var(--gray-9);
 }
 
 .NodeEditor_chevron-button:focus-visible {

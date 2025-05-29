@@ -25,43 +25,59 @@ export const ROOT_NODE = '_root' as Id<'node'>
 export const demoGraph: Exclude<Tree, NodeLink> = {
   type: 'text',
   id: ROOT_NODE,
-  title: 'Welcome to Catana!',
+  title: '👋 Welcome to Catana!',
   expanded: true,
   content: [{
     title: 'Catana is a (still very much WIP) notetaking software that aims to let you keep control of your data like Obsidian or Logseq, but using a data model that\'s closer to Tana.',
     type: 'text',
     id: '1',
   }, {
-    title: 'Everything in Catana is a Node. Nodes behave a lot like bullet points in any other notetaking software, but with some twists.',
+    title: '💠 Nodes',
     type: 'text',
-    id: '2',
     expanded: true,
     content: [{
-      title: 'For one, every Node that has others indented under it has a little arrow instead of a bullet which you can click to expand or collapse it. Try it out on this Node!',
+      title: 'Everything in Catana is a Node. Think of them like bullet points, but with superpowers.',
+      type: 'text',
+      id: '2',
+      expanded: true,
+      content: [],
+    }, {
+      title: '↔️ Node Indentation',
       type: 'text',
       id: '2-1',
+      expanded: true,
       content: [{
-        title: 'Easy, right?',
+        title: 'Every Node that has others indented under it has a little arrow instead of a bullet, which you can click to expand or collapse it. Try it out on this Node!',
         type: 'text',
-        id: '2-1-1',
-      }, {
-        title: 'You can nest Nodes as deeply as you want. Try nesting this one under the one above by pressing Tab!',
-        type: 'text',
-        id: '2-1-2',
-      }, {
-        title: 'Nodes can also be expanded or collapsed using the Keyboard. Focus on this Node, then press Ctrl + Arrow Down to expand it!',
-        type: 'text',
-        id: '2-1-3',
         content: [{
-          title: 'Nice! In the same way, you can collapse an expanded node by pressing Ctrl + Arrow Up. You can find even more keyboard shortcuts at the bottom of this page!',
+          title: 'Easy, right?',
           type: 'text',
+          id: '2-1-1',
+        }, {
+          title: 'You can nest Nodes as deeply as you want. Try nesting this one under the one above by pressing Tab!',
+          type: 'text',
+          id: '2-1-2',
+        },  {
+          title: 'Nodes remember if they are expanded or collapsed. That\'s how some of the nodes on this page started expanded while others didn\'t.',
+          type: 'text',
+        }, {
+          title: 'Nodes can also be expanded or collapsed using the Keyboard. Focus on this Node, then press Ctrl + Arrow Down to expand it!',
+          type: 'text',
+          id: '2-1-3',
+          content: [{
+            title: 'Nice! In the same way, you can collapse an expanded node by pressing Ctrl + Arrow Up. You can find even more keyboard shortcuts at the bottom of this page!',
+            type: 'text',
+          }],
         }],
       }],
     }, {
-      title: 'Nodes can be linked to be shown in other places. Open this Node to see a link to the previous Node!',
+      title: '🔗 Node Linking',
       type: 'text',
       id: '2-2',
       content: [{
+        title: 'Nodes can be linked in multiple places. Here\'s a link to the previous node explaining indentation:',
+        type: 'text',
+      }, {
         type: 'nodeLink',
         nodeId: '2-1',
       }, {
@@ -72,20 +88,20 @@ export const demoGraph: Exclude<Tree, NodeLink> = {
     }],
   }, {
     type: 'text',
-    title: 'Keyboard Shortcuts',
+    title: '⌨️ Keyboard Shortcuts',
     expanded: true,
     content: [{
       type: 'text',
       title: 'Catana has been built to be used efficiently with the keyboard. Below are some of the supported keyboard shortcuts to try!',
     }, {
       type: 'text',
-      title: 'Tab / Shift + Tab: Indent / Outdent the focused Node',
+      title: 'Indent / Outdent the focused Node: Tab / Shift + Tab',
     }, {
       type: 'text',
-      title: 'Ctrl + Arrow Up/Down: Collapse/Expand the focused Node',
+      title: 'Collapse/Expand the focused Node: Ctrl + Arrow Up/Down',
     }, {
       type: 'text',
-      title: 'Alt + Shift + Arrow Up/Down: Move the focused Node up/down within its parent Node',
+      title: 'Move the focused Node up/down within its parent Node: Alt + Shift + Arrow Up/Down',
     }],
   }],
 }
