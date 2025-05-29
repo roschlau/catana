@@ -1,4 +1,3 @@
-import {Flex} from '@radix-ui/themes'
 import {useAppDispatch, useAppSelector} from './redux/hooks'
 import {nodeExpandedChanged, nodeIndexChanged} from './redux/nodes/nodesSlice'
 import {KeyboardEvent, MouseEvent, Ref, useCallback, useImperativeHandle, useMemo, useRef, useState} from 'react'
@@ -190,8 +189,8 @@ export function NodeEditorInline({
   )
 
   return (
-    <Flex direction={'column'} flexGrow={'1'} align={'center'}>
-      <Flex direction={'row'} width={'100%'} gap={'1'} align={'start'}>
+    <div className={'flex flex-col grow items-center'}>
+      <div className={'flex flex-row w-full gap-1 items-start'}>
         <button
           className={chevronButtonClasses}
           onClick={bulletClicked}
@@ -205,8 +204,8 @@ export function NodeEditorInline({
           keyDown={keyDown}
           node={node}
         />
-      </Flex>
-      {isExpanded && childRefs.length > 0 && <Flex direction={'row'} width={'100%'}>
+      </div>
+      {isExpanded && childRefs.length > 0 && <div className={'flex flex-row w-full'}>
           <div className={'w-0.5 mr-3 ml-1.5 bg-border'}></div>
           <NodeEditorList
               ref={contentNodesList}
@@ -216,7 +215,7 @@ export function NodeEditorInline({
               moveFocusAfter={moveFocusAfter}
               outdentChild={outdentChild}
           />
-      </Flex>}
-    </Flex>
+      </div>}
+    </div>
   )
 }

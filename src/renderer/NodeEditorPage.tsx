@@ -1,5 +1,5 @@
 import {Id} from '@/common/nodeGraphModel'
-import {Flex, Heading} from '@radix-ui/themes'
+import {Heading} from '@radix-ui/themes'
 import {NodeTitleEditorTextField, NodeTitleEditorTextFieldRef} from './NodeTitleEditorTextField'
 import {useAppDispatch, useAppSelector} from './redux/hooks'
 import {KeyboardEvent, useCallback, useRef} from 'react'
@@ -61,15 +61,12 @@ export function NodeEditorPage({ nodeId }: {
   }
 
   return (
-    <Flex
-      direction={'column'} align={'center'} flexGrow={'1'} p={'4'} gap={'6'}
-      style={{ background: 'var(--gray-1)', borderRadius: 'var(--radius-5)' }}
-    >
+    <div className={'flex flex-col items-center grow p-4 gap-8 bg-card rounded-lg'}>
       <EditorPageBreadcrumbs
         node={node}
         className={'self-start'}
       />
-      <Flex direction={'column'} width={'100%'} maxWidth={'600px'}>
+      <div className={'flex flex-col w-full max-w-[600px]'}>
         <Heading size={'7'} weight={'medium'}>
           <NodeTitleEditorTextField
             ref={titleEditorRef}
@@ -83,6 +80,6 @@ export function NodeEditorPage({ nodeId }: {
           parentView={nodeView}
           moveFocusBefore={focus}
         />
-      </Flex>
-    </Flex>)
+      </div>
+    </div>)
 }

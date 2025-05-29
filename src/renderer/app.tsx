@@ -1,27 +1,27 @@
 import {createRoot} from 'react-dom/client'
-import {Button, Flex, Theme, ThemePanel} from '@radix-ui/themes'
+import {Button, Theme, ThemePanel} from '@radix-ui/themes'
 import {useCallback, useEffect, useState} from 'react'
-import {ThemeProvider} from 'next-themes'
-import {Provider} from 'react-redux'
+import {ThemeProvider, useTheme} from 'next-themes'
+import {Provider as ReduxProvider} from 'react-redux'
 import {store} from './redux/store'
-import {DownloadIcon, GearIcon, HomeIcon, UploadIcon} from '@radix-ui/react-icons'
 import {useAppDispatch, useAppSelector, useAppStore} from './redux/hooks'
 import {buildTree, ROOT_NODE} from './redux/nodes/demoGraph'
 import {ActionCreators} from 'redux-undo'
 import {nodeGraphLoaded} from './redux/nodes/nodesSlice'
-import {Id} from '../common/nodeGraphModel'
+import {Id} from '@/common/nodeGraphModel'
 import {NodeEditorPage} from './NodeEditorPage'
 import {rootNodeSet} from './redux/ui/uiSlice'
+import {ArrowDownToLine, ArrowUpFromLine, House, Palette} from 'lucide-react'
 
 const root = createRoot(document.body)
 root.render(
-  <Provider store={store}>
+  <ReduxProvider store={store}>
     <ThemeProvider attribute={'class'}>
       <Theme appearance={'inherit'} style={{ display: 'grid' }}>
         <App/>
       </Theme>
     </ThemeProvider>
-  </Provider>
+  </ReduxProvider>,
 )
 
 function App() {
@@ -56,14 +56,14 @@ function App() {
     }
   }, [globalKeydown])
   return (
-    <Flex direction={'row'} p={'2'} gap={'2'} align={'stretch'} style={{ background: 'var(--gray-3)' }}>
+    <div className={'flex flex-row p-2 gap-2 items-stretch bg-muted'}>
       <Sidebar
         nodeClicked={setNodeId}
         onSaveWorkspaceClicked={saveWorkspace}
         onImportClicked={importClicked}
       />
       <NodeEditorPage nodeId={nodeId}/>
-    </Flex>
+    </div>
   )
 }
 
@@ -74,27 +74,27 @@ function Sidebar({ nodeClicked, onSaveWorkspaceClicked, onImportClicked }: {
 }) {
   const [showThemePanel, setShowThemePanel] = useState(false)
   return (
-    <Flex direction={'column'} gap={'2'}>
+    <div className={'flex flex-col gap-2'}>
       <Button onClick={() => nodeClicked(ROOT_NODE)}>
-        <HomeIcon/>
+        <House size={16}/>
         Home
       </Button>
       <Button onClick={onSaveWorkspaceClicked} variant={'surface'}>
-        <DownloadIcon/>
+        <ArrowDownToLine size={16}/>
         Dump Graph
       </Button>
       <Button onClick={onImportClicked} variant={'surface'}>
-        <UploadIcon/>
+        <ArrowUpFromLine size={16} />
         Load Tana Export
       </Button>
       <Button
         variant={'surface'}
         onClick={() => setShowThemePanel(!showThemePanel)}
       >
-        <GearIcon/>
+        <Palette size={16} />
         Theme
       </Button>
       {showThemePanel && <ThemePanel/>}
-    </Flex>
+    </div>
   )
 }

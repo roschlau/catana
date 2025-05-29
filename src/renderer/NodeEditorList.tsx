@@ -69,10 +69,7 @@ export function NodeEditorList({ nodes, parentView, moveFocusBefore, moveFocusAf
   }
 
   return (
-    <ul style={{
-      paddingInlineStart: '0',
-      width: '100%',
-    }}>
+    <ul className={'p-0 w-full'}>
       {nodes.map((contentNode, i) => {
         const childView: NodeViewWithParent = { nodeId: contentNode.nodeId, parent: parentView }
         return (
