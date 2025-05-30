@@ -190,7 +190,7 @@ export function NodeEditorInline({
 
   return (
     <div className={'flex flex-col grow items-center'}>
-      <div className={'flex flex-row w-full gap-1 items-start'}>
+      <div className={'flex flex-row w-full gap-1 items-start py-0.5'}>
         <button
           className={chevronButtonClasses}
           onClick={bulletClicked}
