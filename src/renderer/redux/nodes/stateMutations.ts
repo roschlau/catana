@@ -1,17 +1,18 @@
-import {Id, Node, NodeViewWithParent} from '../../../common/nodeGraphModel'
-import {findBacklinks, getViewContext, resolveNodeRef} from './helpers'
+import {Doc, Id, NodeViewWithParent, ParentDoc} from '../../../common/nodeGraphModel'
+import {findBacklinks, getNode, getViewContext, resolveDocRef} from './helpers'
+import {RootState} from '@/renderer/redux/store'
 
 /**
  * Deletes a node and points all parents linking to it to a new node. Specifically intended for the use case of
  * finalizing the merge of two nodes.
  */
 export function deleteNodeAfterMerge(
-  state: Partial<Record<Id<'node'>, Node>>,
+  state: RootState['undoable']['present']['nodes'],
   nodeRef: NodeViewWithParent,
   mergedNode: Id<'node'>,
 ) {
   // Remove from parent's children
-  const { node, viewContext } = resolveNodeRef(state, nodeRef)
+  const { node, viewContext } = resolveDocRef(state, nodeRef)
   const { parent, childIndex } = viewContext!
   parent.content.splice(childIndex, 1)
   // Move any remaining links
@@ -32,14 +33,14 @@ export function deleteNodeAfterMerge(
  * changed as necessary, but no second link will be created in the new parent.
  */
 export function moveNode(
-  state: Partial<Record<Id<'node'>, Node>>,
-  nodeId: Id<'node'>,
-  oldParentId: Id<'node'>,
-  newParentId: Id<'node'>,
+  state: RootState['undoable']['present']['nodes'],
+  nodeId: Doc['id'],
+  oldParentId: ParentDoc['id'],
+  newParentId: ParentDoc['id'],
   childIndex: number,
 ) {
-  const node = state[nodeId]!
-  const oldParent = state[oldParentId]!
+  const node = getNode(state, nodeId)
+  const oldParent = getNode(state, oldParentId)
   if (node.ownerId === oldParent.id) {
     // We're moving the canonical instance of the node -> update owner accordingly
     node.ownerId = newParentId
@@ -48,20 +49,23 @@ export function moveNode(
   // Remove node from old parent
   const childRef = oldParent.content.splice(currentChildIndex, 1)[0]
   // Add node to new parent
-  addChildReference(state, nodeId, newParentId, childIndex, childRef.expanded)
+  addChildReference(state, node, newParentId, childIndex, childRef.expanded)
 }
 
 export function addChildReference(
-  state: Partial<Record<Id<'node'>, Node>>,
-  childId: Id<'node'>,
-  parentId: Id<'node'>,
+  state: RootState['undoable']['present']['nodes'],
+  child: Doc,
+  parentId: Doc['id'],
   atIndex: number,
   expanded: boolean = false,
 ) {
-  const parent = state[parentId]!
-  if (parent.content.some(it => it.nodeId === childId)) {
+  const parent = getNode(state, parentId)
+  if (parent.type === 'field') {
+    throw Error(`Can't add child to node of type field ${parent.id}`)
+  }
+  if (parent.content.some(it => it.nodeId === child.id)) {
     // Node already linked in old parent, can't link a second time
     return
   }
-  parent.content.splice(atIndex, 0, { nodeId: childId, expanded })
+  parent.content.splice(atIndex, 0, { nodeId: child.id, expanded })
 }

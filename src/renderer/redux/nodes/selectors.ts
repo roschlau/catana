@@ -1,6 +1,7 @@
 import {createSelector} from '@reduxjs/toolkit'
 import {RootState} from '@/renderer/redux/store'
-import {Id, Node} from '@/common/nodeGraphModel'
+import {Doc, ParentDoc} from '@/common/nodeGraphModel'
+import {getNode} from '@/renderer/redux/nodes/helpers'
 
 /**
  * Returns a flat list of all nodes in the owner lineage of the passed node, starting with the furthest ancestor and
@@ -21,15 +22,22 @@ import {Id, Node} from '@/common/nodeGraphModel'
  *
  */
 export const selectAncestry = createSelector([
-  (_: RootState, node: Node) => node,
+  (_: RootState, node: Doc) => node,
   (state: RootState) => state.undoable.present.nodes,
 ], (node, nodes) => {
-  const path = [] as Node[]
-  let next: Id<'node'> | null = node.ownerId
+  const path = [] as ParentDoc[]
+  let next: ParentDoc['id'] | null = node.ownerId
   while (next) {
-    const nextNode: Node = nodes[next]!
+    const nextNode = getNode(nodes, next)
     path.unshift(nextNode)
     next = nextNode.ownerId
   }
   return path
+})
+
+export const selectDocs = createSelector([
+  (_: RootState, nodeIds: Doc['id'][]) => nodeIds,
+  (state: RootState) => state.undoable.present.nodes,
+], (nodeIds, nodes) => {
+  return nodeIds.map(id => getNode(nodes, id))
 })

@@ -22,6 +22,7 @@ export function loadTanaExport(fileContent: string): { rootId: Id<'node'>, nodes
   docs.forEach(doc => {
     const node: Node = {
       id: doc.id,
+      type: 'node',
       content: doc.children?.map(nodeId => ({ nodeId })) ?? [],
       title: (doc.props.name ?? '<Untitled>') + ' (' + doc.props._docType + ', ' + doc.id + ')',
       ownerId: doc.props._ownerId ?? null,
@@ -32,6 +33,7 @@ export function loadTanaExport(fileContent: string): { rootId: Id<'node'>, nodes
     const { id, children, ...details } = doc
     const detailsNode: Node = {
       id: doc.id + '_details' as Id<'node'>,
+      type: 'node',
       title: JSON.stringify(details),
       ownerId: doc.id,
       content: [],
@@ -47,6 +49,7 @@ export function loadTanaExport(fileContent: string): { rootId: Id<'node'>, nodes
   const rootId = 't_import_' + nanoid() as Id<'node'>
   nodes[rootId] = {
     id: rootId,
+    type: 'node',
     title: 'Tana Import Root',
     content: roots.map(root => ({ nodeId: root.id })),
     ownerId: null,

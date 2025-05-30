@@ -1,9 +1,9 @@
 import TextareaAutosize from 'react-textarea-autosize'
-import {titleUpdated} from './redux/nodes/nodesSlice'
+import {titleUpdated} from '@/renderer/redux/nodes/nodesSlice'
 import {Node} from '@/common/nodeGraphModel'
 import {KeyboardEvent, Ref, useImperativeHandle, useRef} from 'react'
-import {useAppDispatch} from './redux/hooks'
-import {Selection} from './redux/nodes/thunks'
+import {useAppDispatch} from '@/renderer/redux/hooks'
+import {Selection} from '@/renderer/redux/nodes/thunks'
 
 export interface NodeTitleEditorTextFieldRef {
   focus: (selection?: Selection) => void
@@ -43,6 +43,7 @@ export function NodeTitleEditorTextField({ node, keyDown, ref }: {
     ref={textAreaRef}
     className={'w-full bg-none border-none resize-none text-foreground/80 focus:text-foreground outline-none'}
     value={node.title}
+    placeholder={'Empty'}
     onChange={e => dispatch(titleUpdated({ nodeId: node.id, title: e.target.value }))}
     onKeyDown={_keyDown}
   />

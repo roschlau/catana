@@ -1,9 +1,10 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {clamp} from '../../util/math'
-import {resolveNodeRef} from './helpers'
-import {demoGraph, flatten} from './demoGraph'
-import {Id, NodeGraphFlattened, NodeViewWithParent} from '../../../common/nodeGraphModel'
+import {getNode, resolveDocRef} from './helpers'
+import {demoGraph} from './demoGraph'
+import {Id, Node, NodeGraphFlattened, NodeViewWithParent, ParentDoc} from '@/common/nodeGraphModel'
 import {addChildReference, deleteNodeAfterMerge, moveNode} from './stateMutations'
+import {flatten} from '@/common/node-tree'
 
 export const nodesSlice = createSlice({
   name: 'nodes',
@@ -22,20 +23,22 @@ export const nodesSlice = createSlice({
     nodeCreated: (state, action: PayloadAction<{
       nodeId: Id<'node'>,
       title: string,
-      ownerId: Id<'node'>,
+      ownerId: ParentDoc['id'],
       indexInOwner: number
     }>) => {
-      const node = action.payload
-      state[action.payload.nodeId] = {
+      const nodeData = action.payload
+      const node: Node = {
         id: action.payload.nodeId,
+        type: 'node',
         title: action.payload.title,
         ownerId: action.payload.ownerId,
         content: [],
       }
-      addChildReference(state, node.nodeId, node.ownerId, node.indexInOwner, false)
+      state[action.payload.nodeId] = node
+      addChildReference(state, node, nodeData.ownerId, nodeData.indexInOwner, false)
     },
     titleUpdated: (state, action: PayloadAction<{ nodeId: Id<'node'>, title: string }>) => {
-      const node = state[action.payload.nodeId]!
+      const node = getNode(state, action.payload.nodeId)
       if (action.payload.title.includes('\n')) {
         console.warn(`Stripping newline from updated title of node ${action.payload.nodeId}`)
         action.payload.title = action.payload.title.replace(/\n/g, '')
@@ -43,12 +46,12 @@ export const nodesSlice = createSlice({
       node.title = action.payload.title
     },
     nodeExpandedChanged: (state, action: PayloadAction<{ nodeView: NodeViewWithParent, expanded: boolean }>) => {
-      const { viewContext } = resolveNodeRef(state, action.payload.nodeView)
+      const { viewContext } = resolveDocRef(state, action.payload.nodeView)
       const { parent, childIndex } = viewContext
       parent.content[childIndex].expanded = action.payload.expanded
     },
     nodeIndexChanged: (state, action: PayloadAction<{ nodeView: NodeViewWithParent, indexChange: number }>) => {
-      const { node, viewContext } = resolveNodeRef(state, action.payload.nodeView)
+      const { node, viewContext } = resolveDocRef(state, action.payload.nodeView)
       const parentNode = viewContext.parent
       const { childIndex: currentChildIndex } = viewContext
       const newIndex = clamp(currentChildIndex + action.payload.indexChange, 0, parentNode.content.length - 1)
@@ -56,7 +59,7 @@ export const nodesSlice = createSlice({
     },
     nodeMoved: (state, action: PayloadAction<{
       nodeView: NodeViewWithParent,
-      newParentId: Id<'node'>,
+      newParentId: ParentDoc['id'],
       newIndex: number
     }>) => {
       const { nodeView: { nodeId, parent }, newParentId, newIndex } = action.payload
@@ -66,9 +69,9 @@ export const nodesSlice = createSlice({
      * Merges the second node into the first node by appending the second node's title, prepending its children, and
      * moving any links to it to the first node.
      */
-    nodesMerged: (state, action: PayloadAction<{ firstNodeId: Id<'node'>, secondNodeRef: NodeViewWithParent }>) => {
-      const firstNode = state[action.payload.firstNodeId]!
-      const secondNode = state[action.payload.secondNodeRef.nodeId]!
+    nodesMerged: (state, action: PayloadAction<{ firstNodeId: Id<'node'>, secondNodeRef: NodeViewWithParent & { nodeId: Id<'node'> } }>) => {
+      const firstNode = getNode(state, action.payload.firstNodeId)
+      const secondNode = getNode(state, action.payload.secondNodeRef.nodeId)
       // Merge titles
       firstNode.title += secondNode.title
       // Move children

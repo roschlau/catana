@@ -6,7 +6,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/renderer/components/ui/breadcrumb'
-import {Node} from '@/common/nodeGraphModel'
+import {Field, Node} from '@/common/nodeGraphModel'
 import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
 import {rootNodeSet} from '@/renderer/redux/ui/uiSlice'
 import {Fragment} from 'react'
@@ -18,12 +18,16 @@ import {
 } from '@/renderer/components/ui/dropdown-menu'
 import {selectAncestry} from '@/renderer/redux/nodes/selectors'
 
+/**
+ * Renders a breadcrumb trail for the current Doc. Property docs in the ancestry, they will be skipped.
+ */
 export function EditorPageBreadcrumbs({ node, className }: {
-  node: Node,
+  node: Node | Field,
   className?: string
 }) {
   const dispatch = useAppDispatch()
   const path = useAppSelector(state => selectAncestry(state, node))
+    .filter((it): it is Node => it.type === 'node')
 
   const ellipsize = (max: number, text: string) => {
     if (text.length <= max) {

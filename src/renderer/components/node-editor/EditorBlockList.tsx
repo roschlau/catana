@@ -1,21 +1,23 @@
-import {Node, NodeView, NodeViewWithParent} from '../common/nodeGraphModel'
-import {indentNode, outdentNode, Selection} from './redux/nodes/thunks'
+import {Node, NodeViewWithParent, ParentNodeView} from '@/common/nodeGraphModel'
+import {indentNode, outdentNode, Selection} from '@/renderer/redux/nodes/thunks'
 import {Ref, useImperativeHandle, useRef} from 'react'
-import {useAppDispatch} from './redux/hooks'
-import {NodeEditorInline} from './NodeEditorInline'
+import {useAppDispatch} from '@/renderer/redux/hooks'
+import {twMerge} from 'tailwind-merge'
+import {EditorBlock} from '@/renderer/components/node-editor/EditorBlock'
 
-export interface NodeEditorListRef {
+export interface EditorBlockListRef {
   focus: (mode: 'first' | 'last') => void
 }
 
-export function NodeEditorList({ nodes, parentView, moveFocusBefore, moveFocusAfter, outdentChild, ref }: {
+export function EditorBlockList({ className, nodes, parentView, moveFocusBefore, moveFocusAfter, outdentChild, ref }: {
+  className?: string,
   nodes: Node['content'],
-  parentView: NodeView,
+  parentView: ParentNodeView,
   moveFocusBefore?: () => boolean,
   moveFocusAfter?: () => boolean,
   /** Called when the user triggers the outdent action on a node within this list. */
   outdentChild?: (nodeView: NodeViewWithParent, selection: Selection) => void,
-  ref?: Ref<NodeEditorListRef>,
+  ref?: Ref<EditorBlockListRef>,
 }) {
   useImperativeHandle(ref, () => ({
     focus: (mode: 'first' | 'last') => {
@@ -32,7 +34,7 @@ export function NodeEditorList({ nodes, parentView, moveFocusBefore, moveFocusAf
     throw new Error('NodeEditorList must have a parent node ID')
   }
 
-  const childNodeRefs = useRef<(NodeEditorListRef | null)[]>([])
+  const childNodeRefs = useRef<(EditorBlockListRef | null)[]>([])
   if (childNodeRefs.current.length !== nodes.length) {
     childNodeRefs.current = Array(nodes.length).fill(null)
   }
@@ -69,26 +71,26 @@ export function NodeEditorList({ nodes, parentView, moveFocusBefore, moveFocusAf
   }
 
   return (
-    <ul className={'p-0 w-full'}>
+    <div className={twMerge('grid p-0', className)} style={{ gridTemplateColumns: 'minmax(auto, 200px) 1fr' }}>
       {nodes.map((contentNode, i) => {
         const childView: NodeViewWithParent = { nodeId: contentNode.nodeId, parent: parentView }
         return (
-          <li key={contentNode.nodeId}>
-            <NodeEditorInline
-              nodeView={childView}
-              expanded={contentNode.expanded ?? false}
-              moveFocusBefore={() => focusIndex(i - 1, 'last')}
-              moveFocusAfter={() => focusIndex(i + 1, 'first')}
-              indent={(selection) => indent(i, childView, selection)}
-              outdent={outdentChild ? (selection) => outdentChild(childView, selection) : undefined}
-              outdentChild={(nodeRef, selection) => outdentChildOfChild(i, nodeRef, selection)}
-              ref={el => {
-                childNodeRefs.current[i] = el
-              }}
-            />
-          </li>
+          <EditorBlock
+            className={'col-span-2'}
+            key={contentNode.nodeId}
+            nodeView={childView}
+            expanded={contentNode.expanded ?? false}
+            moveFocusBefore={() => focusIndex(i - 1, 'last')}
+            moveFocusAfter={() => focusIndex(i + 1, 'first')}
+            indent={(selection) => indent(i, childView, selection)}
+            outdent={outdentChild ? (selection) => outdentChild(childView, selection) : undefined}
+            outdentChild={(nodeRef, selection) => outdentChildOfChild(i, nodeRef, selection)}
+            ref={el => {
+              childNodeRefs.current[i] = el
+            }}
+          />
         )
       })}
-    </ul>
+    </div>
   )
 }

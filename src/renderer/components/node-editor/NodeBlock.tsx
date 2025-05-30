@@ -1,31 +1,39 @@
-import {useAppDispatch, useAppSelector} from './redux/hooks'
-import {nodeExpandedChanged, nodeIndexChanged} from './redux/nodes/nodesSlice'
+import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
+import {nodeExpandedChanged, nodeIndexChanged} from '@/renderer/redux/nodes/nodesSlice'
 import {KeyboardEvent, MouseEvent, Ref, useCallback, useImperativeHandle, useMemo, useRef, useState} from 'react'
 import classNames from 'classnames'
-import {calculateCursorPosition} from './util/textarea-measuring'
-import {rootNodeSet, useFocusRestore} from './redux/ui/uiSlice'
-import {mergeNodeBackward, mergeNodeForward, Selection, splitNode} from './redux/nodes/thunks'
-import {isRecursive, NodeViewWithParent} from '@/common/nodeGraphModel'
-import {NodeTitleEditorTextField, NodeTitleEditorTextFieldRef} from './NodeTitleEditorTextField'
-import {NodeEditorList, NodeEditorListRef} from './NodeEditorList'
+import {calculateCursorPosition} from '@/renderer/util/textarea-measuring'
+import {rootNodeSet, useFocusRestore} from '@/renderer/redux/ui/uiSlice'
+import {mergeNodeBackward, mergeNodeForward, Selection, splitNode} from '@/renderer/redux/nodes/thunks'
+import {Id, isRecursive, NodeViewWithParent} from '@/common/nodeGraphModel'
+import {
+  NodeTitleEditorTextField,
+  NodeTitleEditorTextFieldRef,
+} from '@/renderer/components/node-editor/NodeTitleEditorTextField'
+import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-editor/EditorBlockList'
 import {ChevronRight} from 'lucide-react'
+import {getNode} from '@/renderer/redux/nodes/helpers'
+import {ListItem} from '@/renderer/components/ui/list-item'
+import {twMerge} from 'tailwind-merge'
 
 export interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void
 }
 
-export function NodeEditorInline({
-                                   nodeView,
-                                   expanded,
-                                   moveFocusBefore,
-                                   moveFocusAfter,
-                                   indent,
-                                   outdent,
-                                   outdentChild,
-                                   ref,
-                                 }: {
+export function NodeBlock({
+                            className,
+                            nodeView,
+                            expanded,
+                            moveFocusBefore,
+                            moveFocusAfter,
+                            indent,
+                            outdent,
+                            outdentChild,
+                            ref,
+                          }: {
+  className?: string,
   /** The node view to render */
-  nodeView: NodeViewWithParent,
+  nodeView: NodeViewWithParent & { nodeId: Id<'node'> },
   expanded: boolean,
   /** Called when the user attempts to move focus out of and before this node.
    Should return false if there is no previous node to move focus to, true otherwise. */
@@ -42,7 +50,7 @@ export function NodeEditorInline({
   ref?: Ref<NodeEditorRef>,
 }) {
   const dispatch = useAppDispatch()
-  const node = useAppSelector(state => state.undoable.present.nodes[nodeView.nodeId]!)
+  const node = useAppSelector(state => getNode(state.undoable.present.nodes, nodeView.nodeId))
   const parent = useAppSelector(state => state.undoable.present.nodes[nodeView.parent.nodeId]!)
   /** True if this node editor is shown under a different node than the node's owner. */
   const isLink = !!parent && (!node.ownerId || node.ownerId !== parent.id)
@@ -70,7 +78,7 @@ export function NodeEditorInline({
   }
 
   const titleEditorRef = useRef<NodeTitleEditorTextFieldRef | null>(null)
-  const contentNodesList = useRef<NodeEditorListRef | null>(null)
+  const contentNodesList = useRef<EditorBlockListRef | null>(null)
 
   useImperativeHandle(ref, () => ({
     focus: (mode: 'first' | 'last') => {
@@ -177,8 +185,8 @@ export function NodeEditorInline({
     }
   }
 
-  const chevronButtonClasses = classNames(
-    'mt-1 size-4 grid place-content-center rounded-full cursor-pointer text-foreground/50',
+  const toggleButtonClasses = classNames(
+    'mt-1 size-4 shrink-0 grid place-content-center rounded-full cursor-pointer text-foreground/50',
     'hover:bg-accent hover:text-foreground',
     { 'outline -outline-offset-1 outline-dashed outline-foreground/40': isLink },
   )
@@ -189,10 +197,10 @@ export function NodeEditorInline({
   )
 
   return (
-    <div className={'flex flex-col grow items-center'}>
-      <div className={'flex flex-row w-full gap-1 items-start py-0.5'}>
+    <div className={twMerge('flex flex-col grow', className)}>
+      <ListItem>
         <button
-          className={chevronButtonClasses}
+          className={toggleButtonClasses}
           onClick={bulletClicked}
         >
           {childRefs.length > 0
@@ -204,18 +212,23 @@ export function NodeEditorInline({
           keyDown={keyDown}
           node={node}
         />
-      </div>
-      {isExpanded && childRefs.length > 0 && <div className={'flex flex-row w-full'}>
-          <div className={'w-0.5 mr-3 ml-1.5 bg-border'}></div>
-          <NodeEditorList
-              ref={contentNodesList}
-              nodes={childRefs}
-              parentView={nodeView}
-              moveFocusBefore={focus}
-              moveFocusAfter={moveFocusAfter}
-              outdentChild={outdentChild}
+      </ListItem>
+      {isExpanded && childRefs.length > 0 && (
+        <ListItem>
+          <div className={'w-4 self-stretch grid justify-center'}>
+            <div className={'w-0.5 bg-border'}></div>
+          </div>
+          <EditorBlockList
+            className={'grow'}
+            ref={contentNodesList}
+            nodes={childRefs}
+            parentView={nodeView}
+            moveFocusBefore={focus}
+            moveFocusAfter={moveFocusAfter}
+            outdentChild={outdentChild}
           />
-      </div>}
+        </ListItem>)
+      }
     </div>
   )
 }

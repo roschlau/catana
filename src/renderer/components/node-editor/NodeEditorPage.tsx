@@ -1,19 +1,23 @@
 import {Id} from '@/common/nodeGraphModel'
-import {NodeTitleEditorTextField, NodeTitleEditorTextFieldRef} from './NodeTitleEditorTextField'
-import {useAppDispatch, useAppSelector} from './redux/hooks'
+import {
+  NodeTitleEditorTextField,
+  NodeTitleEditorTextFieldRef,
+} from '@/renderer/components/node-editor/NodeTitleEditorTextField'
+import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
 import {KeyboardEvent, useCallback, useRef} from 'react'
-import {NodeEditorList, NodeEditorListRef} from './NodeEditorList'
-import {calculateCursorPosition} from './util/textarea-measuring'
-import {mergeNodeForward, splitNode} from './redux/nodes/thunks'
-import {useFocusRestore} from './redux/ui/uiSlice'
-import {EditorPageBreadcrumbs} from '@/renderer/EditorPageBreadcrumbs'
+import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-editor/EditorBlockList'
+import {calculateCursorPosition} from '@/renderer/util/textarea-measuring'
+import {mergeNodeForward, splitNode} from '@/renderer/redux/nodes/thunks'
+import {useFocusRestore} from '@/renderer/redux/ui/uiSlice'
+import {EditorPageBreadcrumbs} from '@/renderer/components/node-editor/EditorPageBreadcrumbs'
+import {getNode} from '@/renderer/redux/nodes/helpers'
 
 export function NodeEditorPage({ nodeId }: {
   nodeId: Id<'node'>,
 }) {
   const dispatch = useAppDispatch()
-  const node = useAppSelector(state => state.undoable.present.nodes[nodeId]!)
-  const contentNodesList = useRef<NodeEditorListRef | null>(null)
+  const node = useAppSelector(state => getNode(state.undoable.present.nodes, nodeId))
+  const contentNodesList = useRef<EditorBlockListRef | null>(null)
   const titleEditorRef = useRef<NodeTitleEditorTextFieldRef | null>(null)
   const nodeView = { nodeId }
 
@@ -73,7 +77,7 @@ export function NodeEditorPage({ nodeId }: {
             keyDown={titleKeyDown}
           />
         </h1>
-        <NodeEditorList
+        <EditorBlockList
           ref={contentNodesList}
           nodes={node.content}
           parentView={nodeView}
