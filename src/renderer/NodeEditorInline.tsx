@@ -180,7 +180,7 @@ export function NodeEditorInline({
   const chevronButtonClasses = classNames(
     'mt-1 size-4 grid place-content-center rounded-full cursor-pointer text-foreground/50',
     'hover:bg-accent hover:text-foreground',
-    { 'outline outline-dashed outline-foreground/40': isLink },
+    { 'outline -outline-offset-1 outline-dashed outline-foreground/40': isLink },
   )
 
   const chevronIconClasses = classNames(
