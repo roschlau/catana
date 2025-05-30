@@ -47,7 +47,7 @@ export const demoGraph: Exclude<Tree, NodeLink> = {
       id: '2-1',
       expanded: true,
       content: [{
-        title: 'Every Node that has others indented under it has a little arrow instead of a bullet, which you can click to expand or collapse it. Try it out on this Node!',
+        title: '👈 Every Node that has others indented under it has a little arrow instead of a bullet. Click it to open this node!',
         type: 'text',
         content: [{
           title: 'Easy, right?',
