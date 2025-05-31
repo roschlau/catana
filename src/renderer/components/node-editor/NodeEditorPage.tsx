@@ -67,7 +67,7 @@ export function NodeEditorPage({ nodeId }: {
     <div className={'overflow-auto scrollbar-stable flex flex-col items-center grow p-4 gap-8 bg-card rounded-lg'}>
       <EditorPageBreadcrumbs
         node={node}
-        className={'self-start'}
+        className={'self-start sticky top-0'}
       />
       <div className={'flex flex-col gap-4 w-full max-w-[600px]'}>
         <h1 className={'font-medium text-3xl'}>
