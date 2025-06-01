@@ -5,6 +5,7 @@ import {demoGraph} from './demoGraph'
 import {Id, Node, NodeGraphFlattened, NodeViewWithParent, ParentDoc} from '@/common/nodeGraphModel'
 import {addChildReference, deleteNodeAfterMerge, moveNode} from './stateMutations'
 import {flatten} from '@/common/node-tree'
+import {CheckboxConfig} from '@/common/checkboxes'
 
 export const nodesSlice = createSlice({
   name: 'nodes',
@@ -81,6 +82,9 @@ export const nodesSlice = createSlice({
       // Delete second node
       deleteNodeAfterMerge(state, action.payload.secondNodeRef, firstNode.id)
     },
+    checkboxUpdated: (state, action: PayloadAction<{ nodeId: Id<'node'>, checkbox: CheckboxConfig | undefined }>) => {
+      getNode(state, action.payload.nodeId).checkbox = action.payload.checkbox
+    },
   },
 })
 
@@ -92,4 +96,5 @@ export const {
   nodeCreated,
   nodeExpandedChanged,
   nodesMerged,
+  checkboxUpdated,
 } = nodesSlice.actions

@@ -1,5 +1,5 @@
 import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
-import {nodeExpandedChanged, nodeIndexChanged} from '@/renderer/redux/nodes/nodesSlice'
+import {checkboxUpdated, nodeExpandedChanged, nodeIndexChanged} from '@/renderer/redux/nodes/nodesSlice'
 import {KeyboardEvent, MouseEvent, Ref, useCallback, useImperativeHandle, useMemo, useRef, useState} from 'react'
 import classNames from 'classnames'
 import {calculateCursorPosition} from '@/renderer/util/textarea-measuring'
@@ -167,7 +167,11 @@ export function NodeBlock({
         return
       }
       if (selectionStart === 0 && selectionEnd === selectionStart) {
-        dispatch(mergeNodeBackward(nodeView))
+        if (node.checkbox?.type === 'intrinsic') {
+          dispatch(checkboxUpdated({ nodeId: node.id, checkbox: undefined }))
+        } else {
+          dispatch(mergeNodeBackward(nodeView))
+        }
         e.preventDefault()
       }
       return

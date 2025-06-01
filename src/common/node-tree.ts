@@ -1,4 +1,4 @@
-import {Doc, id, Id, Node, NodeGraphFlattened, Property} from '@/common/nodeGraphModel'
+import {Doc, Field, id, Id, Node, NodeGraphFlattened, Property} from '@/common/nodeGraphModel'
 import {nanoid} from '@reduxjs/toolkit'
 import {isPresent} from '@/renderer/util/optionals'
 
@@ -8,24 +8,19 @@ export type DocTree =
   | TreeField
   | TreeProperty
 
-export type TreeNode = {
+export type TreeNode = Omit<Node, 'id' | 'ownerId' | 'content'> & {
   id?: string
-  type: 'node'
-  title: string
   content?: DocTree[],
   expanded?: boolean,
 }
 
-export type TreeField = {
+export type TreeField = Omit<Field, 'id' | 'ownerId'> & {
   id: string
-  type: 'field'
-  title: string
 }
 
-export type TreeProperty = {
+export type TreeProperty = Omit<Property, 'id' | 'ownerId' | 'content' | 'fieldId'> & {
   id?: string
-  type: 'property'
-  fieldId: string,
+  fieldId: string
   content: (Exclude<DocTree, TreeProperty>)[]
 }
 
@@ -118,7 +113,7 @@ export function buildTree(nodes: NodeGraphFlattened): DocTree | null {
     switch (node.type) {
       case 'node': {
         const { ownerId, content, ...rest } = node
-        const result: TreeNode = { ...rest, type: 'node', id }
+        const result: TreeNode = { ...rest, type: 'node', id: node.id }
         // Recursively build children
         if (node.content) {
           result.content = node.content

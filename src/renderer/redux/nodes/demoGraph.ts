@@ -68,9 +68,26 @@ export const demoGraph: Exclude<DocTree, NodeLink> = {
         id: '2-2-2',
       }],
     }, {
+      title: 'Checkboxes',
+      type: 'node',
+      checkbox: {
+        type: 'intrinsic',
+        state: 'unchecked',
+      },
+      content: [
+        {
+          title: 'Press Ctrl + Enter to add a checkbox to a node. Pressing it again will check it, and a third time will remove it again.',
+          type: 'node',
+        },
+        {
+          title: 'You can also use the markdown syntax `[] ` at the start of a node to add a checkbox!',
+          type: 'node',
+        },
+      ],
+    }, {
       title: '🔣 Node Properties',
       type: 'node',
-      expanded: true,
+      expanded: false,
       content: [
         {
           type: 'property',
@@ -118,10 +135,13 @@ export const demoGraph: Exclude<DocTree, NodeLink> = {
       title: 'Catana has been built to be used efficiently with the keyboard. Below are some of the supported keyboard shortcuts to try!',
     }, {
       type: 'node',
-      title: 'Indent / Outdent the focused Node: Tab / Shift + Tab',
+      title: 'Indent / Outdent Node: Tab / Shift + Tab',
     }, {
       type: 'node',
-      title: 'Collapse/Expand the focused Node: Ctrl + Arrow Up/Down',
+      title: 'Collapse/Expand Node: Ctrl + Arrow Up/Down',
+    }, {
+      type: 'node',
+      title: 'Cycle Checkbox State: Ctrl + Enter',
     }, {
       type: 'node',
       title: 'Move the focused Node up/down within its parent Node: Alt + Shift + Arrow Up/Down',

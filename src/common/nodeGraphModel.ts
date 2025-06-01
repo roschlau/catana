@@ -1,3 +1,5 @@
+import {CheckboxConfig} from '@/common/checkboxes'
+
 export type NodeGraphFlattened = Partial<Record<string, Doc>>
 
 /**
@@ -41,6 +43,7 @@ export interface Node {
   type: 'node'
   title: string
   ownerId: ParentDoc['id'] | null
+  checkbox?: CheckboxConfig
   content: {
     nodeId: Doc['id'],
     expanded?: boolean,
