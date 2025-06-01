@@ -67,10 +67,8 @@ export function flatten(tree: Exclude<DocTree, NodeLink>): NodeGraphFlattened {
       id: nodeId,
       type: 'property',
       ownerId,
-      content: [
-        { nodeId: id(node.fieldId) },
-        ...childRefs,
-      ],
+      fieldId: id(node.fieldId),
+      content: childRefs,
     }
   }
 
@@ -149,7 +147,7 @@ export function buildTree(nodes: NodeGraphFlattened): DocTree | null {
         const result: Omit<TreeProperty, 'content'> = {
           id: node.id,
           type: 'property',
-          fieldId: node.content[0].nodeId,
+          fieldId: node.fieldId,
         }
         // Recursively build children
         const content = (node.content

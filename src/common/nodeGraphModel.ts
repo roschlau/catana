@@ -51,10 +51,8 @@ export interface Property {
   id: Id<'property'>
   type: 'property'
   ownerId: Id<'node'>
-  content: [
-    { nodeId: Id<'field'>, expanded?: boolean }, // Field definition
-    ...{ nodeId: Id<'node'>, expanded?: boolean }[], // Property values
-  ]
+  fieldId: Id<'field'>,
+  content: { nodeId: Id<'node'>, expanded?: boolean }[]
 }
 
 export interface Field {

@@ -21,7 +21,7 @@ export function PropertyBlock({ className, nodeView, moveFocusBefore, moveFocusA
   ref?: Ref<NodeEditorRef>,
 }) {
   const property = useAppSelector(state => getNode(state.undoable.present.nodes, nodeView.nodeId))
-  const field = useAppSelector(state => getNode(state.undoable.present.nodes, property.content[0].nodeId))
+  const field = useAppSelector(state => getNode(state.undoable.present.nodes, property.fieldId))
 
   const contentNodesList = useRef<EditorBlockListRef | null>(null)
   useImperativeHandle(ref, () => ({
@@ -39,7 +39,7 @@ export function PropertyBlock({ className, nodeView, moveFocusBefore, moveFocusA
       <EditorBlockList
         ref={contentNodesList}
         className={'grow'}
-        nodes={property.content.slice(1)}
+        nodes={property.content}
         parentView={nodeView}
         moveFocusBefore={moveFocusBefore}
         moveFocusAfter={moveFocusAfter}
