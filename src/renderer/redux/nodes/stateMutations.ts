@@ -49,23 +49,20 @@ export function moveNode(
   // Remove node from old parent
   const childRef = oldParent.content.splice(currentChildIndex, 1)[0]
   // Add node to new parent
-  addChildReference(state, node, newParentId, childIndex, childRef.expanded)
+  addChildReference(state, node.id, newParentId, childIndex, childRef.expanded)
 }
 
 export function addChildReference(
   state: RootState['undoable']['present']['nodes'],
-  child: Doc,
-  parentId: Doc['id'],
+  childId: Doc['id'],
+  parentId: ParentDoc['id'],
   atIndex: number,
   expanded: boolean = false,
 ) {
   const parent = getNode(state, parentId)
-  if (parent.type === 'field') {
-    throw Error(`Can't add child to node of type field ${parent.id}`)
-  }
-  if (parent.content.some(it => it.nodeId === child.id)) {
+  if (parent.content.some(it => it.nodeId === childId)) {
     // Node already linked in old parent, can't link a second time
     return
   }
-  parent.content.splice(atIndex, 0, { nodeId: child.id, expanded })
+  parent.content.splice(atIndex, 0, { nodeId: childId, expanded })
 }

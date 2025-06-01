@@ -35,7 +35,7 @@ export const nodesSlice = createSlice({
         content: [],
       }
       state[action.payload.nodeId] = node
-      addChildReference(state, node, nodeData.ownerId, nodeData.indexInOwner, false)
+      addChildReference(state, node.id, nodeData.ownerId, nodeData.indexInOwner, false)
     },
     titleUpdated: (state, action: PayloadAction<{ nodeId: Id<'node'>, title: string }>) => {
       const node = getNode(state, action.payload.nodeId)
