@@ -53,6 +53,16 @@ export const demoGraph: Exclude<DocTree, NodeLink> = {
         }],
       }],
     }, {
+      title: '🔎 Zooming In',
+      type: 'node',
+      content: [{
+        title: 'You can zoom in on a Node by clicking on its bullet/arrow while holding Ctrl, or by pressing Alt + Arrow Right when you have it focused.',
+        type: 'node',
+      }, {
+        title: 'This way, you get a full-page view on a single Node and its contents, without getting distracted by anything else.',
+        type: 'node',
+      }],
+    }, {
       title: '🔗 Node Linking',
       type: 'node',
       id: '2-2',

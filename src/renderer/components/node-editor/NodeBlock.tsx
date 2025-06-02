@@ -3,7 +3,7 @@ import {checkboxUpdated, nodeExpandedChanged, nodeIndexChanged} from '@/renderer
 import {KeyboardEvent, MouseEvent, Ref, useCallback, useImperativeHandle, useMemo, useRef, useState} from 'react'
 import classNames from 'classnames'
 import {calculateCursorPosition} from '@/renderer/util/textarea-measuring'
-import {rootNodeSet, useFocusRestore} from '@/renderer/redux/ui/uiSlice'
+import {focusRestoreRequested, rootNodeSet, useFocusRestore} from '@/renderer/redux/ui/uiSlice'
 import {mergeNodeBackward, mergeNodeForward, Selection, splitNode} from '@/renderer/redux/nodes/thunks'
 import {Id, isRecursive, NodeViewWithParent} from '@/common/nodeGraphModel'
 import {
@@ -21,16 +21,16 @@ export interface NodeEditorRef {
 }
 
 export function NodeBlock({
-                            className,
-                            nodeView,
-                            expanded,
-                            moveFocusBefore,
-                            moveFocusAfter,
-                            indent,
-                            outdent,
-                            outdentChild,
-                            ref,
-                          }: {
+  className,
+  nodeView,
+  expanded,
+  moveFocusBefore,
+  moveFocusAfter,
+  indent,
+  outdent,
+  outdentChild,
+  ref,
+}: {
   className?: string,
   /** The node view to render */
   nodeView: NodeViewWithParent & { nodeId: Id<'node'> },
@@ -69,9 +69,12 @@ export function NodeBlock({
       dispatch(nodeExpandedChanged({ nodeView, expanded }))
     }
   }
+  const zoomIn = () => {
+    dispatch(rootNodeSet({ nodeId: node.id }))
+  }
   const bulletClicked = (e: MouseEvent) => {
     if (e.ctrlKey) {
-      dispatch(rootNodeSet({ nodeId: node.id }))
+      zoomIn()
     } else {
       setExpanded(!isExpanded)
     }
@@ -110,6 +113,12 @@ export function NodeBlock({
     if (e.key === 'ArrowDown' && e.ctrlKey) {
       e.preventDefault()
       setExpanded(true)
+      return
+    }
+    if (e.key === 'ArrowRight' && e.altKey) {
+      e.preventDefault()
+      zoomIn()
+      dispatch(focusRestoreRequested({ nodeRef: { nodeId: node.id }, selection: { start: selectionStart, end: selectionEnd } }))
       return
     }
     if (e.key === 'ArrowDown' && e.shiftKey && e.altKey) {
