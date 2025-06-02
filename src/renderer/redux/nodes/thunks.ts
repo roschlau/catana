@@ -147,10 +147,6 @@ export function mergeNodeForward(nodeView: NodeView & { nodeId: Id<'node'> }) {
   return (dispatch: AppDispatch, getState: () => RootState) => {
     const state = getState().undoable.present.nodes
     const { node, viewContext } = resolveDocRef(state, nodeView)
-    if (node.ownerId !== viewContext?.parent.id) {
-      console.debug(`Merge canceled: Can't merge link ${node.id} into surrounding docs`)
-      return
-    }
     if (node.type !== 'node') {
       console.debug(`Merge canceled: Can't merge non-node doc ${node.id}`)
       return
@@ -167,6 +163,10 @@ export function mergeNodeForward(nodeView: NodeView & { nodeId: Id<'node'> }) {
       // Merge with first child node
       nodeToMergeWithRef = { nodeId: node.content[0].nodeId, parent: { nodeId: node.id } }
     } else {
+      if (node.ownerId !== viewContext.parent.id) {
+        console.debug(`Merge canceled: Can't merge link ${node.id} into surrounding docs`)
+        return
+      }
       // Merge with next sibling
       const parent = viewContext.parent
       const childIndex = viewContext.childIndex
