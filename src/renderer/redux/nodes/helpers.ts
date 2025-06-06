@@ -1,13 +1,5 @@
-import {
-  Doc,
-  DocView,
-  DocViewWithParent,
-  Id,
-  Node,
-  NodeGraphFlattened,
-  ParentNodeView,
-  Property,
-} from '@/common/nodeGraphModel'
+import {DocView, DocViewWithParent, ParentNodeView} from '@/common/doc-views'
+import {Doc, DocGraphFlattened, DocOfType, Id, Node, Property} from '@/common/docs'
 
 export type DocWithContext<T extends Doc> = {
   node: T,
@@ -19,10 +11,8 @@ export type DocWithContext<T extends Doc> = {
   },
 }
 
-type DocOfType<T extends Doc['type']> = Doc & { type: T }
-
 export function getDoc<T extends Doc['type']>(
-  state: NodeGraphFlattened,
+  state: DocGraphFlattened,
   nodeId: Id<T>,
 ): DocOfType<T> {
   const doc = state[nodeId]
@@ -32,10 +22,10 @@ export function getDoc<T extends Doc['type']>(
   return doc as DocOfType<T>
 }
 
-export function resolveDocRef<T extends Doc>(state: NodeGraphFlattened, nodeRef: DocViewWithParent<T>): Required<DocWithContext<T>>
-export function resolveDocRef<T extends Doc>(state: NodeGraphFlattened, nodeRef: DocView<T>): DocWithContext<T>
+export function resolveDocRef<T extends Doc>(state: DocGraphFlattened, nodeRef: DocViewWithParent<T>): Required<DocWithContext<T>>
+export function resolveDocRef<T extends Doc>(state: DocGraphFlattened, nodeRef: DocView<T>): DocWithContext<T>
 export function resolveDocRef<T extends Doc>(
-  state: NodeGraphFlattened,
+  state: DocGraphFlattened,
   nodeRef: DocView<T>,
 ): DocWithContext<T> {
   const node = getDoc(state, nodeRef.nodeId) as T
@@ -45,7 +35,7 @@ export function resolveDocRef<T extends Doc>(
   return { node, viewContext }
 }
 
-export function findBacklinks(state: NodeGraphFlattened, nodeId: Doc['id']): Node['content'] {
+export function findBacklinks(state: DocGraphFlattened, nodeId: Doc['id']): Node['content'] {
   return Object.values(state)
     .flatMap((node) => {
       if (node!.type === 'field') {

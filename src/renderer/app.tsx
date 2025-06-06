@@ -7,12 +7,12 @@ import {useAppDispatch, useAppSelector, useAppStore} from '@/renderer/redux/hook
 import {ROOT_NODE} from '@/renderer/redux/nodes/demoGraph'
 import {ActionCreators} from 'redux-undo'
 import {nodeGraphLoaded} from '@/renderer/redux/nodes/nodesSlice'
-import {Id} from '@/common/nodeGraphModel'
 import {NodeEditorPage} from '@/renderer/components/node-editor/NodeEditorPage'
 import {rootNodeSet} from '@/renderer/redux/ui/uiSlice'
 import {ArrowDownToLine, ArrowUpFromLine, House, SunMoon} from 'lucide-react'
 import {Button} from '@/renderer/components/ui/button'
-import {buildTree} from '@/common/node-tree'
+import {buildTree} from '@/common/doc-tree'
+import {Id} from '@/common/docs'
 
 const root = createRoot(document.body)
 root.render(

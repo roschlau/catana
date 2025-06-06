@@ -1,9 +1,10 @@
-import {Doc, DocViewWithParent, Node, ParentNodeView} from '@/common/nodeGraphModel'
+import {DocViewWithParent, ParentNodeView} from '@/common/doc-views'
 import {indentNode, outdentNode, Selection} from '@/renderer/redux/nodes/thunks'
 import {Ref, useImperativeHandle, useRef} from 'react'
 import {useAppDispatch} from '@/renderer/redux/hooks'
 import {twMerge} from 'tailwind-merge'
 import {EditorBlock} from '@/renderer/components/node-editor/EditorBlock'
+import {Doc, Node} from '@/common/docs'
 
 export interface EditorBlockListRef {
   focus: (mode: 'first' | 'last') => void

@@ -5,7 +5,7 @@ import classNames from 'classnames'
 import {calculateCursorPosition} from '@/renderer/util/textarea-measuring'
 import {focusRestoreRequested, rootNodeSet, useFocusRestore} from '@/renderer/redux/ui/uiSlice'
 import {mergeNodeBackward, mergeNodeForward, Selection, splitNode} from '@/renderer/redux/nodes/thunks'
-import {Doc, DocViewWithParent, isRecursive, Node} from '@/common/nodeGraphModel'
+import {DocViewWithParent, isRecursive} from '@/common/doc-views'
 import {
   NodeTitleEditorTextField,
   NodeTitleEditorTextFieldRef,
@@ -15,6 +15,7 @@ import {ChevronRight} from 'lucide-react'
 import {getDoc} from '@/renderer/redux/nodes/helpers'
 import {ListItem} from '@/renderer/components/ui/list-item'
 import {twMerge} from 'tailwind-merge'
+import {Doc, Node} from '@/common/docs'
 
 export interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void

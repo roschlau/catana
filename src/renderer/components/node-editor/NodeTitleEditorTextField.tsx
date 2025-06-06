@@ -1,6 +1,5 @@
 import TextareaAutosize from 'react-textarea-autosize'
 import {checkboxUpdated, titleUpdated} from '@/renderer/redux/nodes/nodesSlice'
-import {Node} from '@/common/nodeGraphModel'
 import {KeyboardEvent, Ref, useImperativeHandle, useRef} from 'react'
 import {useAppDispatch} from '@/renderer/redux/hooks'
 import {Selection} from '@/renderer/redux/nodes/thunks'
@@ -8,6 +7,7 @@ import {Checkbox} from '@/renderer/components/ui/checkbox'
 import classNames from 'classnames'
 import {cycleCheckboxState} from '@/common/checkboxes'
 import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
+import {Node} from '@/common/docs'
 
 export interface NodeTitleEditorTextFieldRef {
   focus: (selection?: Selection) => void

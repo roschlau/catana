@@ -1,10 +1,11 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {PartialBy} from '../../util/types'
-import {Doc, DocView, Id, isSameView} from '../../../common/nodeGraphModel'
+import {DocView, isSameView} from '../../../common/doc-views'
 import {Selection} from '../nodes/thunks'
 import {useAppDispatch, useAppSelector} from '../hooks'
 import {useEffect} from 'react'
 import {ROOT_NODE} from '../nodes/demoGraph'
+import {Doc, Id} from '@/common/docs'
 
 export interface UndoableUiState {
   rootNode: Id<'node'>

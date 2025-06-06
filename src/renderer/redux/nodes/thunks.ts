@@ -3,8 +3,9 @@ import {getDoc, resolveDocRef} from './helpers'
 import {nanoid} from '@reduxjs/toolkit'
 import {focusRestoreRequested} from '../ui/uiSlice'
 import {nodeCreated, nodeExpandedChanged, nodeMoved, nodesMerged, titleUpdated} from './nodesSlice'
-import {Doc, DocView, DocViewWithParent, Id, isParentDoc, Node, ParentNodeView} from '@/common/nodeGraphModel'
+import {DocView, DocViewWithParent, ParentNodeView} from '@/common/doc-views'
 import {createUndoTransaction} from '../undoTransactions'
+import {Doc, Id, isParentDoc, Node} from '@/common/docs'
 
 export interface Selection {
   start: number,

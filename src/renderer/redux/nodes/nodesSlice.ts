@@ -2,16 +2,17 @@ import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {clamp} from '../../util/math'
 import {getDoc, resolveDocRef} from './helpers'
 import {demoGraph} from './demoGraph'
-import {Doc, DocViewWithParent, Id, Node, NodeGraphFlattened, ParentDoc} from '@/common/nodeGraphModel'
 import {addChildReference, deleteNodeAfterMerge, moveNode} from './stateMutations'
-import {flatten} from '@/common/node-tree'
 import {CheckboxConfig} from '@/common/checkboxes'
+import {Doc, DocGraphFlattened, Id, Node, ParentDoc} from '@/common/docs'
+import {flatten} from '@/common/doc-tree'
+import {DocViewWithParent} from '@/common/doc-views'
 
 export const nodesSlice = createSlice({
   name: 'nodes',
   initialState: flatten(demoGraph),
   reducers: {
-    nodeGraphLoaded: (state, action: PayloadAction<NodeGraphFlattened>) => {
+    nodeGraphLoaded: (state, action: PayloadAction<DocGraphFlattened>) => {
       // Delete all existing nodes
       Object.keys(state).forEach(nodeId => {
         delete state[nodeId]

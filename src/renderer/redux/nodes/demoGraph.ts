@@ -1,6 +1,6 @@
-import {Id} from '@/common/nodeGraphModel'
-import {DocTree, NodeLink} from '@/common/node-tree'
+import {DocTree, NodeLink} from '@/common/doc-tree'
 import {systemFields} from '@/common/system-fields'
+import {Id} from '@/common/docs'
 
 export const ROOT_NODE = '_root' as Id<'node'>
 

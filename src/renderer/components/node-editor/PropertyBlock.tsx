@@ -1,4 +1,4 @@
-import {DocViewWithParent, Property} from '@/common/nodeGraphModel'
+import {DocViewWithParent} from '@/common/doc-views'
 import {Ref, useImperativeHandle, useRef} from 'react'
 import {NodeEditorRef} from '@/renderer/components/node-editor/NodeBlock'
 import {useAppSelector} from '@/renderer/redux/hooks'
@@ -7,6 +7,7 @@ import {ListItem} from '@/renderer/components/ui/list-item'
 import {RectangleEllipsis} from 'lucide-react'
 import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-editor/EditorBlockList'
 import {twMerge} from 'tailwind-merge'
+import {Property} from '@/common/docs'
 
 export function PropertyBlock({ className, nodeView, moveFocusBefore, moveFocusAfter, ref }: {
   className?: string,

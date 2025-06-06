@@ -6,7 +6,6 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/renderer/components/ui/breadcrumb'
-import {Field, Node} from '@/common/nodeGraphModel'
 import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
 import {rootNodeSet} from '@/renderer/redux/ui/uiSlice'
 import {Fragment} from 'react'
@@ -17,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '@/renderer/components/ui/dropdown-menu'
 import {selectAncestry} from '@/renderer/redux/nodes/selectors'
+import {Field, Node} from '@/common/docs'
 
 /**
  * Renders a breadcrumb trail for the current Doc. Property docs in the ancestry, they will be skipped.

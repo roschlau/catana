@@ -1,6 +1,6 @@
-import {Doc, Field, id, Id, Node, NodeGraphFlattened, Property} from '@/common/nodeGraphModel'
 import {nanoid} from '@reduxjs/toolkit'
 import {isPresent} from '@/renderer/util/optionals'
+import {Doc, DocGraphFlattened, Field, id, Id, Node, Property} from '@/common/docs'
 
 export type DocTree =
   | NodeLink
@@ -30,8 +30,8 @@ export interface NodeLink {
   expanded?: boolean
 }
 
-export function flatten(tree: Exclude<DocTree, NodeLink>): NodeGraphFlattened {
-  const nodes: NodeGraphFlattened = {}
+export function flatten(tree: Exclude<DocTree, NodeLink>): DocGraphFlattened {
+  const nodes: DocGraphFlattened = {}
 
   function parseNode(node: TreeNode, ownerId: Id<'node' | 'property'> | null): Node {
     const nodeId = (node.id ?? nanoid()) as Id<'node'>
@@ -101,7 +101,7 @@ export function flatten(tree: Exclude<DocTree, NodeLink>): NodeGraphFlattened {
   return nodes
 }
 
-export function buildTree(nodes: NodeGraphFlattened): DocTree | null {
+export function buildTree(nodes: DocGraphFlattened): DocTree | null {
   const processedNodeIds = new Set<Doc['id']>()
 
   function build(id: Doc['id']): Exclude<DocTree, NodeLink> {

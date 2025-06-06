@@ -1,9 +1,10 @@
-import {DocViewWithParent, Field} from '@/common/nodeGraphModel'
+import {DocViewWithParent} from '@/common/doc-views'
 import {useAppSelector} from '@/renderer/redux/hooks'
 import {getDoc} from '@/renderer/redux/nodes/helpers'
 import {ListItem} from '@/renderer/components/ui/list-item'
 import {RectangleEllipsis} from 'lucide-react'
 import {twMerge} from 'tailwind-merge'
+import {Field} from '@/common/docs'
 
 export function FieldBlock({ className, nodeView }: {
   className?: string,

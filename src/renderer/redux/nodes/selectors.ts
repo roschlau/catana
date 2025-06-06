@@ -1,7 +1,7 @@
 import {createSelector} from '@reduxjs/toolkit'
 import {RootState} from '@/renderer/redux/store'
-import {Doc, ParentDoc} from '@/common/nodeGraphModel'
 import {getDoc} from '@/renderer/redux/nodes/helpers'
+import {Doc, ParentDoc} from '@/common/docs'
 
 /**
  * Returns a flat list of all nodes in the owner lineage of the passed node, starting with the furthest ancestor and

@@ -1,4 +1,3 @@
-import {Id} from '@/common/nodeGraphModel'
 import {
   NodeTitleEditorTextField,
   NodeTitleEditorTextFieldRef,
@@ -11,6 +10,7 @@ import {mergeNodeForward, splitNode} from '@/renderer/redux/nodes/thunks'
 import {useFocusRestore} from '@/renderer/redux/ui/uiSlice'
 import {EditorPageBreadcrumbs} from '@/renderer/components/node-editor/EditorPageBreadcrumbs'
 import {getDoc} from '@/renderer/redux/nodes/helpers'
+import {Id} from '@/common/docs'
 
 export function NodeEditorPage({ nodeId }: {
   nodeId: Id<'node'>,

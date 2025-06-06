@@ -1,6 +1,7 @@
-import {Doc, DocViewWithParent, Id, ParentDoc} from '@/common/nodeGraphModel'
+import {DocViewWithParent} from '@/common/doc-views'
 import {findBacklinks, getDoc, getViewContext, resolveDocRef} from './helpers'
 import {RootState} from '@/renderer/redux/store'
+import {Doc, Id, ParentDoc} from '@/common/docs'
 
 /**
  * Deletes a node and points all parents linking to it to a new node. Specifically intended for the use case of

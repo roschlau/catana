@@ -1,4 +1,4 @@
-import {Doc, DocViewWithParent} from '@/common/nodeGraphModel'
+import {DocViewWithParent} from '@/common/doc-views'
 import {Selection} from '@/renderer/redux/nodes/thunks'
 import {Ref} from 'react'
 import {NodeBlock, NodeEditorRef} from '@/renderer/components/node-editor/NodeBlock'
@@ -6,6 +6,7 @@ import {useAppSelector} from '@/renderer/redux/hooks'
 import {getDoc} from '@/renderer/redux/nodes/helpers'
 import {PropertyBlock} from '@/renderer/components/node-editor/PropertyBlock'
 import {FieldBlock} from '@/renderer/components/node-editor/FieldBlock'
+import {Doc} from '@/common/docs'
 
 export function EditorBlock({
                               className,
