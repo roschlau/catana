@@ -1,4 +1,4 @@
-import {Id, NodeViewWithParent} from '@/common/nodeGraphModel'
+import {DocViewWithParent, Property} from '@/common/nodeGraphModel'
 import {Ref, useImperativeHandle, useRef} from 'react'
 import {NodeEditorRef} from '@/renderer/components/node-editor/NodeBlock'
 import {useAppSelector} from '@/renderer/redux/hooks'
@@ -11,7 +11,7 @@ import {twMerge} from 'tailwind-merge'
 export function PropertyBlock({ className, nodeView, moveFocusBefore, moveFocusAfter, ref }: {
   className?: string,
   /** The node view to render */
-  nodeView: NodeViewWithParent & { nodeId: Id<'property'> },
+  nodeView: DocViewWithParent<Property>,
   /** Called when the user attempts to move focus out of and before this node.
    Should return false if there is no previous node to move focus to, true otherwise. */
   moveFocusBefore?: () => boolean,

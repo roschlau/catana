@@ -1,4 +1,4 @@
-import {Node, NodeViewWithParent, ParentNodeView} from '@/common/nodeGraphModel'
+import {Doc, DocViewWithParent, Node, ParentNodeView} from '@/common/nodeGraphModel'
 import {indentNode, outdentNode, Selection} from '@/renderer/redux/nodes/thunks'
 import {Ref, useImperativeHandle, useRef} from 'react'
 import {useAppDispatch} from '@/renderer/redux/hooks'
@@ -16,7 +16,7 @@ export function EditorBlockList({ className, nodes, parentView, moveFocusBefore,
   moveFocusBefore?: () => boolean,
   moveFocusAfter?: () => boolean,
   /** Called when the user triggers the outdent action on a node within this list. */
-  outdentChild?: (nodeView: NodeViewWithParent, selection: Selection) => void,
+  outdentChild?: (nodeView: DocViewWithParent<Doc>, selection: Selection) => void,
   ref?: Ref<EditorBlockListRef>,
 }) {
   useImperativeHandle(ref, () => ({
@@ -52,7 +52,7 @@ export function EditorBlockList({ className, nodes, parentView, moveFocusBefore,
     return true
   }
 
-  const indent = (index: number, childView: NodeViewWithParent, selection: Selection) => {
+  const indent = (index: number, childView: DocViewWithParent<Doc>, selection: Selection) => {
     if (index === 0) {
       // Can't indent a node that's already the first within its siblings
       return
@@ -66,14 +66,14 @@ export function EditorBlockList({ className, nodes, parentView, moveFocusBefore,
   }
 
   // Handles outdenting a child node of one of this list's nodes into this list
-  const outdentChildOfChild = (index: number, nodeRef: NodeViewWithParent, selection: Selection) => {
+  const outdentChildOfChild = (index: number, nodeRef: DocViewWithParent<Doc>, selection: Selection) => {
     dispatch(outdentNode(nodeRef, parentView, index + 1, selection))
   }
 
   return (
     <div className={twMerge('grid p-0', className)} style={{ gridTemplateColumns: 'minmax(auto, 200px) 1fr' }}>
       {nodes.map((contentNode, i) => {
-        const childView: NodeViewWithParent = { nodeId: contentNode.nodeId, parent: parentView }
+        const childView: DocViewWithParent<Doc> = { nodeId: contentNode.nodeId, parent: parentView }
         return (
           <EditorBlock
             className={'col-span-2'}

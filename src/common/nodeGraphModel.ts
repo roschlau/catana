@@ -68,23 +68,23 @@ export interface Field {
 /**
  * A node view that definitely has a parent
  */
-export type NodeViewWithParent = Required<NodeView>
+export type DocViewWithParent<T extends Doc> = Required<DocView<T>>
 
 /**
  * A node view of a node that can potentially be a parent for other nodes.
  */
-export type ParentNodeView = NodeView & { nodeId: ParentDoc['id'] }
+export type ParentNodeView = DocView<ParentDoc>
 
 /** Identifies a node being viewed at a specific point in the Node graph. */
-export interface NodeView {
-  nodeId: Doc['id'],
+export interface DocView<T extends Doc> {
+  nodeId: T['id'],
   parent?: ParentNodeView,
 }
 
 /** Checks whether the passed NodeView contains any of the nodes within it more than once. */
-export function isRecursive(nodeView: NodeView): boolean {
+export function isRecursive(nodeView: DocView<Doc>): boolean {
   const seenIds = new Set<Doc['id']>()
-  let next: NodeView | undefined = nodeView
+  let next: DocView<Doc> | undefined = nodeView
   while (next !== undefined) {
     if (seenIds.has(next.nodeId)) {
       return true
@@ -96,7 +96,7 @@ export function isRecursive(nodeView: NodeView): boolean {
 }
 
 /** Checks recursively if the passed NodeViews correspond to the same view. */
-export function isSameView(a: NodeView | undefined, b: NodeView | undefined): boolean {
+export function isSameView(a: DocView<Doc> | undefined, b: DocView<Doc> | undefined): boolean {
   if (a === undefined || b === undefined) {
     return a === undefined && b === undefined
   }

@@ -1,4 +1,4 @@
-import {Doc, Id, NodeViewWithParent, ParentDoc} from '@/common/nodeGraphModel'
+import {Doc, DocViewWithParent, Id, ParentDoc} from '@/common/nodeGraphModel'
 import {findBacklinks, getDoc, getViewContext, resolveDocRef} from './helpers'
 import {RootState} from '@/renderer/redux/store'
 
@@ -8,7 +8,7 @@ import {RootState} from '@/renderer/redux/store'
  */
 export function deleteNodeAfterMerge(
   state: RootState['undoable']['present']['nodes'],
-  nodeRef: NodeViewWithParent,
+  nodeRef: DocViewWithParent<Doc>,
   mergedNode: Id<'node'>,
 ) {
   // Remove from parent's children

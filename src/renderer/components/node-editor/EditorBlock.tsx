@@ -1,4 +1,4 @@
-import {Id, NodeViewWithParent} from '@/common/nodeGraphModel'
+import {Doc, DocViewWithParent} from '@/common/nodeGraphModel'
 import {Selection} from '@/renderer/redux/nodes/thunks'
 import {Ref} from 'react'
 import {NodeBlock, NodeEditorRef} from '@/renderer/components/node-editor/NodeBlock'
@@ -20,7 +20,7 @@ export function EditorBlock({
                             }: {
   className?: string,
   /** The node view to render */
-  nodeView: NodeViewWithParent & { nodeId: Id<'node' | 'property' | 'field'> },
+  nodeView: DocViewWithParent<Doc>,
   expanded: boolean,
   /** Called when the user attempts to move focus out of and before this node.
    Should return false if there is no previous node to move focus to, true otherwise. */
@@ -33,7 +33,7 @@ export function EditorBlock({
   /** Called when the user triggers the outdent action on this node. */
   outdent?: (selection: Selection) => void,
   /** Called when the user triggers the outdent action on a child node of this node. */
-  outdentChild?: (nodeRef: NodeViewWithParent, selection: Selection) => void,
+  outdentChild?: (nodeRef: DocViewWithParent<Doc>, selection: Selection) => void,
   ref?: Ref<NodeEditorRef>,
 }) {
   const node = useAppSelector(state => getDoc(state.undoable.present.nodes, nodeView.nodeId))

@@ -5,7 +5,7 @@ import classNames from 'classnames'
 import {calculateCursorPosition} from '@/renderer/util/textarea-measuring'
 import {focusRestoreRequested, rootNodeSet, useFocusRestore} from '@/renderer/redux/ui/uiSlice'
 import {mergeNodeBackward, mergeNodeForward, Selection, splitNode} from '@/renderer/redux/nodes/thunks'
-import {Id, isRecursive, NodeViewWithParent} from '@/common/nodeGraphModel'
+import {Doc, DocViewWithParent, isRecursive, Node} from '@/common/nodeGraphModel'
 import {
   NodeTitleEditorTextField,
   NodeTitleEditorTextFieldRef,
@@ -33,7 +33,7 @@ export function NodeBlock({
 }: {
   className?: string,
   /** The node view to render */
-  nodeView: NodeViewWithParent & { nodeId: Id<'node'> },
+  nodeView: DocViewWithParent<Node>,
   expanded: boolean,
   /** Called when the user attempts to move focus out of and before this node.
    Should return false if there is no previous node to move focus to, true otherwise. */
@@ -46,7 +46,7 @@ export function NodeBlock({
   /** Called when the user triggers the outdent action on this node. */
   outdent?: (selection: Selection) => void,
   /** Called when the user triggers the outdent action on a child node of this node. */
-  outdentChild?: (nodeRef: NodeViewWithParent, selection: Selection) => void,
+  outdentChild?: (nodeRef: DocViewWithParent<Doc>, selection: Selection) => void,
   ref?: Ref<NodeEditorRef>,
 }) {
   const dispatch = useAppDispatch()

@@ -1,4 +1,4 @@
-import {Id, NodeViewWithParent} from '@/common/nodeGraphModel'
+import {DocViewWithParent, Field} from '@/common/nodeGraphModel'
 import {useAppSelector} from '@/renderer/redux/hooks'
 import {getDoc} from '@/renderer/redux/nodes/helpers'
 import {ListItem} from '@/renderer/components/ui/list-item'
@@ -8,7 +8,7 @@ import {twMerge} from 'tailwind-merge'
 export function FieldBlock({ className, nodeView }: {
   className?: string,
   /** The node view to render */
-  nodeView: NodeViewWithParent & { nodeId: Id<'field'> },
+  nodeView: DocViewWithParent<Field>,
 }) {
   const field = useAppSelector(state => getDoc(state.undoable.present.nodes, nodeView.nodeId))
   return (

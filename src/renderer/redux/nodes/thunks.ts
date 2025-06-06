@@ -3,7 +3,7 @@ import {getDoc, resolveDocRef} from './helpers'
 import {nanoid} from '@reduxjs/toolkit'
 import {focusRestoreRequested} from '../ui/uiSlice'
 import {nodeCreated, nodeExpandedChanged, nodeMoved, nodesMerged, titleUpdated} from './nodesSlice'
-import {Id, isParentDoc, NodeView, NodeViewWithParent, ParentNodeView} from '@/common/nodeGraphModel'
+import {Doc, DocView, DocViewWithParent, Id, isParentDoc, Node, ParentNodeView} from '@/common/nodeGraphModel'
 import {createUndoTransaction} from '../undoTransactions'
 
 export interface Selection {
@@ -11,7 +11,7 @@ export interface Selection {
   end: number,
 }
 
-export function indentNode(nodeView: NodeViewWithParent, intoNewParentRef: NodeViewWithParent, currentSelection: Selection) {
+export function indentNode(nodeView: DocViewWithParent<Doc>, intoNewParentRef: DocViewWithParent<Doc>, currentSelection: Selection) {
   return createUndoTransaction((dispatch: AppDispatch, getState: () => RootState) => {
     const {
       node: newParent,
@@ -39,7 +39,7 @@ export function indentNode(nodeView: NodeViewWithParent, intoNewParentRef: NodeV
   })
 }
 
-export function outdentNode(nodeView: NodeViewWithParent, intoParentView: ParentNodeView, atIndex: number, currentSelection: Selection) {
+export function outdentNode(nodeView: DocViewWithParent<Doc>, intoParentView: ParentNodeView, atIndex: number, currentSelection: Selection) {
   return (dispatch: AppDispatch) => {
     dispatch(nodeMoved({ nodeView: nodeView, newParentId: intoParentView.nodeId, newIndex: atIndex }))
     dispatch(focusRestoreRequested({
@@ -49,7 +49,7 @@ export function outdentNode(nodeView: NodeViewWithParent, intoParentView: Parent
   }
 }
 
-export function splitNode(nodeView: NodeView & { nodeId: Id<'node'> }, selectionStart: number, selectionEnd: number) {
+export function splitNode(nodeView: DocView<Node>, selectionStart: number, selectionEnd: number) {
   return createUndoTransaction((dispatch: AppDispatch, getState: () => RootState) => {
     const { node, viewContext } = resolveDocRef(getState().undoable.present.nodes, nodeView)
     if (node.type !== 'node') {
@@ -107,7 +107,7 @@ export function splitNode(nodeView: NodeView & { nodeId: Id<'node'> }, selection
  * Nodes can only be merged with siblings or parents when the current view parent is their owner; this function will
  * no-op when attempting to merge a node in any other view.
  */
-export function mergeNodeBackward(nodeView: NodeViewWithParent & { nodeId: Id<'node'> }) {
+export function mergeNodeBackward(nodeView: DocViewWithParent<Node>) {
   return (dispatch: AppDispatch, getState: () => RootState) => {
     const state = getState().undoable.present.nodes
     const { node, viewContext } = resolveDocRef(state, nodeView)
@@ -143,7 +143,7 @@ export function mergeNodeBackward(nodeView: NodeViewWithParent & { nodeId: Id<'n
  * merge a node with a sibling in a view context that is not within its owner.
  * This function will also no-op if `nodeView` has no parent and the node has no children to merge with.
  */
-export function mergeNodeForward(nodeView: NodeView & { nodeId: Id<'node'> }) {
+export function mergeNodeForward(nodeView: DocView<Node>) {
   return (dispatch: AppDispatch, getState: () => RootState) => {
     const state = getState().undoable.present.nodes
     const { node, viewContext } = resolveDocRef(state, nodeView)
@@ -151,7 +151,7 @@ export function mergeNodeForward(nodeView: NodeView & { nodeId: Id<'node'> }) {
       console.debug(`Merge canceled: Can't merge non-node doc ${node.id}`)
       return
     }
-    let nodeToMergeWithRef: NodeViewWithParent
+    let nodeToMergeWithRef: DocViewWithParent<Doc>
     if (!viewContext) {
       // Merge with first child node
       if (node.content.length === 0) {

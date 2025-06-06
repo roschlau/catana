@@ -1,16 +1,16 @@
 import {
   Doc,
+  DocView,
+  DocViewWithParent,
   Id,
   Node,
   NodeGraphFlattened,
-  NodeView,
-  NodeViewWithParent,
   ParentNodeView,
   Property,
 } from '@/common/nodeGraphModel'
 
-export type NodeWithContext = {
-  node: Doc,
+export type DocWithContext<T extends Doc> = {
+  node: T,
   viewContext?: {
     parentView: ParentNodeView,
     parent: Node | Property,
@@ -32,13 +32,13 @@ export function getDoc<T extends Doc['type']>(
   return doc as DocOfType<T>
 }
 
-export function resolveDocRef(state: NodeGraphFlattened, nodeRef: NodeViewWithParent): Required<NodeWithContext>
-export function resolveDocRef(state: NodeGraphFlattened, nodeRef: NodeView): NodeWithContext
-export function resolveDocRef(
+export function resolveDocRef<T extends Doc>(state: NodeGraphFlattened, nodeRef: DocViewWithParent<T>): Required<DocWithContext<T>>
+export function resolveDocRef<T extends Doc>(state: NodeGraphFlattened, nodeRef: DocView<T>): DocWithContext<T>
+export function resolveDocRef<T extends Doc>(
   state: NodeGraphFlattened,
-  nodeRef: NodeView,
-): NodeWithContext {
-  const node = getDoc(state, nodeRef.nodeId)
+  nodeRef: DocView<T>,
+): DocWithContext<T> {
+  const node = getDoc(state, nodeRef.nodeId) as T
   const viewContext = nodeRef.parent
     ? { ...getViewContext(getDoc(state, nodeRef.parent.nodeId), nodeRef.nodeId), parentView: nodeRef.parent }
     : undefined

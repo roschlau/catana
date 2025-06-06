@@ -2,7 +2,7 @@ import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {clamp} from '../../util/math'
 import {getDoc, resolveDocRef} from './helpers'
 import {demoGraph} from './demoGraph'
-import {Id, Node, NodeGraphFlattened, NodeViewWithParent, ParentDoc} from '@/common/nodeGraphModel'
+import {Doc, DocViewWithParent, Id, Node, NodeGraphFlattened, ParentDoc} from '@/common/nodeGraphModel'
 import {addChildReference, deleteNodeAfterMerge, moveNode} from './stateMutations'
 import {flatten} from '@/common/node-tree'
 import {CheckboxConfig} from '@/common/checkboxes'
@@ -46,12 +46,12 @@ export const nodesSlice = createSlice({
       }
       node.title = action.payload.title
     },
-    nodeExpandedChanged: (state, action: PayloadAction<{ nodeView: NodeViewWithParent, expanded: boolean }>) => {
+    nodeExpandedChanged: (state, action: PayloadAction<{ nodeView: DocViewWithParent<Doc>, expanded: boolean }>) => {
       const { viewContext } = resolveDocRef(state, action.payload.nodeView)
       const { parent, childIndex } = viewContext
       parent.content[childIndex].expanded = action.payload.expanded
     },
-    nodeIndexChanged: (state, action: PayloadAction<{ nodeView: NodeViewWithParent, indexChange: number }>) => {
+    nodeIndexChanged: (state, action: PayloadAction<{ nodeView: DocViewWithParent<Doc>, indexChange: number }>) => {
       const { node, viewContext } = resolveDocRef(state, action.payload.nodeView)
       const parentNode = viewContext.parent
       const { childIndex: currentChildIndex } = viewContext
@@ -59,7 +59,7 @@ export const nodesSlice = createSlice({
       moveNode(state, node.id, viewContext.parent.id, viewContext.parent.id, newIndex)
     },
     nodeMoved: (state, action: PayloadAction<{
-      nodeView: NodeViewWithParent,
+      nodeView: DocViewWithParent<Doc>,
       newParentId: ParentDoc['id'],
       newIndex: number
     }>) => {
@@ -70,7 +70,7 @@ export const nodesSlice = createSlice({
      * Merges the second node into the first node by appending the second node's title, prepending its children, and
      * moving any links to it to the first node.
      */
-    nodesMerged: (state, action: PayloadAction<{ firstNodeId: Id<'node'>, secondNodeRef: NodeViewWithParent & { nodeId: Id<'node'> } }>) => {
+    nodesMerged: (state, action: PayloadAction<{ firstNodeId: Id<'node'>, secondNodeRef: DocViewWithParent<Node> }>) => {
       const firstNode = getDoc(state, action.payload.firstNodeId)
       const secondNode = getDoc(state, action.payload.secondNodeRef.nodeId)
       // Merge titles
