@@ -3,7 +3,7 @@ import {Selection} from '@/renderer/redux/nodes/thunks'
 import {Ref} from 'react'
 import {NodeBlock, NodeEditorRef} from '@/renderer/components/node-editor/NodeBlock'
 import {useAppSelector} from '@/renderer/redux/hooks'
-import {getNode} from '@/renderer/redux/nodes/helpers'
+import {getDoc} from '@/renderer/redux/nodes/helpers'
 import {PropertyBlock} from '@/renderer/components/node-editor/PropertyBlock'
 import {FieldBlock} from '@/renderer/components/node-editor/FieldBlock'
 
@@ -36,7 +36,7 @@ export function EditorBlock({
   outdentChild?: (nodeRef: NodeViewWithParent, selection: Selection) => void,
   ref?: Ref<NodeEditorRef>,
 }) {
-  const node = useAppSelector(state => getNode(state.undoable.present.nodes, nodeView.nodeId))
+  const node = useAppSelector(state => getDoc(state.undoable.present.nodes, nodeView.nodeId))
   switch (node.type) {
     case 'node':
       return <NodeBlock

@@ -10,13 +10,13 @@ import {calculateCursorPosition} from '@/renderer/util/textarea-measuring'
 import {mergeNodeForward, splitNode} from '@/renderer/redux/nodes/thunks'
 import {useFocusRestore} from '@/renderer/redux/ui/uiSlice'
 import {EditorPageBreadcrumbs} from '@/renderer/components/node-editor/EditorPageBreadcrumbs'
-import {getNode} from '@/renderer/redux/nodes/helpers'
+import {getDoc} from '@/renderer/redux/nodes/helpers'
 
 export function NodeEditorPage({ nodeId }: {
   nodeId: Id<'node'>,
 }) {
   const dispatch = useAppDispatch()
-  const node = useAppSelector(state => getNode(state.undoable.present.nodes, nodeId))
+  const node = useAppSelector(state => getDoc(state.undoable.present.nodes, nodeId))
   const contentNodesList = useRef<EditorBlockListRef | null>(null)
   const titleEditorRef = useRef<NodeTitleEditorTextFieldRef | null>(null)
   const nodeView = { nodeId }

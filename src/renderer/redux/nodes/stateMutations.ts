@@ -1,5 +1,5 @@
-import {Doc, Id, NodeViewWithParent, ParentDoc} from '../../../common/nodeGraphModel'
-import {findBacklinks, getNode, getViewContext, resolveDocRef} from './helpers'
+import {Doc, Id, NodeViewWithParent, ParentDoc} from '@/common/nodeGraphModel'
+import {findBacklinks, getDoc, getViewContext, resolveDocRef} from './helpers'
 import {RootState} from '@/renderer/redux/store'
 
 /**
@@ -39,8 +39,8 @@ export function moveNode(
   newParentId: ParentDoc['id'],
   childIndex: number,
 ) {
-  const node = getNode(state, nodeId)
-  const oldParent = getNode(state, oldParentId)
+  const node = getDoc(state, nodeId)
+  const oldParent = getDoc(state, oldParentId)
   if (node.ownerId === oldParent.id) {
     // We're moving the canonical instance of the node -> update owner accordingly
     node.ownerId = newParentId
@@ -59,7 +59,7 @@ export function addChildReference(
   atIndex: number,
   expanded: boolean = false,
 ) {
-  const parent = getNode(state, parentId)
+  const parent = getDoc(state, parentId)
   if (parent.content.some(it => it.nodeId === childId)) {
     // Node already linked in old parent, can't link a second time
     return

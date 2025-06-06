@@ -12,7 +12,7 @@ import {
 } from '@/renderer/components/node-editor/NodeTitleEditorTextField'
 import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-editor/EditorBlockList'
 import {ChevronRight} from 'lucide-react'
-import {getNode} from '@/renderer/redux/nodes/helpers'
+import {getDoc} from '@/renderer/redux/nodes/helpers'
 import {ListItem} from '@/renderer/components/ui/list-item'
 import {twMerge} from 'tailwind-merge'
 
@@ -50,7 +50,7 @@ export function NodeBlock({
   ref?: Ref<NodeEditorRef>,
 }) {
   const dispatch = useAppDispatch()
-  const node = useAppSelector(state => getNode(state.undoable.present.nodes, nodeView.nodeId))
+  const node = useAppSelector(state => getDoc(state.undoable.present.nodes, nodeView.nodeId))
   const parent = useAppSelector(state => state.undoable.present.nodes[nodeView.parent.nodeId]!)
   /** True if this node editor is shown under a different node than the node's owner. */
   const isLink = !!parent && (!node.ownerId || node.ownerId !== parent.id)

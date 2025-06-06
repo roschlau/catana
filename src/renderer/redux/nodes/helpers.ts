@@ -21,7 +21,7 @@ export type NodeWithContext = {
 
 type DocOfType<T extends Doc['type']> = Doc & { type: T }
 
-export function getNode<T extends Doc['type']>(
+export function getDoc<T extends Doc['type']>(
   state: NodeGraphFlattened,
   nodeId: Id<T>,
 ): DocOfType<T> {
@@ -38,9 +38,9 @@ export function resolveDocRef(
   state: NodeGraphFlattened,
   nodeRef: NodeView,
 ): NodeWithContext {
-  const node = getNode(state, nodeRef.nodeId)
+  const node = getDoc(state, nodeRef.nodeId)
   const viewContext = nodeRef.parent
-    ? { ...getViewContext(getNode(state, nodeRef.parent.nodeId), nodeRef.nodeId), parentView: nodeRef.parent }
+    ? { ...getViewContext(getDoc(state, nodeRef.parent.nodeId), nodeRef.nodeId), parentView: nodeRef.parent }
     : undefined
   return { node, viewContext }
 }

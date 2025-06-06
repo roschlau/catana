@@ -1,5 +1,5 @@
 import {AppDispatch, RootState} from '../store'
-import {getNode, resolveDocRef} from './helpers'
+import {getDoc, resolveDocRef} from './helpers'
 import {nanoid} from '@reduxjs/toolkit'
 import {focusRestoreRequested} from '../ui/uiSlice'
 import {nodeCreated, nodeExpandedChanged, nodeMoved, nodesMerged, titleUpdated} from './nodesSlice'
@@ -122,7 +122,7 @@ export function mergeNodeBackward(nodeView: NodeViewWithParent & { nodeId: Id<'n
     // Merge with previous sibling or parent
     const childIndex = viewContext.childIndex
     const previousSiblingRef = viewContext.parent.content[childIndex - 1]
-    const nodeToMergeWith = getNode(state, previousSiblingRef?.nodeId ?? viewContext.parent.id)
+    const nodeToMergeWith = getDoc(state, previousSiblingRef?.nodeId ?? viewContext.parent.id)
     if (nodeToMergeWith.type !== 'node') {
       console.debug(`Merge canceled: Can't merge non-node doc ${nodeToMergeWith.id} with ${node.id}`)
       return
@@ -177,7 +177,7 @@ export function mergeNodeForward(nodeView: NodeView & { nodeId: Id<'node'> }) {
       }
       nodeToMergeWithRef = { nodeId: nextSibling.nodeId, parent: { nodeId: parent.id } }
     }
-    const nodeToMergeWith = getNode(state, nodeToMergeWithRef.nodeId)
+    const nodeToMergeWith = getDoc(state, nodeToMergeWithRef.nodeId)
     if (nodeToMergeWith.type !== 'node') {
       console.debug(`Merge canceled: Can't merge non-node doc ${nodeToMergeWith.id} with ${node.id}`)
       return

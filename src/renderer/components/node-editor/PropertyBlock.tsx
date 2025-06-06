@@ -2,7 +2,7 @@ import {Id, NodeViewWithParent} from '@/common/nodeGraphModel'
 import {Ref, useImperativeHandle, useRef} from 'react'
 import {NodeEditorRef} from '@/renderer/components/node-editor/NodeBlock'
 import {useAppSelector} from '@/renderer/redux/hooks'
-import {getNode} from '@/renderer/redux/nodes/helpers'
+import {getDoc} from '@/renderer/redux/nodes/helpers'
 import {ListItem} from '@/renderer/components/ui/list-item'
 import {RectangleEllipsis} from 'lucide-react'
 import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-editor/EditorBlockList'
@@ -20,8 +20,8 @@ export function PropertyBlock({ className, nodeView, moveFocusBefore, moveFocusA
   moveFocusAfter?: () => boolean,
   ref?: Ref<NodeEditorRef>,
 }) {
-  const property = useAppSelector(state => getNode(state.undoable.present.nodes, nodeView.nodeId))
-  const field = useAppSelector(state => getNode(state.undoable.present.nodes, property.fieldId))
+  const property = useAppSelector(state => getDoc(state.undoable.present.nodes, nodeView.nodeId))
+  const field = useAppSelector(state => getDoc(state.undoable.present.nodes, property.fieldId))
 
   const contentNodesList = useRef<EditorBlockListRef | null>(null)
   useImperativeHandle(ref, () => ({

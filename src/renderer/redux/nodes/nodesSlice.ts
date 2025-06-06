@@ -1,6 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {clamp} from '../../util/math'
-import {getNode, resolveDocRef} from './helpers'
+import {getDoc, resolveDocRef} from './helpers'
 import {demoGraph} from './demoGraph'
 import {Id, Node, NodeGraphFlattened, NodeViewWithParent, ParentDoc} from '@/common/nodeGraphModel'
 import {addChildReference, deleteNodeAfterMerge, moveNode} from './stateMutations'
@@ -39,7 +39,7 @@ export const nodesSlice = createSlice({
       addChildReference(state, node.id, nodeData.ownerId, nodeData.indexInOwner, false)
     },
     titleUpdated: (state, action: PayloadAction<{ nodeId: Id<'node'>, title: string }>) => {
-      const node = getNode(state, action.payload.nodeId)
+      const node = getDoc(state, action.payload.nodeId)
       if (action.payload.title.includes('\n')) {
         console.warn(`Stripping newline from updated title of node ${action.payload.nodeId}`)
         action.payload.title = action.payload.title.replace(/\n/g, '')
@@ -71,8 +71,8 @@ export const nodesSlice = createSlice({
      * moving any links to it to the first node.
      */
     nodesMerged: (state, action: PayloadAction<{ firstNodeId: Id<'node'>, secondNodeRef: NodeViewWithParent & { nodeId: Id<'node'> } }>) => {
-      const firstNode = getNode(state, action.payload.firstNodeId)
-      const secondNode = getNode(state, action.payload.secondNodeRef.nodeId)
+      const firstNode = getDoc(state, action.payload.firstNodeId)
+      const secondNode = getDoc(state, action.payload.secondNodeRef.nodeId)
       // Merge titles
       firstNode.title += secondNode.title
       // Move children
@@ -83,7 +83,7 @@ export const nodesSlice = createSlice({
       deleteNodeAfterMerge(state, action.payload.secondNodeRef, firstNode.id)
     },
     checkboxUpdated: (state, action: PayloadAction<{ nodeId: Id<'node'>, checkbox: CheckboxConfig | undefined }>) => {
-      getNode(state, action.payload.nodeId).checkbox = action.payload.checkbox
+      getDoc(state, action.payload.nodeId).checkbox = action.payload.checkbox
     },
   },
 })
