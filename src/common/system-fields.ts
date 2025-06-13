@@ -1,6 +1,6 @@
-import {DocTree} from '@/common/doc-tree'
+import {NodeTree} from '@/common/node-tree'
 
-export const systemFields: DocTree = {
+export const systemFields: NodeTree = {
   id: 'sys.fields',
   type: 'node',
   title: 'System Fields',

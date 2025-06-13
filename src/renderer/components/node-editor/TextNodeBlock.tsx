@@ -5,23 +5,23 @@ import classNames from 'classnames'
 import {calculateCursorPosition} from '@/renderer/util/textarea-measuring'
 import {focusRestoreRequested, rootNodeSet, useFocusRestore} from '@/renderer/redux/ui/uiSlice'
 import {mergeNodeBackward, mergeNodeForward, Selection, splitNode} from '@/renderer/redux/nodes/thunks'
-import {DocViewWithParent, isRecursive} from '@/common/doc-views'
+import {isRecursive, NodeViewWithParent} from '@/common/node-views'
 import {
   NodeTitleEditorTextField,
   NodeTitleEditorTextFieldRef,
 } from '@/renderer/components/node-editor/NodeTitleEditorTextField'
 import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-editor/EditorBlockList'
 import {ChevronRight} from 'lucide-react'
-import {getDoc} from '@/renderer/redux/nodes/helpers'
+import {getNode} from '@/renderer/redux/nodes/helpers'
 import {ListItem} from '@/renderer/components/ui/list-item'
 import {twMerge} from 'tailwind-merge'
-import {Doc, Node} from '@/common/docs'
+import {Node, TextNode} from '@/common/nodes'
 
 export interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void
 }
 
-export function NodeBlock({
+export function TextNodeBlock({
   className,
   nodeView,
   expanded,
@@ -34,7 +34,7 @@ export function NodeBlock({
 }: {
   className?: string,
   /** The node view to render */
-  nodeView: DocViewWithParent<Node>,
+  nodeView: NodeViewWithParent<TextNode>,
   expanded: boolean,
   /** Called when the user attempts to move focus out of and before this node.
    Should return false if there is no previous node to move focus to, true otherwise. */
@@ -47,11 +47,11 @@ export function NodeBlock({
   /** Called when the user triggers the outdent action on this node. */
   outdent?: (selection: Selection) => void,
   /** Called when the user triggers the outdent action on a child node of this node. */
-  outdentChild?: (nodeRef: DocViewWithParent<Doc>, selection: Selection) => void,
+  outdentChild?: (nodeRef: NodeViewWithParent<Node>, selection: Selection) => void,
   ref?: Ref<NodeEditorRef>,
 }) {
   const dispatch = useAppDispatch()
-  const node = useAppSelector(state => getDoc(state.undoable.present.nodes, nodeView.nodeId))
+  const node = useAppSelector(state => getNode(state.undoable.present.nodes, nodeView.nodeId))
   const parent = useAppSelector(state => state.undoable.present.nodes[nodeView.parent.nodeId]!)
   /** True if this node editor is shown under a different node than the node's owner. */
   const isLink = !!parent && (!node.ownerId || node.ownerId !== parent.id)

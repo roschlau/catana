@@ -1,18 +1,18 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {clamp} from '../../util/math'
-import {getDoc, resolveDocRef} from './helpers'
+import {getNode, resolveNodeRef} from './helpers'
 import {demoGraph} from './demoGraph'
 import {addChildReference, deleteNodeAfterMerge, moveNode} from './stateMutations'
 import {CheckboxConfig} from '@/common/checkboxes'
-import {Doc, DocGraphFlattened, Id, Node, ParentDoc} from '@/common/docs'
-import {flatten} from '@/common/doc-tree'
-import {DocViewWithParent} from '@/common/doc-views'
+import {Id, Node, NodeGraphFlattened, ParentNode, TextNode} from '@/common/nodes'
+import {flatten} from '@/common/node-tree'
+import {NodeViewWithParent} from '@/common/node-views'
 
 export const nodesSlice = createSlice({
   name: 'nodes',
   initialState: flatten(demoGraph),
   reducers: {
-    nodeGraphLoaded: (state, action: PayloadAction<DocGraphFlattened>) => {
+    nodeGraphLoaded: (state, action: PayloadAction<NodeGraphFlattened>) => {
       // Delete all existing nodes
       Object.keys(state).forEach(nodeId => {
         delete state[nodeId]
@@ -25,11 +25,11 @@ export const nodesSlice = createSlice({
     nodeCreated: (state, action: PayloadAction<{
       nodeId: Id<'node'>,
       title: string,
-      ownerId: ParentDoc['id'],
+      ownerId: ParentNode['id'],
       indexInOwner: number
     }>) => {
       const nodeData = action.payload
-      const node: Node = {
+      const node: TextNode = {
         id: action.payload.nodeId,
         type: 'node',
         title: action.payload.title,
@@ -40,28 +40,28 @@ export const nodesSlice = createSlice({
       addChildReference(state, node.id, nodeData.ownerId, nodeData.indexInOwner, false)
     },
     titleUpdated: (state, action: PayloadAction<{ nodeId: Id<'node'>, title: string }>) => {
-      const node = getDoc(state, action.payload.nodeId)
+      const node = getNode(state, action.payload.nodeId)
       if (action.payload.title.includes('\n')) {
         console.warn(`Stripping newline from updated title of node ${action.payload.nodeId}`)
         action.payload.title = action.payload.title.replace(/\n/g, '')
       }
       node.title = action.payload.title
     },
-    nodeExpandedChanged: (state, action: PayloadAction<{ nodeView: DocViewWithParent<Doc>, expanded: boolean }>) => {
-      const { viewContext } = resolveDocRef(state, action.payload.nodeView)
+    nodeExpandedChanged: (state, action: PayloadAction<{ nodeView: NodeViewWithParent<Node>, expanded: boolean }>) => {
+      const { viewContext } = resolveNodeRef(state, action.payload.nodeView)
       const { parent, childIndex } = viewContext
       parent.content[childIndex].expanded = action.payload.expanded
     },
-    nodeIndexChanged: (state, action: PayloadAction<{ nodeView: DocViewWithParent<Doc>, indexChange: number }>) => {
-      const { node, viewContext } = resolveDocRef(state, action.payload.nodeView)
+    nodeIndexChanged: (state, action: PayloadAction<{ nodeView: NodeViewWithParent<Node>, indexChange: number }>) => {
+      const { node, viewContext } = resolveNodeRef(state, action.payload.nodeView)
       const parentNode = viewContext.parent
       const { childIndex: currentChildIndex } = viewContext
       const newIndex = clamp(currentChildIndex + action.payload.indexChange, 0, parentNode.content.length - 1)
       moveNode(state, node.id, viewContext.parent.id, viewContext.parent.id, newIndex)
     },
     nodeMoved: (state, action: PayloadAction<{
-      nodeView: DocViewWithParent<Doc>,
-      newParentId: ParentDoc['id'],
+      nodeView: NodeViewWithParent<Node>,
+      newParentId: ParentNode['id'],
       newIndex: number
     }>) => {
       const { nodeView: { nodeId, parent }, newParentId, newIndex } = action.payload
@@ -71,9 +71,9 @@ export const nodesSlice = createSlice({
      * Merges the second node into the first node by appending the second node's title, prepending its children, and
      * moving any links to it to the first node.
      */
-    nodesMerged: (state, action: PayloadAction<{ firstNodeId: Id<'node'>, secondNodeRef: DocViewWithParent<Node> }>) => {
-      const firstNode = getDoc(state, action.payload.firstNodeId)
-      const secondNode = getDoc(state, action.payload.secondNodeRef.nodeId)
+    nodesMerged: (state, action: PayloadAction<{ firstNodeId: Id<'node'>, secondNodeRef: NodeViewWithParent<TextNode> }>) => {
+      const firstNode = getNode(state, action.payload.firstNodeId)
+      const secondNode = getNode(state, action.payload.secondNodeRef.nodeId)
       // Merge titles
       firstNode.title += secondNode.title
       // Move children
@@ -84,7 +84,7 @@ export const nodesSlice = createSlice({
       deleteNodeAfterMerge(state, action.payload.secondNodeRef, firstNode.id)
     },
     checkboxUpdated: (state, action: PayloadAction<{ nodeId: Id<'node'>, checkbox: CheckboxConfig | undefined }>) => {
-      getDoc(state, action.payload.nodeId).checkbox = action.payload.checkbox
+      getNode(state, action.payload.nodeId).checkbox = action.payload.checkbox
     },
   },
 })

@@ -1,12 +1,12 @@
-import {DocViewWithParent} from '@/common/doc-views'
+import {NodeViewWithParent} from '@/common/node-views'
 import {Selection} from '@/renderer/redux/nodes/thunks'
 import {Ref} from 'react'
-import {NodeBlock, NodeEditorRef} from '@/renderer/components/node-editor/NodeBlock'
+import {NodeEditorRef, TextNodeBlock} from '@/renderer/components/node-editor/TextNodeBlock'
 import {useAppSelector} from '@/renderer/redux/hooks'
-import {getDoc} from '@/renderer/redux/nodes/helpers'
+import {getNode} from '@/renderer/redux/nodes/helpers'
 import {PropertyBlock} from '@/renderer/components/node-editor/PropertyBlock'
 import {FieldBlock} from '@/renderer/components/node-editor/FieldBlock'
-import {Doc} from '@/common/docs'
+import {Node} from '@/common/nodes'
 
 export function EditorBlock({
                               className,
@@ -21,7 +21,7 @@ export function EditorBlock({
                             }: {
   className?: string,
   /** The node view to render */
-  nodeView: DocViewWithParent<Doc>,
+  nodeView: NodeViewWithParent<Node>,
   expanded: boolean,
   /** Called when the user attempts to move focus out of and before this node.
    Should return false if there is no previous node to move focus to, true otherwise. */
@@ -34,13 +34,13 @@ export function EditorBlock({
   /** Called when the user triggers the outdent action on this node. */
   outdent?: (selection: Selection) => void,
   /** Called when the user triggers the outdent action on a child node of this node. */
-  outdentChild?: (nodeRef: DocViewWithParent<Doc>, selection: Selection) => void,
+  outdentChild?: (nodeRef: NodeViewWithParent<Node>, selection: Selection) => void,
   ref?: Ref<NodeEditorRef>,
 }) {
-  const node = useAppSelector(state => getDoc(state.undoable.present.nodes, nodeView.nodeId))
+  const node = useAppSelector(state => getNode(state.undoable.present.nodes, nodeView.nodeId))
   switch (node.type) {
     case 'node':
-      return <NodeBlock
+      return <TextNodeBlock
         className={className}
         nodeView={{ ...nodeView, nodeId: node.id }}
         expanded={expanded}

@@ -16,18 +16,18 @@ import {
   DropdownMenuTrigger,
 } from '@/renderer/components/ui/dropdown-menu'
 import {selectAncestry} from '@/renderer/redux/nodes/selectors'
-import {Field, Node} from '@/common/docs'
+import {Field, TextNode} from '@/common/nodes'
 
 /**
  * Renders a breadcrumb trail for the current Doc. Property docs in the ancestry, they will be skipped.
  */
 export function EditorPageBreadcrumbs({ node, className }: {
-  node: Node | Field,
+  node: TextNode | Field,
   className?: string
 }) {
   const dispatch = useAppDispatch()
   const path = useAppSelector(state => selectAncestry(state, node))
-    .filter((it): it is Node => it.type === 'node')
+    .filter((it): it is TextNode => it.type === 'node')
 
   const ellipsize = (max: number, text: string) => {
     if (text.length <= max) {
@@ -36,7 +36,7 @@ export function EditorPageBreadcrumbs({ node, className }: {
     return text.slice(0, max).trimEnd() + '…'
   }
 
-  const Item = ({ node }: { node: Node }) => (
+  const Item = ({ node }: { node: TextNode }) => (
     <BreadcrumbItem>
       <BreadcrumbLink
         className={'cursor-pointer'}
@@ -47,7 +47,7 @@ export function EditorPageBreadcrumbs({ node, className }: {
     </BreadcrumbItem>
   )
 
-  const Ellipsis = ({ nodes }: { nodes: Node[] }) => (
+  const Ellipsis = ({ nodes }: { nodes: TextNode[] }) => (
     <BreadcrumbItem>
       <DropdownMenu>
         <DropdownMenuTrigger className="flex items-center gap-1">

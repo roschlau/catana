@@ -1,10 +1,10 @@
-import {DocViewWithParent, ParentNodeView} from '@/common/doc-views'
+import {NodeViewWithParent, ParentNodeView} from '@/common/node-views'
 import {indentNode, outdentNode, Selection} from '@/renderer/redux/nodes/thunks'
 import {Ref, useImperativeHandle, useRef} from 'react'
 import {useAppDispatch} from '@/renderer/redux/hooks'
 import {twMerge} from 'tailwind-merge'
 import {EditorBlock} from '@/renderer/components/node-editor/EditorBlock'
-import {Doc, Node} from '@/common/docs'
+import {Node, TextNode} from '@/common/nodes'
 
 export interface EditorBlockListRef {
   focus: (mode: 'first' | 'last') => void
@@ -12,12 +12,12 @@ export interface EditorBlockListRef {
 
 export function EditorBlockList({ className, nodes, parentView, moveFocusBefore, moveFocusAfter, outdentChild, ref }: {
   className?: string,
-  nodes: Node['content'],
+  nodes: TextNode['content'],
   parentView: ParentNodeView,
   moveFocusBefore?: () => boolean,
   moveFocusAfter?: () => boolean,
   /** Called when the user triggers the outdent action on a node within this list. */
-  outdentChild?: (nodeView: DocViewWithParent<Doc>, selection: Selection) => void,
+  outdentChild?: (nodeView: NodeViewWithParent<Node>, selection: Selection) => void,
   ref?: Ref<EditorBlockListRef>,
 }) {
   useImperativeHandle(ref, () => ({
@@ -53,7 +53,7 @@ export function EditorBlockList({ className, nodes, parentView, moveFocusBefore,
     return true
   }
 
-  const indent = (index: number, childView: DocViewWithParent<Doc>, selection: Selection) => {
+  const indent = (index: number, childView: NodeViewWithParent<Node>, selection: Selection) => {
     if (index === 0) {
       // Can't indent a node that's already the first within its siblings
       return
@@ -67,14 +67,14 @@ export function EditorBlockList({ className, nodes, parentView, moveFocusBefore,
   }
 
   // Handles outdenting a child node of one of this list's nodes into this list
-  const outdentChildOfChild = (index: number, nodeRef: DocViewWithParent<Doc>, selection: Selection) => {
+  const outdentChildOfChild = (index: number, nodeRef: NodeViewWithParent<Node>, selection: Selection) => {
     dispatch(outdentNode(nodeRef, parentView, index + 1, selection))
   }
 
   return (
     <div className={twMerge('grid p-0', className)} style={{ gridTemplateColumns: 'minmax(auto, 200px) 1fr' }}>
       {nodes.map((contentNode, i) => {
-        const childView: DocViewWithParent<Doc> = { nodeId: contentNode.nodeId, parent: parentView }
+        const childView: NodeViewWithParent<Node> = { nodeId: contentNode.nodeId, parent: parentView }
         return (
           <EditorBlock
             className={'col-span-2'}

@@ -1,24 +1,24 @@
 import {CheckboxConfig} from '@/common/checkboxes'
 
 
-export type Doc =
-  | Node
+export type Node =
+  | TextNode
   | Property
   | Field
 
-/** Covers all node types that can contain other docs as children. */
-export type ParentDoc =
-  | Node
+/** Covers all node types that can contain other nodes as children. */
+export type ParentNode =
+  | TextNode
   | Property
 
-export interface Node {
+export interface TextNode {
   id: Id<'node'>
   type: 'node'
   title: string
-  ownerId: ParentDoc['id'] | null
+  ownerId: ParentNode['id'] | null
   checkbox?: CheckboxConfig
   content: {
-    nodeId: Doc['id'],
+    nodeId: Node['id'],
     expanded?: boolean,
   }[]
 }
@@ -38,7 +38,7 @@ export interface Field {
   ownerId: Id<'node'>
 }
 
-export type DocOfType<T extends Doc['type']> = Doc & { type: T }
+export type NodeOfType<T extends Node['type']> = Node & { type: T }
 
 /**
  * Alias for string, but typed in a way to ensure we can't accidentally cross-assign IDs of a certain type with IDs of
@@ -46,18 +46,18 @@ export type DocOfType<T extends Doc['type']> = Doc & { type: T }
  *
  * Inspiration for this approach taken from here: https://michalzalecki.com/nominal-typing-in-typescript/#approach-4-intersection-types-and-brands
  */
-export type Id<T extends Doc['type']> = string & { __brand: T }
+export type Id<T extends Node['type']> = string & { __brand: T }
 
-export function id<T extends Doc['type']>(id: string): Id<T> {
+export function id<T extends Node['type']>(id: string): Id<T> {
   return id as Id<T>
 }
 
 /**
- * True if the passed doc is of a type that allows it to contain children.
+ * True if the passed node is of a type that allows it to contain children.
  * @deprecated Try to use the type system.
  */
-export function isParentDoc(doc: Doc): doc is ParentDoc {
-  return doc.type === 'node' || doc.type === 'property'
+export function isParentNode(node: Node): node is ParentNode {
+  return node.type === 'node' || node.type === 'property'
 }
 
-export type DocGraphFlattened = Partial<Record<string, Doc>>
+export type NodeGraphFlattened = Partial<Record<string, Node>>

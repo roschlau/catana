@@ -1,25 +1,25 @@
 import {AppDispatch, RootState} from '../store'
-import {getDoc, resolveDocRef} from './helpers'
+import {getNode, resolveNodeRef} from './helpers'
 import {nanoid} from '@reduxjs/toolkit'
 import {focusRestoreRequested} from '../ui/uiSlice'
 import {nodeCreated, nodeExpandedChanged, nodeMoved, nodesMerged, titleUpdated} from './nodesSlice'
-import {DocView, DocViewWithParent, ParentNodeView} from '@/common/doc-views'
+import {NodeView, NodeViewWithParent, ParentNodeView} from '@/common/node-views'
 import {createUndoTransaction} from '../undoTransactions'
-import {Doc, Id, isParentDoc, Node} from '@/common/docs'
+import {Id, isParentNode, Node, TextNode} from '@/common/nodes'
 
 export interface Selection {
   start: number,
   end: number,
 }
 
-export function indentNode(nodeView: DocViewWithParent<Doc>, intoNewParentRef: DocViewWithParent<Doc>, currentSelection: Selection) {
+export function indentNode(nodeView: NodeViewWithParent<Node>, intoNewParentRef: NodeViewWithParent<Node>, currentSelection: Selection) {
   return createUndoTransaction((dispatch: AppDispatch, getState: () => RootState) => {
     const {
       node: newParent,
       viewContext: newParentContext,
-    } = resolveDocRef(getState().undoable.present.nodes, intoNewParentRef)
-    if (!isParentDoc(newParent)) {
-      console.debug(`Indent canceled: Can't indent node ${nodeView.nodeId} into non-parent doc ${newParent.id}`)
+    } = resolveNodeRef(getState().undoable.present.nodes, intoNewParentRef)
+    if (!isParentNode(newParent)) {
+      console.debug(`Indent canceled: Can't indent node ${nodeView.nodeId} into non-parent node ${newParent.id}`)
       return
     }
     // Move Node to new parent
@@ -40,7 +40,7 @@ export function indentNode(nodeView: DocViewWithParent<Doc>, intoNewParentRef: D
   })
 }
 
-export function outdentNode(nodeView: DocViewWithParent<Doc>, intoParentView: ParentNodeView, atIndex: number, currentSelection: Selection) {
+export function outdentNode(nodeView: NodeViewWithParent<Node>, intoParentView: ParentNodeView, atIndex: number, currentSelection: Selection) {
   return (dispatch: AppDispatch) => {
     dispatch(nodeMoved({ nodeView: nodeView, newParentId: intoParentView.nodeId, newIndex: atIndex }))
     dispatch(focusRestoreRequested({
@@ -50,11 +50,11 @@ export function outdentNode(nodeView: DocViewWithParent<Doc>, intoParentView: Pa
   }
 }
 
-export function splitNode(nodeView: DocView<Node>, selectionStart: number, selectionEnd: number) {
+export function splitNode(nodeView: NodeView<TextNode>, selectionStart: number, selectionEnd: number) {
   return createUndoTransaction((dispatch: AppDispatch, getState: () => RootState) => {
-    const { node, viewContext } = resolveDocRef(getState().undoable.present.nodes, nodeView)
+    const { node, viewContext } = resolveNodeRef(getState().undoable.present.nodes, nodeView)
     if (node.type !== 'node') {
-      console.debug(`Split canceled: Can't split non-node doc ${node.id}`)
+      console.debug(`Split canceled: Can't split non-node node ${node.id}`)
       return
     }
     if (selectionStart !== selectionEnd) {
@@ -108,24 +108,24 @@ export function splitNode(nodeView: DocView<Node>, selectionStart: number, selec
  * Nodes can only be merged with siblings or parents when the current view parent is their owner; this function will
  * no-op when attempting to merge a node in any other view.
  */
-export function mergeNodeBackward(nodeView: DocViewWithParent<Node>) {
+export function mergeNodeBackward(nodeView: NodeViewWithParent<TextNode>) {
   return (dispatch: AppDispatch, getState: () => RootState) => {
     const state = getState().undoable.present.nodes
-    const { node, viewContext } = resolveDocRef(state, nodeView)
+    const { node, viewContext } = resolveNodeRef(state, nodeView)
     if (node.ownerId !== viewContext?.parent.id) {
       console.debug(`Node Merge canceled: Can't merge node link ${node.id} into surrounding nodes`)
       return
     }
     if (node.type !== 'node') {
-      console.debug(`Merge canceled: Can't merge non-node doc ${node.id}`)
+      console.debug(`Merge canceled: Can't merge non-text node ${node.id}`)
       return
     }
     // Merge with previous sibling or parent
     const childIndex = viewContext.childIndex
     const previousSiblingRef = viewContext.parent.content[childIndex - 1]
-    const nodeToMergeWith = getDoc(state, previousSiblingRef?.nodeId ?? viewContext.parent.id)
+    const nodeToMergeWith = getNode(state, previousSiblingRef?.nodeId ?? viewContext.parent.id)
     if (nodeToMergeWith.type !== 'node') {
-      console.debug(`Merge canceled: Can't merge non-node doc ${nodeToMergeWith.id} with ${node.id}`)
+      console.debug(`Merge canceled: Can't merge non-text node ${nodeToMergeWith.id} with ${node.id}`)
       return
     }
     dispatch(nodesMerged({ firstNodeId: nodeToMergeWith.id, secondNodeRef: nodeView }))
@@ -144,15 +144,15 @@ export function mergeNodeBackward(nodeView: DocViewWithParent<Node>) {
  * merge a node with a sibling in a view context that is not within its owner.
  * This function will also no-op if `nodeView` has no parent and the node has no children to merge with.
  */
-export function mergeNodeForward(nodeView: DocView<Node>) {
+export function mergeNodeForward(nodeView: NodeView<TextNode>) {
   return (dispatch: AppDispatch, getState: () => RootState) => {
     const state = getState().undoable.present.nodes
-    const { node, viewContext } = resolveDocRef(state, nodeView)
+    const { node, viewContext } = resolveNodeRef(state, nodeView)
     if (node.type !== 'node') {
-      console.debug(`Merge canceled: Can't merge non-node doc ${node.id}`)
+      console.debug(`Merge canceled: Can't merge non-text node ${node.id}`)
       return
     }
-    let nodeToMergeWithRef: DocViewWithParent<Doc>
+    let nodeToMergeWithRef: NodeViewWithParent<Node>
     if (!viewContext) {
       // Merge with first child node
       if (node.content.length === 0) {
@@ -165,7 +165,7 @@ export function mergeNodeForward(nodeView: DocView<Node>) {
       nodeToMergeWithRef = { nodeId: node.content[0].nodeId, parent: { nodeId: node.id } }
     } else {
       if (node.ownerId !== viewContext.parent.id) {
-        console.debug(`Merge canceled: Can't merge link ${node.id} into surrounding docs`)
+        console.debug(`Merge canceled: Can't merge link ${node.id} into surrounding nodes`)
         return
       }
       // Merge with next sibling
@@ -178,9 +178,9 @@ export function mergeNodeForward(nodeView: DocView<Node>) {
       }
       nodeToMergeWithRef = { nodeId: nextSibling.nodeId, parent: { nodeId: parent.id } }
     }
-    const nodeToMergeWith = getDoc(state, nodeToMergeWithRef.nodeId)
+    const nodeToMergeWith = getNode(state, nodeToMergeWithRef.nodeId)
     if (nodeToMergeWith.type !== 'node') {
-      console.debug(`Merge canceled: Can't merge non-node doc ${nodeToMergeWith.id} with ${node.id}`)
+      console.debug(`Merge canceled: Can't merge non-text node ${nodeToMergeWith.id} with ${node.id}`)
       return
     }
     dispatch(nodesMerged({

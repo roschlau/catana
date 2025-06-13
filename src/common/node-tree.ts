@@ -1,16 +1,16 @@
 import {nanoid} from '@reduxjs/toolkit'
 import {isPresent} from '@/renderer/util/optionals'
-import {Doc, DocGraphFlattened, Field, id, Id, Node, Property} from '@/common/docs'
+import {Field, id, Id, Node, NodeGraphFlattened, Property, TextNode} from '@/common/nodes'
 
-export type DocTree =
+export type NodeTree =
   | NodeLink
-  | TreeNode
+  | TreeTextNode
   | TreeField
   | TreeProperty
 
-export type TreeNode = Omit<Node, 'id' | 'ownerId' | 'content'> & {
+export type TreeTextNode = Omit<TextNode, 'id' | 'ownerId' | 'content'> & {
   id?: string
-  content?: DocTree[],
+  content?: NodeTree[],
   expanded?: boolean,
 }
 
@@ -21,7 +21,7 @@ export type TreeField = Omit<Field, 'id' | 'ownerId'> & {
 export type TreeProperty = Omit<Property, 'id' | 'ownerId' | 'content' | 'fieldId'> & {
   id?: string
   fieldId: string
-  content: (Exclude<DocTree, TreeProperty>)[]
+  content: (Exclude<NodeTree, TreeProperty>)[]
 }
 
 export interface NodeLink {
@@ -30,10 +30,10 @@ export interface NodeLink {
   expanded?: boolean
 }
 
-export function flatten(tree: Exclude<DocTree, NodeLink>): DocGraphFlattened {
-  const nodes: DocGraphFlattened = {}
+export function flatten(tree: Exclude<NodeTree, NodeLink>): NodeGraphFlattened {
+  const nodes: NodeGraphFlattened = {}
 
-  function parseNode(node: TreeNode, ownerId: Id<'node' | 'property'> | null): Node {
+  function parseNode(node: TreeTextNode, ownerId: Id<'node' | 'property'> | null): TextNode {
     const nodeId = (node.id ?? nanoid()) as Id<'node'>
     const childRefs = node.content?.map(child => {
       if (child.type === 'nodeLink') {
@@ -47,7 +47,7 @@ export function flatten(tree: Exclude<DocTree, NodeLink>): DocGraphFlattened {
       id: nodeId,
       ownerId,
       content: childRefs,
-    } satisfies Node
+    } satisfies TextNode
   }
 
   function parseProperty(node: TreeProperty, ownerId: Id<'node'>): Property {
@@ -67,7 +67,7 @@ export function flatten(tree: Exclude<DocTree, NodeLink>): DocGraphFlattened {
     }
   }
 
-  function traverse(node: Exclude<DocTree, NodeLink>, ownerId: Id<'node' | 'property'> | null): Doc['id'] {
+  function traverse(node: Exclude<NodeTree, NodeLink>, ownerId: Id<'node' | 'property'> | null): Node['id'] {
     switch (node.type) {
       case 'node': {
         const nodeData = parseNode(node, ownerId)
@@ -101,10 +101,10 @@ export function flatten(tree: Exclude<DocTree, NodeLink>): DocGraphFlattened {
   return nodes
 }
 
-export function buildTree(nodes: DocGraphFlattened): DocTree | null {
-  const processedNodeIds = new Set<Doc['id']>()
+export function buildTree(nodes: NodeGraphFlattened): NodeTree | null {
+  const processedNodeIds = new Set<Node['id']>()
 
-  function build(id: Doc['id']): Exclude<DocTree, NodeLink> {
+  function build(id: Node['id']): Exclude<NodeTree, NodeLink> {
     processedNodeIds.add(id)
     const node = nodes[id]
     if (!node) {
@@ -113,7 +113,7 @@ export function buildTree(nodes: DocGraphFlattened): DocTree | null {
     switch (node.type) {
       case 'node': {
         const { ownerId, content, ...rest } = node
-        const result: TreeNode = { ...rest, type: 'node', id: node.id }
+        const result: TreeTextNode = { ...rest, type: 'node', id: node.id }
         // Recursively build children
         if (node.content) {
           result.content = node.content

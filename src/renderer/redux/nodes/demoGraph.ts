@@ -1,10 +1,10 @@
-import {DocTree, NodeLink} from '@/common/doc-tree'
+import {NodeLink, NodeTree} from '@/common/node-tree'
 import {systemFields} from '@/common/system-fields'
-import {Id} from '@/common/docs'
+import {Id} from '@/common/nodes'
 
 export const ROOT_NODE = '_root' as Id<'node'>
 
-export const demoGraph: Exclude<DocTree, NodeLink> = {
+export const demoGraph: Exclude<NodeTree, NodeLink> = {
   type: 'node',
   id: ROOT_NODE,
   title: '👋 Welcome to Catana!',

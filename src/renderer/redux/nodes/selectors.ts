@@ -1,7 +1,7 @@
 import {createSelector} from '@reduxjs/toolkit'
 import {RootState} from '@/renderer/redux/store'
-import {getDoc} from '@/renderer/redux/nodes/helpers'
-import {Doc, ParentDoc} from '@/common/docs'
+import {getNode} from '@/renderer/redux/nodes/helpers'
+import {Node, ParentNode} from '@/common/nodes'
 
 /**
  * Returns a flat list of all nodes in the owner lineage of the passed node, starting with the furthest ancestor and
@@ -22,22 +22,22 @@ import {Doc, ParentDoc} from '@/common/docs'
  *
  */
 export const selectAncestry = createSelector([
-  (_: RootState, node: Doc) => node,
+  (_: RootState, node: Node) => node,
   (state: RootState) => state.undoable.present.nodes,
 ], (node, nodes) => {
-  const path = [] as ParentDoc[]
-  let next: ParentDoc['id'] | null = node.ownerId
+  const path = [] as ParentNode[]
+  let next: ParentNode['id'] | null = node.ownerId
   while (next) {
-    const nextNode = getDoc(nodes, next)
+    const nextNode = getNode(nodes, next)
     path.unshift(nextNode)
     next = nextNode.ownerId
   }
   return path
 })
 
-export const selectDocs = createSelector([
-  (_: RootState, nodeIds: Doc['id'][]) => nodeIds,
+export const selectNodes = createSelector([
+  (_: RootState, nodeIds: Node['id'][]) => nodeIds,
   (state: RootState) => state.undoable.present.nodes,
 ], (nodeIds, nodes) => {
-  return nodeIds.map(id => getDoc(nodes, id))
+  return nodeIds.map(id => getNode(nodes, id))
 })

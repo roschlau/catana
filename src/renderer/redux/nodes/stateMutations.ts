@@ -1,7 +1,7 @@
-import {DocViewWithParent} from '@/common/doc-views'
-import {findBacklinks, getDoc, getViewContext, resolveDocRef} from './helpers'
+import {NodeViewWithParent} from '@/common/node-views'
+import {findBacklinks, getNode, getViewContext, resolveNodeRef} from './helpers'
 import {RootState} from '@/renderer/redux/store'
-import {Doc, Id, ParentDoc} from '@/common/docs'
+import {Id, Node, ParentNode} from '@/common/nodes'
 
 /**
  * Deletes a node and points all parents linking to it to a new node. Specifically intended for the use case of
@@ -9,11 +9,11 @@ import {Doc, Id, ParentDoc} from '@/common/docs'
  */
 export function deleteNodeAfterMerge(
   state: RootState['undoable']['present']['nodes'],
-  nodeRef: DocViewWithParent<Doc>,
+  nodeRef: NodeViewWithParent<Node>,
   mergedNode: Id<'node'>,
 ) {
   // Remove from parent's children
-  const { node, viewContext } = resolveDocRef(state, nodeRef)
+  const { node, viewContext } = resolveNodeRef(state, nodeRef)
   const { parent, childIndex } = viewContext!
   parent.content.splice(childIndex, 1)
   // Move any remaining links
@@ -35,13 +35,13 @@ export function deleteNodeAfterMerge(
  */
 export function moveNode(
   state: RootState['undoable']['present']['nodes'],
-  nodeId: Doc['id'],
-  oldParentId: ParentDoc['id'],
-  newParentId: ParentDoc['id'],
+  nodeId: Node['id'],
+  oldParentId: ParentNode['id'],
+  newParentId: ParentNode['id'],
   childIndex: number,
 ) {
-  const node = getDoc(state, nodeId)
-  const oldParent = getDoc(state, oldParentId)
+  const node = getNode(state, nodeId)
+  const oldParent = getNode(state, oldParentId)
   if (node.ownerId === oldParent.id) {
     // We're moving the canonical instance of the node -> update owner accordingly
     node.ownerId = newParentId
@@ -55,12 +55,12 @@ export function moveNode(
 
 export function addChildReference(
   state: RootState['undoable']['present']['nodes'],
-  childId: Doc['id'],
-  parentId: ParentDoc['id'],
+  childId: Node['id'],
+  parentId: ParentNode['id'],
   atIndex: number,
   expanded: boolean = false,
 ) {
-  const parent = getDoc(state, parentId)
+  const parent = getNode(state, parentId)
   if (parent.content.some(it => it.nodeId === childId)) {
     // Node already linked in old parent, can't link a second time
     return

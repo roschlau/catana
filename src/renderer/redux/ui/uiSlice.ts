@@ -1,11 +1,11 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {PartialBy} from '../../util/types'
-import {DocView, isSameView} from '../../../common/doc-views'
+import {isSameView, NodeView} from '../../../common/node-views'
 import {Selection} from '../nodes/thunks'
 import {useAppDispatch, useAppSelector} from '../hooks'
 import {useEffect} from 'react'
 import {ROOT_NODE} from '../nodes/demoGraph'
-import {Doc, Id} from '@/common/docs'
+import {Id, Node} from '@/common/nodes'
 
 export interface UndoableUiState {
   rootNode: Id<'node'>
@@ -29,7 +29,7 @@ export interface EphemeralUiState {
 }
 
 interface FocusRestoreRequest {
-  nodeRef: DocView<Doc>
+  nodeRef: NodeView<Node>
   selection: Selection
 }
 
@@ -41,7 +41,7 @@ export const ephemeralUiSlice = createSlice({
   initialState: {} as EphemeralUiState,
   reducers: {
     focusRestoreRequested: (state, action: PayloadAction<{
-      nodeRef: DocView<Doc>,
+      nodeRef: NodeView<Node>,
       selection: PartialBy<Selection, 'end'>
     }>) => {
       state.focusRestoreRequest = {
@@ -68,7 +68,7 @@ export const selectPreparedFocusRestore = (state: { ui: EphemeralUiState }) => s
  * Calls `focus` as an effect if a focus restore has been requested for the passed nodeRef.
  */
 export function useFocusRestore(
-  nodeRef: DocView<Doc>,
+  nodeRef: NodeView<Node>,
   focus: (selection: Selection) => void,
 ) {
   const preparedFocusRestore = useAppSelector(selectPreparedFocusRestore)

@@ -7,7 +7,7 @@ import {Checkbox} from '@/renderer/components/ui/checkbox'
 import classNames from 'classnames'
 import {cycleCheckboxState} from '@/common/checkboxes'
 import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
-import {Node} from '@/common/docs'
+import {TextNode} from '@/common/nodes'
 
 export interface NodeTitleEditorTextFieldRef {
   focus: (selection?: Selection) => void
@@ -18,7 +18,7 @@ export interface NodeTitleEditorTextFieldRef {
  * Handles dispatching actions for title editing itself, any other input is passed to the parent via `keyDown`.
  */
 export function NodeTitleEditorTextField({ node, keyDown, ref }: {
-  node: Node,
+  node: TextNode,
   /** Passed through unchanged from the underlying textarea, except for preventing the browser's default for Ctrl+Z. */
   keyDown?: (e: KeyboardEvent<HTMLTextAreaElement>) => void,
   ref?: Ref<NodeTitleEditorTextFieldRef>,

@@ -1,7 +1,7 @@
-import {DocGraphFlattened, Id} from '@/common/docs'
+import {Id, NodeGraphFlattened} from '@/common/nodes'
 
 export interface CatanaAPI {
-  loadTanaExport: () => Promise<{ rootId: Id<'node'>, nodes: DocGraphFlattened } | null>,
+  loadTanaExport: () => Promise<{ rootId: Id<'node'>, nodes: NodeGraphFlattened } | null>,
 }
 
 declare global {

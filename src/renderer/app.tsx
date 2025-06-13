@@ -11,8 +11,8 @@ import {NodeEditorPage} from '@/renderer/components/node-editor/NodeEditorPage'
 import {rootNodeSet} from '@/renderer/redux/ui/uiSlice'
 import {ArrowDownToLine, ArrowUpFromLine, House, SunMoon} from 'lucide-react'
 import {Button} from '@/renderer/components/ui/button'
-import {buildTree} from '@/common/doc-tree'
-import {Id} from '@/common/docs'
+import {buildTree} from '@/common/node-tree'
+import {Id} from '@/common/nodes'
 
 const root = createRoot(document.body)
 root.render(

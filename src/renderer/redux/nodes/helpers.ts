@@ -1,41 +1,41 @@
-import {DocView, DocViewWithParent, ParentNodeView} from '@/common/doc-views'
-import {Doc, DocGraphFlattened, DocOfType, Id, Node, Property} from '@/common/docs'
+import {NodeView, NodeViewWithParent, ParentNodeView} from '@/common/node-views'
+import {Id, Node, NodeGraphFlattened, NodeOfType, Property, TextNode} from '@/common/nodes'
 
-export type DocWithContext<T extends Doc> = {
+export type NodeWithContext<T extends Node> = {
   node: T,
   viewContext?: {
     parentView: ParentNodeView,
-    parent: Node | Property,
+    parent: TextNode | Property,
     childIndex: number,
     isExpanded: boolean,
   },
 }
 
-export function getDoc<T extends Doc['type']>(
-  state: DocGraphFlattened,
+export function getNode<T extends Node['type']>(
+  state: NodeGraphFlattened,
   nodeId: Id<T>,
-): DocOfType<T> {
-  const doc = state[nodeId]
-  if (!doc) {
+): NodeOfType<T> {
+  const node = state[nodeId]
+  if (!node) {
     throw new Error(`Node ${nodeId} not found`)
   }
-  return doc as DocOfType<T>
+  return node as NodeOfType<T>
 }
 
-export function resolveDocRef<T extends Doc>(state: DocGraphFlattened, nodeRef: DocViewWithParent<T>): Required<DocWithContext<T>>
-export function resolveDocRef<T extends Doc>(state: DocGraphFlattened, nodeRef: DocView<T>): DocWithContext<T>
-export function resolveDocRef<T extends Doc>(
-  state: DocGraphFlattened,
-  nodeRef: DocView<T>,
-): DocWithContext<T> {
-  const node = getDoc(state, nodeRef.nodeId) as T
+export function resolveNodeRef<T extends Node>(state: NodeGraphFlattened, nodeRef: NodeViewWithParent<T>): Required<NodeWithContext<T>>
+export function resolveNodeRef<T extends Node>(state: NodeGraphFlattened, nodeRef: NodeView<T>): NodeWithContext<T>
+export function resolveNodeRef<T extends Node>(
+  state: NodeGraphFlattened,
+  nodeRef: NodeView<T>,
+): NodeWithContext<T> {
+  const node = getNode(state, nodeRef.nodeId) as T
   const viewContext = nodeRef.parent
-    ? { ...getViewContext(getDoc(state, nodeRef.parent.nodeId), nodeRef.nodeId), parentView: nodeRef.parent }
+    ? { ...getViewContext(getNode(state, nodeRef.parent.nodeId), nodeRef.nodeId), parentView: nodeRef.parent }
     : undefined
   return { node, viewContext }
 }
 
-export function findBacklinks(state: DocGraphFlattened, nodeId: Doc['id']): Node['content'] {
+export function findBacklinks(state: NodeGraphFlattened, nodeId: Node['id']): TextNode['content'] {
   return Object.values(state)
     .flatMap((node) => {
       if (node!.type === 'field') {
@@ -45,7 +45,7 @@ export function findBacklinks(state: DocGraphFlattened, nodeId: Doc['id']): Node
     })
 }
 
-export function getViewContext(parent: Node | Property, childId: Doc['id']) {
+export function getViewContext(parent: TextNode | Property, childId: Node['id']) {
   const contentChildIndex = parent.content.findIndex(it => it.nodeId === childId)
   if (contentChildIndex === -1) {
     throw Error(`Invalid reference: ${childId} is not a child of ${parent.id}`)

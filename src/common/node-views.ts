@@ -1,25 +1,25 @@
-import {Doc, ParentDoc} from '@/common/docs'
+import {Node, ParentNode} from '@/common/nodes'
 
 /**
  * A node view that definitely has a parent
  */
-export type DocViewWithParent<T extends Doc> = Required<DocView<T>>
+export type NodeViewWithParent<T extends Node> = Required<NodeView<T>>
 
 /**
  * A node view of a node that can potentially be a parent for other nodes.
  */
-export type ParentNodeView = DocView<ParentDoc>
+export type ParentNodeView = NodeView<ParentNode>
 
 /** Identifies a node being viewed at a specific point in the Node graph. */
-export interface DocView<T extends Doc> {
+export interface NodeView<T extends Node> {
   nodeId: T['id'],
   parent?: ParentNodeView,
 }
 
 /** Checks whether the passed NodeView contains any of the nodes within it more than once. */
-export function isRecursive(nodeView: DocView<Doc>): boolean {
-  const seenIds = new Set<Doc['id']>()
-  let next: DocView<Doc> | undefined = nodeView
+export function isRecursive(nodeView: NodeView<Node>): boolean {
+  const seenIds = new Set<Node['id']>()
+  let next: NodeView<Node> | undefined = nodeView
   while (next !== undefined) {
     if (seenIds.has(next.nodeId)) {
       return true
@@ -31,7 +31,7 @@ export function isRecursive(nodeView: DocView<Doc>): boolean {
 }
 
 /** Checks recursively if the passed NodeViews correspond to the same view. */
-export function isSameView(a: DocView<Doc> | undefined, b: DocView<Doc> | undefined): boolean {
+export function isSameView(a: NodeView<Node> | undefined, b: NodeView<Node> | undefined): boolean {
   if (a === undefined || b === undefined) {
     return a === undefined && b === undefined
   }

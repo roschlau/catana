@@ -1,5 +1,5 @@
 import {nanoid} from '@reduxjs/toolkit'
-import {DocGraphFlattened, Id, Node} from '@/common/docs'
+import {Id, NodeGraphFlattened, TextNode} from '@/common/nodes'
 
 interface TanaExport {
   formatVersion: 1,
@@ -16,11 +16,11 @@ interface TanaExport {
   }[]
 }
 
-export function loadTanaExport(fileContent: string): { rootId: Id<'node'>, nodes: DocGraphFlattened } {
+export function loadTanaExport(fileContent: string): { rootId: Id<'node'>, nodes: NodeGraphFlattened } {
   const { docs } = JSON.parse(fileContent) as TanaExport
-  const nodes: Record<Id<'node'>, Node> = {}
+  const nodes: Record<Id<'node'>, TextNode> = {}
   docs.forEach(doc => {
-    const node: Node = {
+    const node: TextNode = {
       id: doc.id,
       type: 'node',
       content: doc.children?.map(nodeId => ({ nodeId })) ?? [],
@@ -31,7 +31,7 @@ export function loadTanaExport(fileContent: string): { rootId: Id<'node'>, nodes
       node.content.unshift({ nodeId: doc.props._metaNodeId })
     }
     const { id, children, ...details } = doc
-    const detailsNode: Node = {
+    const detailsNode: TextNode = {
       id: doc.id + '_details' as Id<'node'>,
       type: 'node',
       title: JSON.stringify(details),
