@@ -8,11 +8,13 @@ import {ROOT_NODE} from '@/renderer/redux/nodes/demoGraph'
 import {ActionCreators} from 'redux-undo'
 import {nodeGraphLoaded} from '@/renderer/redux/nodes/nodesSlice'
 import {NodeEditorPage} from '@/renderer/components/node-editor/NodeEditorPage'
-import {rootNodeSet} from '@/renderer/redux/ui/uiSlice'
+import {debugModeSet, rootNodeSet, selectDebugMode} from '@/renderer/redux/ui/uiSlice'
 import {ArrowDownToLine, ArrowUpFromLine, House, SunMoon} from 'lucide-react'
 import {Button} from '@/renderer/components/ui/button'
 import {buildTree} from '@/common/node-tree'
 import {Id} from '@/common/nodes'
+import {Switch} from '@/renderer/components/ui/switch'
+import {Label} from '@/renderer/components/ui/label'
 
 const root = createRoot(document.body)
 root.render(
@@ -72,6 +74,8 @@ function Sidebar({ nodeClicked, onSaveWorkspaceClicked, onImportClicked }: {
   onImportClicked: () => void,
 }) {
   const { resolvedTheme, setTheme } = useTheme()
+  const dispatch = useAppDispatch()
+  const debugMode = useAppSelector(selectDebugMode)
 
   return (
     <div className={'flex flex-col gap-2'}>
@@ -94,6 +98,10 @@ function Sidebar({ nodeClicked, onSaveWorkspaceClicked, onImportClicked }: {
         <SunMoon size={16} />
         Toggle Theme
       </Button>
+      <div className="flex items-center justify-center gap-2 p-2">
+        <Switch id="debug-mode" checked={debugMode} onCheckedChange={checked => dispatch(debugModeSet(checked))}/>
+        <Label htmlFor="debug-mode">Debug Mode</Label>
+      </div>
     </div>
   )
 }

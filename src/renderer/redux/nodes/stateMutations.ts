@@ -42,9 +42,10 @@ export function moveNode(
 ) {
   const node = getNode(state, nodeId)
   const oldParent = getNode(state, oldParentId)
-  if (node.ownerId === oldParent.id) {
+  if (oldParent.id === node.ownerId && oldParent.id !== newParentId) {
     // We're moving the canonical instance of the node -> update owner accordingly
     node.ownerId = newParentId
+    node.history.lastModifiedTime = new Date().getTime()
   }
   const { childIndex: currentChildIndex } = getViewContext(oldParent, nodeId)
   // Remove node from old parent
@@ -62,7 +63,7 @@ export function addChildReference(
 ) {
   const parent = getNode(state, parentId)
   if (parent.content.some(it => it.nodeId === childId)) {
-    // Node already linked in old parent, can't link a second time
+    // Node already linked in parent, can't link a second time
     return
   }
   parent.content.splice(atIndex, 0, { nodeId: childId, expanded })

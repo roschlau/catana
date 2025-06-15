@@ -7,16 +7,18 @@ import {KeyboardEvent, useCallback, useRef} from 'react'
 import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-editor/EditorBlockList'
 import {calculateCursorPosition} from '@/renderer/util/textarea-measuring'
 import {mergeNodeForward, splitNode} from '@/renderer/redux/nodes/thunks'
-import {useFocusRestore} from '@/renderer/redux/ui/uiSlice'
+import {selectDebugMode, useFocusRestore} from '@/renderer/redux/ui/uiSlice'
 import {EditorPageBreadcrumbs} from '@/renderer/components/node-editor/EditorPageBreadcrumbs'
 import {getNode} from '@/renderer/redux/nodes/helpers'
-import {Id} from '@/common/nodes'
+import {Id, Node} from '@/common/nodes'
+import {DateTimeFormatter, Instant, LocalDate, ZonedDateTime, ZoneId} from '@js-joda/core'
 
 export function NodeEditorPage({ nodeId }: {
   nodeId: Id<'node'>,
 }) {
   const dispatch = useAppDispatch()
   const node = useAppSelector(state => getNode(state.undoable.present.nodes, nodeId))
+  const debugMode = useAppSelector(selectDebugMode)
   const contentNodesList = useRef<EditorBlockListRef | null>(null)
   const titleEditorRef = useRef<NodeTitleEditorTextFieldRef | null>(null)
   const nodeView = { nodeId }
@@ -77,6 +79,7 @@ export function NodeEditorPage({ nodeId }: {
             keyDown={titleKeyDown}
           />
         </h1>
+        {debugMode && <NodeDebugInfo node={node}/>}
         <EditorBlockList
           ref={contentNodesList}
           nodes={node.content}
@@ -85,4 +88,23 @@ export function NodeEditorPage({ nodeId }: {
         />
       </div>
     </div>)
+}
+
+function NodeDebugInfo({ node }: { node: Node }) {
+  console.log(node)
+  const created = ZonedDateTime.ofInstant(Instant.ofEpochMilli(node.history.createdTime), ZoneId.systemDefault())
+  const modified = ZonedDateTime.ofInstant(Instant.ofEpochMilli(node.history.lastModifiedTime), ZoneId.systemDefault())
+  const format = (date: ZonedDateTime) => {
+    const today = LocalDate.now()
+    if (date.toLocalDate().equals(today)) {
+      return date.toLocalTime().format(DateTimeFormatter.ofPattern('HH:mm'))
+    } else {
+      return date.toLocalDate().toString()
+    }
+  }
+  return (
+    <div className={'text-xs text-muted-foreground'}>
+      Created: {format(created)} • Modified: {format(modified)}
+    </div>
+  )
 }

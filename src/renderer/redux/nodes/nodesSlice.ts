@@ -29,12 +29,17 @@ export const nodesSlice = createSlice({
       indexInOwner: number
     }>) => {
       const nodeData = action.payload
+      const now = new Date().getTime()
       const node: TextNode = {
         id: action.payload.nodeId,
         type: 'node',
         title: action.payload.title,
         ownerId: action.payload.ownerId,
         content: [],
+        history: {
+          createdTime: now,
+          lastModifiedTime: now,
+        }
       }
       state[action.payload.nodeId] = node
       addChildReference(state, node.id, nodeData.ownerId, nodeData.indexInOwner, false)
@@ -46,6 +51,7 @@ export const nodesSlice = createSlice({
         action.payload.title = action.payload.title.replace(/\n/g, '')
       }
       node.title = action.payload.title
+      node.history.lastModifiedTime = new Date().getTime()
     },
     nodeExpandedChanged: (state, action: PayloadAction<{ nodeView: NodeViewWithParent<Node>, expanded: boolean }>) => {
       const { viewContext } = resolveNodeRef(state, action.payload.nodeView)
@@ -76,6 +82,7 @@ export const nodesSlice = createSlice({
       const secondNode = getNode(state, action.payload.secondNodeRef.nodeId)
       // Merge titles
       firstNode.title += secondNode.title
+      firstNode.history.lastModifiedTime = new Date().getTime()
       // Move children
       secondNode.content.forEach(child => {
         moveNode(state, child.nodeId, secondNode.id, firstNode.id, 0)

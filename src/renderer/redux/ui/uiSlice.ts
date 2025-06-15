@@ -16,7 +16,7 @@ export interface UndoableUiState {
  */
 export const undoableUiSlice = createSlice({
   name: 'ui',
-  initialState: { rootNode: ROOT_NODE } as UndoableUiState,
+  initialState: { rootNode: ROOT_NODE } satisfies UndoableUiState as UndoableUiState,
   reducers: {
     rootNodeSet: (state, action: PayloadAction<{ nodeId: Id<'node'> }>) => {
       state.rootNode = action.payload.nodeId
@@ -26,6 +26,7 @@ export const undoableUiSlice = createSlice({
 
 export interface EphemeralUiState {
   focusRestoreRequest?: FocusRestoreRequest
+  debugMode: boolean
 }
 
 interface FocusRestoreRequest {
@@ -38,7 +39,7 @@ interface FocusRestoreRequest {
  */
 export const ephemeralUiSlice = createSlice({
   name: 'ui',
-  initialState: {} as EphemeralUiState,
+  initialState: { debugMode: true } satisfies EphemeralUiState as EphemeralUiState,
   reducers: {
     focusRestoreRequested: (state, action: PayloadAction<{
       nodeRef: NodeView<Node>,
@@ -56,13 +57,17 @@ export const ephemeralUiSlice = createSlice({
     focusRestored: (state) => {
       state.focusRestoreRequest = undefined
     },
+    debugModeSet: (state, action: PayloadAction<boolean>) => {
+      state.debugMode = action.payload
+    }
   },
 })
 
 export const { rootNodeSet } = undoableUiSlice.actions
-export const { focusRestoreRequested, focusRestored } = ephemeralUiSlice.actions
+export const { focusRestoreRequested, focusRestored, debugModeSet } = ephemeralUiSlice.actions
 
 export const selectPreparedFocusRestore = (state: { ui: EphemeralUiState }) => state.ui.focusRestoreRequest
+export const selectDebugMode = (state: { ui: EphemeralUiState }) => state.ui.debugMode
 
 /**
  * Calls `focus` as an effect if a focus restore has been requested for the passed nodeRef.

@@ -1,16 +1,19 @@
 import {nanoid} from '@reduxjs/toolkit'
-import {Id, NodeGraphFlattened, TextNode} from '@/common/nodes'
+import {Id, Node, NodeGraphFlattened, TextNode} from '@/common/nodes'
 
 interface TanaExport {
   formatVersion: 1,
   docs: {
     id: Id<'node'>,
     props: {
+      created: number,
       name: string,
-      description: string,
-      _docType: string,
-      _ownerId: Id<'node'> | null,
-      _metaNodeId: Id<'node'> | null,
+      touchCounts: number[],
+      modifiedTs?: number[],
+      description?: string,
+      _docType?: string,
+      _ownerId?: Id<'node'> | null,
+      _metaNodeId?: Id<'node'> | null,
     } & Record<Id<'node'>, unknown>
     children: Id<'node'>[] | null,
   }[]
@@ -20,12 +23,17 @@ export function loadTanaExport(fileContent: string): { rootId: Id<'node'>, nodes
   const { docs } = JSON.parse(fileContent) as TanaExport
   const nodes: Record<Id<'node'>, TextNode> = {}
   docs.forEach(doc => {
+    const history: Node['history'] = {
+      createdTime: doc.props.created,
+      lastModifiedTime: Math.max(...(doc.props.modifiedTs ?? []), doc.props.created),
+    }
     const node: TextNode = {
       id: doc.id,
       type: 'node',
       content: doc.children?.map(nodeId => ({ nodeId })) ?? [],
       title: (doc.props.name ?? '<Untitled>') + ' (' + doc.props._docType + ', ' + doc.id + ')',
       ownerId: doc.props._ownerId ?? null,
+      history,
     }
     if (doc.props._metaNodeId) {
       node.content.unshift({ nodeId: doc.props._metaNodeId })
@@ -37,6 +45,7 @@ export function loadTanaExport(fileContent: string): { rootId: Id<'node'>, nodes
       title: JSON.stringify(details),
       ownerId: doc.id,
       content: [],
+      history,
     }
     nodes[detailsNode.id] = detailsNode
     node.content.unshift({ nodeId: detailsNode.id })
@@ -53,6 +62,10 @@ export function loadTanaExport(fileContent: string): { rootId: Id<'node'>, nodes
     title: 'Tana Import Root',
     content: roots.map(root => ({ nodeId: root.id })),
     ownerId: null,
+    history: {
+      createdTime: new Date().getTime(),
+      lastModifiedTime: new Date().getTime(),
+    }
   }
   roots.forEach(root => {
     root.ownerId = rootId

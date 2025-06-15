@@ -8,17 +8,17 @@ export type NodeTree =
   | TreeField
   | TreeProperty
 
-export type TreeTextNode = Omit<TextNode, 'id' | 'ownerId' | 'content'> & {
+export type TreeTextNode = Omit<TextNode, 'id' | 'ownerId' | 'content' | 'history'> & {
   id?: string
   content?: NodeTree[],
   expanded?: boolean,
 }
 
-export type TreeField = Omit<Field, 'id' | 'ownerId'> & {
+export type TreeField = Omit<Field, 'id' | 'ownerId' | 'history'> & {
   id: string
 }
 
-export type TreeProperty = Omit<Property, 'id' | 'ownerId' | 'content' | 'fieldId'> & {
+export type TreeProperty = Omit<Property, 'id' | 'ownerId' | 'content' | 'fieldId' | 'history'> & {
   id?: string
   fieldId: string
   content: (Exclude<NodeTree, TreeProperty>)[]
@@ -47,6 +47,10 @@ export function flatten(tree: Exclude<NodeTree, NodeLink>): NodeGraphFlattened {
       id: nodeId,
       ownerId,
       content: childRefs,
+      history: {
+        createdTime: new Date().getTime(),
+        lastModifiedTime: new Date().getTime(),
+      }
     } satisfies TextNode
   }
 
@@ -64,6 +68,10 @@ export function flatten(tree: Exclude<NodeTree, NodeLink>): NodeGraphFlattened {
       ownerId,
       fieldId: id(node.fieldId),
       content: childRefs,
+      history: {
+        createdTime: new Date().getTime(),
+        lastModifiedTime: new Date().getTime(),
+      }
     }
   }
 
@@ -91,6 +99,10 @@ export function flatten(tree: Exclude<NodeTree, NodeLink>): NodeGraphFlattened {
           type: 'field',
           title: node.title,
           ownerId: ownerId as Id<'node'>, // type check not possible here
+          history: {
+            createdTime: new Date().getTime(),
+            lastModifiedTime: new Date().getTime(),
+          }
         }
         return id(node.id)
       }

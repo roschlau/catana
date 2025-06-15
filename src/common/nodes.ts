@@ -21,6 +21,7 @@ export interface TextNode {
     nodeId: Node['id'],
     expanded?: boolean,
   }[]
+  history: NodeHistory
 }
 
 export interface Property {
@@ -29,6 +30,7 @@ export interface Property {
   ownerId: Id<'node'>
   fieldId: Id<'field'>,
   content: { nodeId: Id<'node'>, expanded?: boolean }[]
+  history: NodeHistory
 }
 
 export interface Field {
@@ -36,6 +38,12 @@ export interface Field {
   type: 'field'
   title: string
   ownerId: Id<'node'>
+  history: NodeHistory
+}
+
+type NodeHistory = {
+  createdTime: number,
+  lastModifiedTime: number,
 }
 
 export type NodeOfType<T extends Node['type']> = Node & { type: T }
