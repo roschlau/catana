@@ -3,7 +3,7 @@ import {checkboxUpdated, nodeExpandedChanged, nodeIndexChanged} from '@/renderer
 import {KeyboardEvent, MouseEvent, Ref, useCallback, useImperativeHandle, useMemo, useRef, useState} from 'react'
 import classNames from 'classnames'
 import {calculateCursorPosition} from '@/renderer/util/textarea-measuring'
-import {focusRestoreRequested, rootNodeSet, useFocusRestore} from '@/renderer/redux/ui/uiSlice'
+import {focusRestoreRequested, nodeOpened, useFocusRestore} from '@/renderer/redux/ui/uiSlice'
 import {mergeNodeBackward, mergeNodeForward, Selection, splitNode} from '@/renderer/redux/nodes/thunks'
 import {isRecursive, NodeViewWithParent} from '@/common/node-views'
 import {
@@ -71,7 +71,7 @@ export function TextNodeBlock({
     }
   }
   const zoomIn = () => {
-    dispatch(rootNodeSet({ nodeId: node.id }))
+    dispatch(nodeOpened({ nodeId: node.id }))
   }
   const bulletClicked = (e: MouseEvent) => {
     if (e.ctrlKey) {

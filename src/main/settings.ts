@@ -7,15 +7,18 @@ function getSettingsPath(): string {
   return path.join(userData, 'settings')
 }
 
+export type SettingsKey =
+  | 'last-graph-location'
+
 export const settings = {
-  get(key: string): string | null {
+  get(key: SettingsKey): string | null {
     const file = path.join(getSettingsPath(), key)
     if (!fs.existsSync(file)) {
       return null
     }
     return fs.readFileSync(file, 'utf8')
   },
-  set(key: string, value: string) {
+  set(key: SettingsKey, value: string) {
     const file = path.join(getSettingsPath(), key)
     fs.mkdirSync(path.dirname(file), { recursive: true })
     fs.writeFileSync(file, value, 'utf8')

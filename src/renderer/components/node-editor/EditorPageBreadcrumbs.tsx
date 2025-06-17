@@ -7,7 +7,7 @@ import {
   BreadcrumbSeparator,
 } from '@/renderer/components/ui/breadcrumb'
 import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
-import {rootNodeSet} from '@/renderer/redux/ui/uiSlice'
+import {nodeOpened} from '@/renderer/redux/ui/uiSlice'
 import {Fragment} from 'react'
 import {
   DropdownMenu,
@@ -40,7 +40,7 @@ export function EditorPageBreadcrumbs({ node, className }: {
     <BreadcrumbItem>
       <BreadcrumbLink
         className={'cursor-pointer'}
-        onClick={() => dispatch(rootNodeSet({ nodeId: node.id }))}
+        onClick={() => dispatch(nodeOpened({ nodeId: node.id }))}
       >
         {ellipsize(20, node.title)}
       </BreadcrumbLink>
@@ -59,7 +59,7 @@ export function EditorPageBreadcrumbs({ node, className }: {
             <DropdownMenuItem>
               <BreadcrumbLink
                 className={'cursor-pointer'}
-                onClick={() => dispatch(rootNodeSet({ nodeId: node.id }))}
+                onClick={() => dispatch(nodeOpened({ nodeId: node.id }))}
               >
                 {ellipsize(40, node.title)}
               </BreadcrumbLink>

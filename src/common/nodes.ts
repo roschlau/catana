@@ -1,5 +1,5 @@
 import {CheckboxConfig} from '@/common/checkboxes'
-
+import {Brand} from '@ark/util/'
 
 export type Node =
   | TextNode
@@ -54,7 +54,7 @@ export type NodeOfType<T extends Node['type']> = Node & { type: T }
  *
  * Inspiration for this approach taken from here: https://michalzalecki.com/nominal-typing-in-typescript/#approach-4-intersection-types-and-brands
  */
-export type Id<T extends Node['type']> = string & { __brand: T }
+export type Id<T extends Node['type']> = Brand<string, T>
 
 export function id<T extends Node['type']>(id: string): Id<T> {
   return id as Id<T>

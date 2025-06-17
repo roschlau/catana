@@ -33,7 +33,7 @@ export interface NodeLink {
 export function flatten(tree: Exclude<NodeTree, NodeLink>): NodeGraphFlattened {
   const nodes: NodeGraphFlattened = {}
 
-  function parseNode(node: TreeTextNode, ownerId: Id<'node' | 'property'> | null): TextNode {
+  function parseNode(node: TreeTextNode, ownerId: Id<'node'> | Id<'property'> | null): TextNode {
     const nodeId = (node.id ?? nanoid()) as Id<'node'>
     const childRefs = node.content?.map(child => {
       if (child.type === 'nodeLink') {
@@ -75,7 +75,7 @@ export function flatten(tree: Exclude<NodeTree, NodeLink>): NodeGraphFlattened {
     }
   }
 
-  function traverse(node: Exclude<NodeTree, NodeLink>, ownerId: Id<'node' | 'property'> | null): Node['id'] {
+  function traverse(node: Exclude<NodeTree, NodeLink>, ownerId: Id<'node'> | Id<'property'> | null): Node['id'] {
     switch (node.type) {
       case 'node': {
         const nodeData = parseNode(node, ownerId)
@@ -104,7 +104,7 @@ export function flatten(tree: Exclude<NodeTree, NodeLink>): NodeGraphFlattened {
             lastModifiedTime: new Date().getTime(),
           }
         }
-        return id(node.id)
+        return node.id as Node['id']
       }
     }
   }

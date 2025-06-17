@@ -91,7 +91,6 @@ export function NodeEditorPage({ nodeId }: {
 }
 
 function NodeDebugInfo({ node }: { node: Node }) {
-  console.log(node)
   const created = ZonedDateTime.ofInstant(Instant.ofEpochMilli(node.history.createdTime), ZoneId.systemDefault())
   const modified = ZonedDateTime.ofInstant(Instant.ofEpochMilli(node.history.lastModifiedTime), ZoneId.systemDefault())
   const format = (date: ZonedDateTime) => {

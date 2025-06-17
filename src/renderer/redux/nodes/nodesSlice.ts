@@ -1,7 +1,7 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {clamp} from '../../util/math'
 import {getNode, resolveNodeRef} from './helpers'
-import {demoGraph} from './demoGraph'
+import {demoGraph} from '../../../common/demoGraph'
 import {addChildReference, deleteNodeAfterMerge, moveNode} from './stateMutations'
 import {CheckboxConfig} from '@/common/checkboxes'
 import {Id, Node, NodeGraphFlattened, ParentNode, TextNode} from '@/common/nodes'

@@ -1,14 +1,20 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {PartialBy} from '../../util/types'
-import {isSameView, NodeView} from '../../../common/node-views'
+import {isSameView, NodeView} from '@/common/node-views'
 import {Selection} from '../nodes/thunks'
 import {useAppDispatch, useAppSelector} from '../hooks'
 import {useEffect} from 'react'
-import {ROOT_NODE} from '../nodes/demoGraph'
+import {ROOT_NODE} from '@/common/demoGraph'
 import {Id, Node} from '@/common/nodes'
 
 export interface UndoableUiState {
-  rootNode: Id<'node'>
+  openedNode: Id<'node'>
+}
+
+export interface EphemeralUiState {
+  nodeGraphPath: string | null
+  debugMode: boolean
+  focusRestoreRequest?: FocusRestoreRequest
 }
 
 /**
@@ -16,18 +22,13 @@ export interface UndoableUiState {
  */
 export const undoableUiSlice = createSlice({
   name: 'ui',
-  initialState: { rootNode: ROOT_NODE } satisfies UndoableUiState as UndoableUiState,
+  initialState: { openedNode: ROOT_NODE } satisfies UndoableUiState as UndoableUiState,
   reducers: {
-    rootNodeSet: (state, action: PayloadAction<{ nodeId: Id<'node'> }>) => {
-      state.rootNode = action.payload.nodeId
+    nodeOpened: (state, action: PayloadAction<{ nodeId: Id<'node'> }>) => {
+      state.openedNode = action.payload.nodeId
     },
   },
 })
-
-export interface EphemeralUiState {
-  focusRestoreRequest?: FocusRestoreRequest
-  debugMode: boolean
-}
 
 interface FocusRestoreRequest {
   nodeRef: NodeView<Node>
@@ -39,7 +40,10 @@ interface FocusRestoreRequest {
  */
 export const ephemeralUiSlice = createSlice({
   name: 'ui',
-  initialState: { debugMode: true } satisfies EphemeralUiState as EphemeralUiState,
+  initialState: {
+    nodeGraphPath: null,
+    debugMode: true,
+  } satisfies EphemeralUiState as EphemeralUiState,
   reducers: {
     focusRestoreRequested: (state, action: PayloadAction<{
       nodeRef: NodeView<Node>,
@@ -63,7 +67,7 @@ export const ephemeralUiSlice = createSlice({
   },
 })
 
-export const { rootNodeSet } = undoableUiSlice.actions
+export const { nodeOpened } = undoableUiSlice.actions
 export const { focusRestoreRequested, focusRestored, debugModeSet } = ephemeralUiSlice.actions
 
 export const selectPreparedFocusRestore = (state: { ui: EphemeralUiState }) => state.ui.focusRestoreRequest

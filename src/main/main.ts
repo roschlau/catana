@@ -4,6 +4,8 @@ import started from 'electron-squirrel-startup'
 import installExtension, {REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS} from 'electron-devtools-installer'
 import fs from 'node:fs'
 import {loadTanaExport} from './tanaImport'
+import {CatanaAPI} from '@/preload/catana-api'
+import {registerStorageApi} from '@/main/storage-api'
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -13,16 +15,16 @@ if (started) {
 app.whenReady().then(() => {
   installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS])
     .then(([redux, react]) => console.log(`Added Extensions:  ${redux.name}, ${react.name}`))
-    .catch((err) => console.log('An error occurred: ', err));
-});
+    .catch((err) => console.log('An error occurred: ', err))
+})
 
 const createWindow = async () => {
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     callback({
       responseHeaders: {
         ...details.responseHeaders,
-        'Content-Security-Policy': [`default-src 'self'; style-src 'unsafe-inline'`]
-      }
+        'Content-Security-Policy': [`default-src 'self'; style-src 'unsafe-inline'`],
+      },
     })
   })
   // Create the browser window.
@@ -33,6 +35,7 @@ const createWindow = async () => {
       preload: path.join(__dirname, 'preload.js'),
     },
   })
+  mainWindow.maximize()
 
   // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
@@ -41,14 +44,16 @@ const createWindow = async () => {
     await mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`))
   }
 
-  ipcMain.handle('load-tana-export', async () => {
+  registerStorageApi(ipcMain)
+
+  ipcMain.handle('load-tana-export', async (): ReturnType<CatanaAPI['loadTanaExport']> => {
     const openNodeResult = await dialog.showOpenDialog({
       title: 'Select Tana Export',
       buttonLabel: 'Load Export',
       properties: ['openFile'],
       filters: [
         { name: 'Tana Export', extensions: ['json'] },
-      ]
+      ],
     })
     if (openNodeResult.canceled || openNodeResult.filePaths.length === 0) {
       return null
@@ -57,8 +62,6 @@ const createWindow = async () => {
     const fileContent = fs.readFileSync(nodePath, 'utf8')
     return loadTanaExport(fileContent)
   })
-
-  mainWindow.maximize()
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools()
