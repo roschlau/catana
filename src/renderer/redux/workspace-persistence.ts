@@ -1,4 +1,4 @@
-import {RootState} from '@/renderer/redux/store'
+import {RootState, undoableReducers} from '@/renderer/redux/store'
 import {SaveFile} from '@/main/nodegraph-file-schema'
 import {Node} from '@/common/nodes'
 import {createAction, PayloadAction, Reducer, UnknownAction} from '@reduxjs/toolkit'
@@ -40,6 +40,7 @@ export const createWorkspaceRootReducer = (reducer: Reducer) => {
           present: {
             ui: {
               openedNode: saveFile.content.openedNode,
+              workspaceDirty: false,
             },
             nodes: nodesById,
           },
@@ -50,3 +51,34 @@ export const createWorkspaceRootReducer = (reducer: Reducer) => {
     return reducer(state, action)
   }
 }
+
+export const markWorkspaceClean = createAction('root/markWorkspaceClean')
+
+export const trackWorkspaceDirtyState = (reducer: Reducer) => {
+  // TODO I feel like this reducer could probably be implemented more elegantly. It mostly bugs me that `workspaceDirty`
+  //  lives in the nested ui state, rather than being its own top-level (relative to this reducer) field.
+  return (state: ReturnType<typeof undoableReducers> | undefined, action: UnknownAction): ReturnType<typeof undoableReducers> => {
+    const newState = reducer(state, action)
+    if (action.type === markWorkspaceClean.type) {
+      return {
+        ...newState,
+        ui: {
+          ...newState.ui,
+          workspaceDirty: false,
+        },
+      }
+    }
+    if (newState === state) {
+      return newState
+    }
+    return {
+      ...newState,
+      ui: {
+        ...newState.ui,
+        workspaceDirty: true,
+      },
+    }
+  }
+}
+
+export const selectWorkspaceDirty = (state: RootState) => state.undoable.present.ui.workspaceDirty

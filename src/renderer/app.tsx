@@ -3,7 +3,7 @@ import {useCallback, useEffect} from 'react'
 import {ThemeProvider, useTheme} from 'next-themes'
 import {Provider as ReduxProvider} from 'react-redux'
 import {store} from '@/renderer/redux/store'
-import {useAppDispatch, useAppSelector, useAppStore} from '@/renderer/redux/hooks'
+import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
 import {ActionCreators} from 'redux-undo'
 import {nodeGraphLoaded} from '@/renderer/redux/nodes/nodesSlice'
 import {NodeEditorPage} from '@/renderer/components/node-editor/NodeEditorPage'
@@ -12,13 +12,14 @@ import {ArrowDownToLine, ArrowUpFromLine, SunMoon} from 'lucide-react'
 import {Button} from '@/renderer/components/ui/button'
 import {Switch} from '@/renderer/components/ui/switch'
 import {Label} from '@/renderer/components/ui/label'
-import {serialize, workspaceLoaded} from '@/renderer/redux/workspace-persistence'
-import {LoadWorkspaceOnStartup} from '@/renderer/LoadWorkspaceOnStartup'
+import {selectWorkspaceDirty, workspaceLoaded} from '@/renderer/redux/workspace-persistence'
+import {LoadWorkspaceOnStartup, SaveOnExitDialog, useSaveWorkspace} from '@/renderer/workspace-persistence-components'
 
 const root = createRoot(document.body)
 root.render(
   <ReduxProvider store={store}>
     <LoadWorkspaceOnStartup/>
+    <SaveOnExitDialog/>
     <ThemeProvider attribute={'class'}>
       <App/>
     </ThemeProvider>
@@ -57,11 +58,8 @@ function Sidebar() {
   const { resolvedTheme, setTheme } = useTheme()
   const dispatch = useAppDispatch()
   const debugMode = useAppSelector(selectDebugMode)
-  const store = useAppStore()
-
-  const saveWorkspaceClicked = useCallback(async () => {
-    await window.catanaAPI.saveNodeGraph(serialize(store.getState()))
-  }, [store])
+  const isWorkspaceDirty = useAppSelector(selectWorkspaceDirty)
+  const saveWorkspace = useSaveWorkspace()
 
   const openGraphClicked = async () => {
     const result = await window.catanaAPI.openNodeGraph('pick')
@@ -84,7 +82,7 @@ function Sidebar() {
 
   return (
     <div className={'flex flex-col gap-2'}>
-      <Button onClick={saveWorkspaceClicked} variant={'outline'}>
+      <Button onClick={saveWorkspace} variant={'outline'} disabled={!isWorkspaceDirty}>
         <ArrowDownToLine size={16}/>
         Save Graph
       </Button>

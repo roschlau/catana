@@ -9,6 +9,7 @@ import {Id, Node} from '@/common/nodes'
 
 export interface UndoableUiState {
   openedNode: Id<'node'>
+  workspaceDirty: false,
 }
 
 export interface EphemeralUiState {
@@ -22,7 +23,10 @@ export interface EphemeralUiState {
  */
 export const undoableUiSlice = createSlice({
   name: 'ui',
-  initialState: { openedNode: ROOT_NODE } satisfies UndoableUiState as UndoableUiState,
+  initialState: {
+    openedNode: ROOT_NODE,
+    workspaceDirty: false,
+  } satisfies UndoableUiState as UndoableUiState,
   reducers: {
     nodeOpened: (state, action: PayloadAction<{ nodeId: Id<'node'> }>) => {
       state.openedNode = action.payload.nodeId
