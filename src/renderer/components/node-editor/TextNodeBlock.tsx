@@ -1,10 +1,15 @@
 import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
-import {checkboxUpdated, nodeExpandedChanged, nodeIndexChanged} from '@/renderer/redux/nodes/nodesSlice'
+import {
+  checkboxUpdated,
+  nodeExpandedChanged,
+  nodeIndexChanged,
+  nodeLinkRemoved,
+} from '@/renderer/redux/nodes/nodesSlice'
 import {KeyboardEvent, MouseEvent, Ref, useCallback, useImperativeHandle, useMemo, useRef, useState} from 'react'
 import classNames from 'classnames'
 import {calculateCursorPosition} from '@/renderer/util/textarea-measuring'
 import {focusRestoreRequested, nodeOpened, useFocusRestore} from '@/renderer/redux/ui/uiSlice'
-import {mergeNodeBackward, mergeNodeForward, Selection, splitNode} from '@/renderer/redux/nodes/thunks'
+import {deleteNodeTree, mergeNodeBackward, mergeNodeForward, Selection, splitNode} from '@/renderer/redux/nodes/thunks'
 import {isRecursive, NodeViewWithParent} from '@/common/node-views'
 import {
   NodeTitleEditorTextField,
@@ -169,6 +174,15 @@ export function TextNodeBlock({
         selectionStart,
         selectionEnd,
       ))
+      return
+    }
+    if (e.key === 'Backspace' && e.ctrlKey && e.shiftKey) {
+      e.preventDefault()
+      if (isLink) {
+        dispatch(nodeLinkRemoved({ nodeView }))
+      } else {
+        dispatch(deleteNodeTree(node.id))
+      }
       return
     }
     if (e.key === 'Backspace') {

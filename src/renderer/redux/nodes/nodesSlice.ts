@@ -1,8 +1,8 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {clamp} from '../../util/math'
-import {getNode, resolveNodeRef} from './helpers'
-import {demoGraph} from '../../../common/demoGraph'
-import {addChildReference, deleteNodeAfterMerge, moveNode} from './stateMutations'
+import {getNode, getViewContext, resolveNodeRef} from './helpers'
+import {demoGraph} from '@/common/demoGraph'
+import {addChildReference, deleteNodeAfterMerge, deleteNodeTree, moveNode, removeChildReference} from './stateMutations'
 import {CheckboxConfig} from '@/common/checkboxes'
 import {Id, Node, NodeGraphFlattened, ParentNode, TextNode} from '@/common/nodes'
 import {flatten} from '@/common/node-tree'
@@ -93,6 +93,22 @@ export const nodesSlice = createSlice({
     checkboxUpdated: (state, action: PayloadAction<{ nodeId: Id<'node'>, checkbox: CheckboxConfig | undefined }>) => {
       getNode(state, action.payload.nodeId).checkbox = action.payload.checkbox
     },
+    nodeLinkRemoved: (state, action: PayloadAction<{ nodeView: NodeViewWithParent<Node> }>) => {
+      const { node, viewContext } = resolveNodeRef(state, action.payload.nodeView)
+      if (node.ownerId === viewContext.parent.id) {
+        throw new Error(`Can't remove link to ${node.id} from owner node ${viewContext.parent.id}`)
+      }
+      removeChildReference(state, node.id, viewContext.parent.id)
+    },
+    nodeTreeDeleted: (state, action: PayloadAction<{ nodeId: Node['id'] }>) => {
+      const node = getNode(state, action.payload.nodeId)
+      if (node.ownerId) {
+        const owner = getNode(state, node.ownerId)
+        const { parent, childIndex } = getViewContext(owner, node.id)
+        parent.content.splice(childIndex, 1)
+      }
+      deleteNodeTree(state, action.payload.nodeId)
+    }
   },
 })
 
@@ -105,4 +121,6 @@ export const {
   nodeExpandedChanged,
   nodesMerged,
   checkboxUpdated,
+  nodeLinkRemoved,
+  nodeTreeDeleted,
 } = nodesSlice.actions

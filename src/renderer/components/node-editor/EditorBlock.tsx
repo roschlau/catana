@@ -3,22 +3,25 @@ import {Selection} from '@/renderer/redux/nodes/thunks'
 import {Ref} from 'react'
 import {NodeEditorRef, TextNodeBlock} from '@/renderer/components/node-editor/TextNodeBlock'
 import {useAppSelector} from '@/renderer/redux/hooks'
-import {getNode} from '@/renderer/redux/nodes/helpers'
+import {getOptionalNode} from '@/renderer/redux/nodes/helpers'
 import {PropertyBlock} from '@/renderer/components/node-editor/PropertyBlock'
 import {FieldBlock} from '@/renderer/components/node-editor/FieldBlock'
 import {Node} from '@/common/nodes'
+import {ListItem} from '../ui/list-item'
+import {TrashIcon} from 'lucide-react'
+import {twMerge} from 'tailwind-merge'
 
 export function EditorBlock({
-                              className,
-                              nodeView,
-                              expanded,
-                              moveFocusBefore,
-                              moveFocusAfter,
-                              indent,
-                              outdent,
-                              outdentChild,
-                              ref,
-                            }: {
+  className,
+  nodeView,
+  expanded,
+  moveFocusBefore,
+  moveFocusAfter,
+  indent,
+  outdent,
+  outdentChild,
+  ref,
+}: {
   className?: string,
   /** The node view to render */
   nodeView: NodeViewWithParent<Node>,
@@ -37,7 +40,17 @@ export function EditorBlock({
   outdentChild?: (nodeRef: NodeViewWithParent<Node>, selection: Selection) => void,
   ref?: Ref<NodeEditorRef>,
 }) {
-  const node = useAppSelector(state => getNode(state.undoable.present.nodes, nodeView.nodeId))
+  const node = useAppSelector(state => getOptionalNode(state.undoable.present.nodes, nodeView.nodeId))
+  if (!node) {
+    return (
+      <ListItem>
+        <div className="size-4 grid place-content-center rounded-full text-foreground/50 mt-1">
+          <TrashIcon size={16}/>
+        </div>
+        <div className={twMerge('text-muted-foreground', className)}><i>Deleted Node ({nodeView.nodeId})</i></div>
+      </ListItem>
+    )
+  }
   switch (node.type) {
     case 'node':
       return <TextNodeBlock

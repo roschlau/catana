@@ -25,6 +25,33 @@ export function deleteNodeAfterMerge(
 }
 
 /**
+ * Deletes a node and all its owned children recursively.
+ *
+ * This operation will leave behind dangling references when nodes outside the deleted tree link to a node inside it.
+ *
+ * This operation assumes that all nodes are correctly listed in the `content` list of their owner node. Nodes that
+ * don't appear in the `content` list of their owner node will not be deleted correctly.
+ */
+export function deleteNodeTree(
+  state: RootState['undoable']['present']['nodes'],
+  root: Node['id'],
+) {
+  const node = getNode(state, root)
+  if (node.type === 'field') {
+    delete state[root]
+    return
+  }
+  // Delete all owned children first
+  node.content.forEach(child => {
+    const childNode = getNode(state, child.nodeId)
+    if (childNode.ownerId === root) {
+      deleteNodeTree(state, child.nodeId)
+    }
+  })
+  delete state[root]
+}
+
+/**
  * Moves the given node from one parent to another.
  *
  * If the old parent is the owner of the node, the owner will be updated. If the old parent doesn't currently contain
@@ -67,4 +94,13 @@ export function addChildReference(
     return
   }
   parent.content.splice(atIndex, 0, { nodeId: childId, expanded })
+}
+
+export function removeChildReference(
+  state: RootState['undoable']['present']['nodes'],
+  childId: Node['id'],
+  parentId: ParentNode['id'],
+) {
+  const parent = getNode(state, parentId)
+  parent.content = parent.content.filter(it => it.nodeId !== childId)
 }

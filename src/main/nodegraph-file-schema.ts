@@ -1,6 +1,6 @@
 import {type} from 'arktype'
 import {flatten} from '@/common/node-tree'
-import {demoGraph} from '@/common/demoGraph'
+import {demoGraph, ROOT_NODE} from '@/common/demoGraph'
 
 const CheckboxState = type('"checked" | "unchecked"')
 
@@ -55,16 +55,15 @@ export type Node = typeof TextNode.infer | typeof Property.infer | typeof Field.
 
 export const SaveFile = type({
   v: '1',
-  openedNode: 'string#node',
-  debugMode: 'boolean',
+  openedNode: 'string#node|null',
+  'debugMode?': 'boolean',
   nodes: Node.array(),
 })
 
 export type SaveFile = typeof SaveFile.infer
 
-export const emptySaveFile = SaveFile({
-  v: '1',
-  openedNode: null,
-  debugMode: false,
-  nodes: flatten(demoGraph),
-})
+export const emptySaveFile: SaveFile = {
+  v: 1,
+  openedNode: ROOT_NODE,
+  nodes: [...Object.values(flatten(demoGraph) as Record<string, Node>)],
+}

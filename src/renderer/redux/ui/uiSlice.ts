@@ -8,7 +8,7 @@ import {ROOT_NODE} from '@/common/demoGraph'
 import {Id, Node} from '@/common/nodes'
 
 export interface UndoableUiState {
-  openedNode: Id<'node'>
+  openedNode: Id<'node'> | null
   workspaceDirty: false,
 }
 
@@ -28,7 +28,7 @@ export const undoableUiSlice = createSlice({
     workspaceDirty: false,
   } satisfies UndoableUiState as UndoableUiState,
   reducers: {
-    nodeOpened: (state, action: PayloadAction<{ nodeId: Id<'node'> }>) => {
+    nodeOpened: (state, action: PayloadAction<{ nodeId: Id<'node'> | null }>) => {
       state.openedNode = action.payload.nodeId
     },
   },

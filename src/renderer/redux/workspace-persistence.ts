@@ -33,7 +33,7 @@ export const createWorkspaceRootReducer = (reducer: Reducer) => {
       return {
         ui: {
           nodeGraphPath: saveFile.path,
-          debugMode: saveFile.content.debugMode,
+          debugMode: saveFile.content.debugMode ?? false,
         },
         undoable: {
           past: [],

@@ -145,16 +145,19 @@ export const demoGraph: Exclude<NodeTree, NodeLink> = {
       title: 'Catana has been built to be used efficiently with the keyboard. Below are some of the supported keyboard shortcuts to try!',
     }, {
       type: 'node',
-      title: 'Indent / Outdent Node: Tab / Shift + Tab',
+      title: '↔️ Indent / Outdent Node: Tab / Shift + Tab',
     }, {
       type: 'node',
-      title: 'Collapse/Expand Node: Ctrl + Arrow Up/Down',
+      title: '▶️ Collapse/Expand Node: Ctrl + Arrow Up/Down',
     }, {
       type: 'node',
-      title: 'Cycle Checkbox State: Ctrl + Enter',
+      title: '✅ Cycle Checkbox State: Ctrl + Enter',
     }, {
       type: 'node',
-      title: 'Move the focused Node up/down within its parent Node: Alt + Shift + Arrow Up/Down',
+      title: '↕️ Move the focused Node up/down within its parent Node: Alt + Shift + Arrow Up/Down',
+    }, {
+      type: 'node',
+      title: '🗑️ Delete the focused Node and all its children: Ctrl + Shift + Backspace',
     }],
   }, systemFields],
 }

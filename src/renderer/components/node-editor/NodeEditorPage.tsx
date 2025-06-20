@@ -9,7 +9,7 @@ import {calculateCursorPosition} from '@/renderer/util/textarea-measuring'
 import {mergeNodeForward, splitNode} from '@/renderer/redux/nodes/thunks'
 import {selectDebugMode, useFocusRestore} from '@/renderer/redux/ui/uiSlice'
 import {EditorPageBreadcrumbs} from '@/renderer/components/node-editor/EditorPageBreadcrumbs'
-import {getNode} from '@/renderer/redux/nodes/helpers'
+import {getOptionalNode} from '@/renderer/redux/nodes/helpers'
 import {Id, Node} from '@/common/nodes'
 import {DateTimeFormatter, Instant, LocalDate, ZonedDateTime, ZoneId} from '@js-joda/core'
 
@@ -17,7 +17,7 @@ export function NodeEditorPage({ nodeId }: {
   nodeId: Id<'node'>,
 }) {
   const dispatch = useAppDispatch()
-  const node = useAppSelector(state => getNode(state.undoable.present.nodes, nodeId))
+  const node = useAppSelector(state => getOptionalNode(state.undoable.present.nodes, nodeId))
   const debugMode = useAppSelector(selectDebugMode)
   const contentNodesList = useRef<EditorBlockListRef | null>(null)
   const titleEditorRef = useRef<NodeTitleEditorTextFieldRef | null>(null)
@@ -37,7 +37,7 @@ export function NodeEditorPage({ nodeId }: {
     const { selectionStart, selectionEnd } = e.currentTarget
     if ((e.key === 'ArrowDown' && calculateCursorPosition(textarea).lastLine)
       || (e.key === 'ArrowRight' && selectionStart === textarea.value.length)) {
-      if (node.content.length > 0) {
+      if (node && node.content.length > 0) {
         contentNodesList.current?.focus('first')
         e.preventDefault()
       }
@@ -54,7 +54,7 @@ export function NodeEditorPage({ nodeId }: {
       return
     }
     if (e.key === 'Delete') {
-      if (node.content.length === 0) {
+      if (!node || node.content.length === 0) {
         return
       }
       if (selectionStart === node.title.length && selectionEnd === selectionStart) {
@@ -63,6 +63,14 @@ export function NodeEditorPage({ nodeId }: {
       }
       return
     }
+  }
+
+  if (!node) {
+    return (
+      <div className={'text-muted-foreground grow flex flex-col items-center p-5'}>
+        <i>Node {nodeId} could not be found. It might have been deleted.</i>
+      </div>
+    )
   }
 
   return (

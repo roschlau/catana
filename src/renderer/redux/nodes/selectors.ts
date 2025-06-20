@@ -34,10 +34,3 @@ export const selectAncestry = createSelector([
   }
   return path
 })
-
-export const selectNodes = createSelector([
-  (_: RootState, nodeIds: Node['id'][]) => nodeIds,
-  (state: RootState) => state.undoable.present.nodes,
-], (nodeIds, nodes) => {
-  return nodeIds.map(id => getNode(nodes, id))
-})

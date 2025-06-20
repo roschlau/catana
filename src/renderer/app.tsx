@@ -49,7 +49,7 @@ function App() {
   return (
     <div className={'h-full flex flex-row p-2 gap-2 items-stretch bg-muted overflow-hidden'}>
       <Sidebar/>
-      <NodeEditorPage nodeId={nodeId}/>
+      {nodeId && <NodeEditorPage nodeId={nodeId}/>}
     </div>
   )
 }
