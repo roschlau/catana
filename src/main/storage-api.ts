@@ -24,7 +24,6 @@ export function registerStorageApi(ipcMain: Electron.IpcMain) {
         console.warn('User aborted opening node graph')
         return null
       }
-      settings.set('last-graph-location', directory)
     }
     const filePath = path.join(directory, fileName)
     console.log('Loading node graph:', filePath)
@@ -34,6 +33,7 @@ export function registerStorageApi(ipcMain: Electron.IpcMain) {
       console.error(`Save File ${filePath} could not be loaded: `, saveFile)
       throw Error(saveFile.summary)
     }
+    settings.set('last-graph-location', directory)
     openedGraphDirectory = directory
     return { path: directory, content: saveFile }
   })
