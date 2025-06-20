@@ -213,28 +213,15 @@ export function TextNodeBlock({
     }
   }
 
-  const toggleButtonClasses = classNames(
-    'mt-1 size-4 shrink-0 grid place-content-center rounded-full cursor-pointer text-foreground/50',
-    'hover:bg-accent hover:text-foreground',
-    { 'outline -outline-offset-1 outline-dashed outline-foreground/40': isLink },
-  )
-
-  const chevronIconClasses = classNames(
-    'transition-all',
-    isExpanded ? 'rotate-90' : 'rotate-0',
-  )
-
   return (
     <div className={twMerge('flex flex-col grow', className)}>
       <ListItem>
-        <button
-          className={toggleButtonClasses}
-          onClick={bulletClicked}
-        >
-          {childRefs.length > 0
-            ? <ChevronRight size={16} className={chevronIconClasses}/>
-            : <div className={'size-1 rounded-full bg-current'}/>}
-        </button>
+        <TextNodeBulletButton
+          isLink={isLink}
+          hasContent={childRefs.length > 0}
+          isExpanded={isExpanded}
+          bulletClicked={bulletClicked}
+        />
         <NodeTitleEditorTextField
           ref={titleEditorRef}
           keyDown={keyDown}
@@ -258,5 +245,35 @@ export function TextNodeBlock({
         </ListItem>)
       }
     </div>
+  )
+}
+
+export function TextNodeBulletButton({isLink, hasContent, isExpanded, disabled, bulletClicked}: {
+  isLink: boolean,
+  hasContent: boolean,
+  isExpanded: boolean,
+  disabled?: boolean,
+  bulletClicked: (e: MouseEvent<HTMLButtonElement>) => void,
+}) {
+  const toggleButtonClasses = classNames(
+    'mt-1 size-4 shrink-0 grid place-content-center rounded-full cursor-pointer text-foreground/50',
+    'hover:bg-accent hover:text-foreground',
+    { 'outline -outline-offset-1 outline-dashed outline-foreground/40': isLink },
+  )
+
+  const chevronIconClasses = classNames(
+    'transition-all',
+    isExpanded ? 'rotate-90' : 'rotate-0',
+  )
+  return (
+    <button
+      className={toggleButtonClasses}
+      disabled={disabled}
+      onClick={bulletClicked}
+    >
+      {hasContent
+        ? <ChevronRight size={16} className={chevronIconClasses}/>
+        : <div className={'size-1 rounded-full bg-current'}/>}
+    </button>
   )
 }
