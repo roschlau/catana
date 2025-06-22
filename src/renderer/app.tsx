@@ -1,5 +1,5 @@
 import {createRoot} from 'react-dom/client'
-import {useCallback, useEffect} from 'react'
+import {useCallback, useEffect, useState} from 'react'
 import {ThemeProvider, useTheme} from 'next-themes'
 import {Provider as ReduxProvider} from 'react-redux'
 import {store} from '@/renderer/redux/store'
@@ -8,12 +8,14 @@ import {ActionCreators} from 'redux-undo'
 import {nodeGraphLoaded} from '@/renderer/redux/nodes/nodesSlice'
 import {NodeEditorPage} from '@/renderer/components/node-editor/NodeEditorPage'
 import {debugModeSet, nodeOpened, selectDebugMode} from '@/renderer/redux/ui/uiSlice'
-import {ArrowDownToLine, ArrowUpFromLine, SunMoon} from 'lucide-react'
+import {ArrowDownToLine, ArrowUpFromLine, SearchIcon, SunMoon} from 'lucide-react'
 import {Button} from '@/renderer/components/ui/button'
 import {Switch} from '@/renderer/components/ui/switch'
 import {Label} from '@/renderer/components/ui/label'
 import {selectWorkspaceDirty, workspaceLoaded} from '@/renderer/redux/workspace-persistence'
 import {LoadWorkspaceOnStartup, SaveOnExitDialog, useSaveWorkspace} from '@/renderer/workspace-persistence-components'
+import {CommandPrompt} from '@/renderer/commands/command-prompt'
+import {CommandShortcut} from '@/renderer/components/ui/command'
 
 const root = createRoot(document.body)
 root.render(
@@ -29,6 +31,7 @@ root.render(
 function App() {
   const dispatch = useAppDispatch()
   const nodeId = useAppSelector((state) => state.undoable.present.ui.openedNode)
+  const [commandPromptOpen, setCommandPromptOpen] = useState(false)
 
   const globalKeydown = useCallback((e: KeyboardEvent) => {
     if (e.ctrlKey && e.key === 'z') {
@@ -36,6 +39,9 @@ function App() {
     }
     if (e.ctrlKey && e.key === 'Z') {
       dispatch(ActionCreators.redo())
+    }
+    if (e.key === 'k' && e.ctrlKey) {
+      setCommandPromptOpen(!commandPromptOpen)
     }
   }, [dispatch])
 
@@ -48,13 +54,16 @@ function App() {
 
   return (
     <div className={'h-full flex flex-row p-2 gap-2 items-stretch bg-muted overflow-hidden'}>
-      <Sidebar/>
+      <CommandPrompt open={commandPromptOpen} onOpenChange={setCommandPromptOpen}/>
+      <Sidebar searchClicked={() => setCommandPromptOpen(true)}/>
       {nodeId && <NodeEditorPage nodeId={nodeId}/>}
     </div>
   )
 }
 
-function Sidebar() {
+function Sidebar({ searchClicked }: {
+  searchClicked: () => void,
+}) {
   const { resolvedTheme, setTheme } = useTheme()
   const dispatch = useAppDispatch()
   const debugMode = useAppSelector(selectDebugMode)
@@ -82,6 +91,11 @@ function Sidebar() {
 
   return (
     <div className={'flex flex-col gap-2'}>
+      <Button onClick={searchClicked}>
+        <SearchIcon size={16}/>
+        Search
+        <CommandShortcut>Ctrl+K</CommandShortcut>
+      </Button>
       <Button onClick={saveWorkspace} variant={'outline'} disabled={!isWorkspaceDirty}>
         <ArrowDownToLine size={16}/>
         Save Graph

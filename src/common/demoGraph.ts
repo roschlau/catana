@@ -145,6 +145,9 @@ export const demoGraph: Exclude<NodeTree, NodeLink> = {
       title: 'Catana has been built to be used efficiently with the keyboard. Below are some of the supported keyboard shortcuts to try!',
     }, {
       type: 'node',
+      title: '🔎 Run a command or open a node by searching for it: Ctrl + K',
+    }, {
+      type: 'node',
       title: '↔️ Indent / Outdent Node: Tab / Shift + Tab',
     }, {
       type: 'node',

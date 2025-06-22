@@ -1,16 +1,15 @@
-import {createSlice, PayloadAction} from '@reduxjs/toolkit'
+import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {clamp} from '../../util/math'
 import {getNode, getViewContext, resolveNodeRef} from './helpers'
-import {demoGraph} from '@/common/demoGraph'
 import {addChildReference, deleteNodeAfterMerge, deleteNodeTree, moveNode, removeChildReference} from './stateMutations'
 import {CheckboxConfig} from '@/common/checkboxes'
 import {Id, Node, NodeGraphFlattened, ParentNode, TextNode} from '@/common/nodes'
-import {flatten} from '@/common/node-tree'
 import {NodeViewWithParent} from '@/common/node-views'
+import {RootState} from '@/renderer/redux/store'
 
 export const nodesSlice = createSlice({
   name: 'nodes',
-  initialState: flatten(demoGraph),
+  initialState: {} satisfies NodeGraphFlattened as NodeGraphFlattened,
   reducers: {
     nodeGraphLoaded: (state, action: PayloadAction<NodeGraphFlattened>) => {
       // Delete all existing nodes
@@ -39,7 +38,7 @@ export const nodesSlice = createSlice({
         history: {
           createdTime: now,
           lastModifiedTime: now,
-        }
+        },
       }
       state[action.payload.nodeId] = node
       addChildReference(state, node.id, nodeData.ownerId, nodeData.indexInOwner, false)
@@ -77,7 +76,10 @@ export const nodesSlice = createSlice({
      * Merges the second node into the first node by appending the second node's title, prepending its children, and
      * moving any links to it to the first node.
      */
-    nodesMerged: (state, action: PayloadAction<{ firstNodeId: Id<'node'>, secondNodeRef: NodeViewWithParent<TextNode> }>) => {
+    nodesMerged: (
+      state,
+      action: PayloadAction<{ firstNodeId: Id<'node'>, secondNodeRef: NodeViewWithParent<TextNode> }>,
+    ) => {
       const firstNode = getNode(state, action.payload.firstNodeId)
       const secondNode = getNode(state, action.payload.secondNodeRef.nodeId)
       // Merge titles
@@ -108,8 +110,26 @@ export const nodesSlice = createSlice({
         parent.content.splice(childIndex, 1)
       }
       deleteNodeTree(state, action.payload.nodeId)
-    }
+    },
+    nodeTreeAdded: (
+      state,
+      action: PayloadAction<{ graph: NodeGraphFlattened, root: Id<'node'>, parent: ParentNode['id'] }>,
+    ) => {
+      Object.assign(state, action.payload.graph)
+      const rootNode = getNode(state, action.payload.root)
+      const parentNode = getNode(state, action.payload.parent)
+      rootNode.ownerId = parentNode.id
+      parentNode.content.push({ nodeId: rootNode.id, expanded: true })
+    },
   },
+})
+
+export const selectNodes = createSelector([
+  (state: RootState) => state.undoable.present.nodes,
+  (_: RootState, query: string) => query,
+], (nodes, query) => {
+  return Object.values(nodes)
+    .filter((node): node is TextNode => node?.type === 'node' && node.title.toLowerCase().includes(query.toLowerCase()))
 })
 
 export const {
@@ -123,4 +143,5 @@ export const {
   checkboxUpdated,
   nodeLinkRemoved,
   nodeTreeDeleted,
+  nodeTreeAdded,
 } = nodesSlice.actions

@@ -83,8 +83,8 @@ export function NodeEditorPage({ nodeId }: {
         <h1 className={'font-medium text-3xl'}>
           <NodeTitleEditorTextField
             ref={titleEditorRef}
-            node={node}
-            keyDown={titleKeyDown}
+            nodeView={nodeView}
+            onKeyDown={titleKeyDown}
           />
         </h1>
         {debugMode && <NodeDebugInfo node={node}/>}

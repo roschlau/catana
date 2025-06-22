@@ -124,7 +124,10 @@ export function TextNodeBlock({
     if (e.key === 'ArrowRight' && e.altKey) {
       e.preventDefault()
       zoomIn()
-      dispatch(focusRestoreRequested({ nodeRef: { nodeId: node.id }, selection: { start: selectionStart, end: selectionEnd } }))
+      dispatch(focusRestoreRequested({
+        nodeRef: { nodeId: node.id },
+        selection: { start: selectionStart, end: selectionEnd },
+      }))
       return
     }
     if (e.key === 'ArrowDown' && e.shiftKey && e.altKey) {
@@ -224,8 +227,8 @@ export function TextNodeBlock({
         />
         <NodeTitleEditorTextField
           ref={titleEditorRef}
-          keyDown={keyDown}
-          node={node}
+          nodeView={nodeView}
+          onKeyDown={keyDown}
         />
       </ListItem>
       {isExpanded && childRefs.length > 0 && (
@@ -248,7 +251,7 @@ export function TextNodeBlock({
   )
 }
 
-export function TextNodeBulletButton({isLink, hasContent, isExpanded, disabled, bulletClicked}: {
+export function TextNodeBulletButton({ isLink, hasContent, isExpanded, disabled, bulletClicked }: {
   isLink: boolean,
   hasContent: boolean,
   isExpanded: boolean,

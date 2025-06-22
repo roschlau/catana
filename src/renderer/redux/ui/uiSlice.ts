@@ -5,7 +5,7 @@ import {Selection} from '../nodes/thunks'
 import {useAppDispatch, useAppSelector} from '../hooks'
 import {useEffect} from 'react'
 import {ROOT_NODE} from '@/common/demoGraph'
-import {Id, Node} from '@/common/nodes'
+import {Id, Node, TextNode} from '@/common/nodes'
 
 export interface UndoableUiState {
   openedNode: Id<'node'> | null
@@ -15,6 +15,10 @@ export interface UndoableUiState {
 export interface EphemeralUiState {
   nodeGraphPath: string | null
   debugMode: boolean
+  commandFocus?: {
+    nodeView: NodeView<TextNode>
+    selection: Selection,
+  }
   focusRestoreRequest?: FocusRestoreRequest
 }
 
@@ -67,15 +71,19 @@ export const ephemeralUiSlice = createSlice({
     },
     debugModeSet: (state, action: PayloadAction<boolean>) => {
       state.debugMode = action.payload
-    }
+    },
+    setCommandFocus: (state, action: PayloadAction<EphemeralUiState['commandFocus']>) => {
+      state.commandFocus = action.payload
+    },
   },
 })
 
 export const { nodeOpened } = undoableUiSlice.actions
-export const { focusRestoreRequested, focusRestored, debugModeSet } = ephemeralUiSlice.actions
+export const { focusRestoreRequested, focusRestored, debugModeSet, setCommandFocus } = ephemeralUiSlice.actions
 
 export const selectPreparedFocusRestore = (state: { ui: EphemeralUiState }) => state.ui.focusRestoreRequest
 export const selectDebugMode = (state: { ui: EphemeralUiState }) => state.ui.debugMode
+export const selectCommandFocus = (state: { ui: EphemeralUiState }) => state.ui.commandFocus
 
 /**
  * Calls `focus` as an effect if a focus restore has been requested for the passed nodeRef.

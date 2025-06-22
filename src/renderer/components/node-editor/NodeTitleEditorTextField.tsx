@@ -1,13 +1,16 @@
 import TextareaAutosize from 'react-textarea-autosize'
 import {checkboxUpdated, titleUpdated} from '@/renderer/redux/nodes/nodesSlice'
-import {KeyboardEvent, Ref, useImperativeHandle, useRef} from 'react'
-import {useAppDispatch} from '@/renderer/redux/hooks'
+import React, {KeyboardEvent, Ref, useImperativeHandle, useRef} from 'react'
+import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
 import {Selection} from '@/renderer/redux/nodes/thunks'
 import {Checkbox} from '@/renderer/components/ui/checkbox'
 import classNames from 'classnames'
 import {cycleCheckboxState} from '@/common/checkboxes'
 import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
 import {TextNode} from '@/common/nodes'
+import {NodeView} from '@/common/node-views'
+import {setCommandFocus} from '@/renderer/redux/ui/uiSlice'
+import {getNode} from '@/renderer/redux/nodes/helpers'
 
 export interface NodeTitleEditorTextFieldRef {
   focus: (selection?: Selection) => void
@@ -17,10 +20,11 @@ export interface NodeTitleEditorTextFieldRef {
  * Displays a text area for the user to edit the title of a node.
  * Handles dispatching actions for title editing itself, any other input is passed to the parent via `keyDown`.
  */
-export function NodeTitleEditorTextField({ node, keyDown, ref }: {
-  node: TextNode,
-  /** Passed through unchanged from the underlying textarea, except for preventing the browser's default for Ctrl+Z. */
-  keyDown?: (e: KeyboardEvent<HTMLTextAreaElement>) => void,
+export function NodeTitleEditorTextField({
+  nodeView, onKeyDown, ref,
+}: {
+  nodeView: NodeView<TextNode>
+  onKeyDown?: (e: KeyboardEvent<HTMLTextAreaElement>) => void,
   ref?: Ref<NodeTitleEditorTextFieldRef>,
 }) {
   useImperativeHandle(ref, () => ({
@@ -33,6 +37,7 @@ export function NodeTitleEditorTextField({ node, keyDown, ref }: {
   }))
   const dispatch = useAppDispatch()
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
+  const node = useAppSelector(state => getNode(state.undoable.present.nodes, nodeView.nodeId))
 
   const checkboxChecked = node.checkbox ? node.checkbox.state === 'checked' : undefined
   const setChecked = (checked: boolean) => {
@@ -58,6 +63,15 @@ export function NodeTitleEditorTextField({ node, keyDown, ref }: {
       }
       return
     }
+    if (e.key === 'k' && e.ctrlKey) {
+      // User triggered the command prompt while focused on this node, so set this node as the command focus
+      dispatch(setCommandFocus({
+        nodeView,
+        selection: { start: e.currentTarget.selectionStart, end: e.currentTarget.selectionEnd },
+      }))
+      // Not preventing the default here so that the global handler can open the prompt normally
+      return
+    }
     if (e.key === ' ' && checkboxChecked === undefined
       && node.title.startsWith('[]') && e.currentTarget.selectionStart === 2 && e.currentTarget.selectionStart === 2
     ) {
@@ -74,7 +88,7 @@ export function NodeTitleEditorTextField({ node, keyDown, ref }: {
       }))
       return
     }
-    keyDown?.(e)
+    onKeyDown?.(e)
   }
 
   const textareaClasses = classNames(
