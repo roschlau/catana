@@ -1,5 +1,5 @@
 import {NodeViewWithParent} from '@/common/node-views'
-import {findBacklinks, getNode, getViewContext, resolveNodeView} from './helpers'
+import {findBacklinks, getNode, getOptionalNode, getViewContext, resolveNodeView} from './helpers'
 import {RootState} from '@/renderer/redux/store'
 import {Id, Node, ParentNode} from '@/common/nodes'
 
@@ -43,8 +43,8 @@ export function deleteNodeTree(
   }
   // Delete all owned children first
   node.content.forEach(child => {
-    const childNode = getNode(state, child.nodeId)
-    if (childNode.ownerId === root) {
+    const childNode = getOptionalNode(state, child.nodeId)
+    if (childNode && childNode.ownerId === root) {
       deleteNodeTree(state, child.nodeId)
     }
   })

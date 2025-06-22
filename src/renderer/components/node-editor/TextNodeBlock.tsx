@@ -17,7 +17,7 @@ import {
 } from '@/renderer/components/node-editor/NodeTitleEditorTextField'
 import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-editor/EditorBlockList'
 import {ChevronRight} from 'lucide-react'
-import {getNode} from '@/renderer/redux/nodes/helpers'
+import {resolveNodeView} from '@/renderer/redux/nodes/helpers'
 import {ListItem} from '@/renderer/components/ui/list-item'
 import {twMerge} from 'tailwind-merge'
 import {Node, TextNode} from '@/common/nodes'
@@ -58,8 +58,8 @@ export function TextNodeBlock({
   ref?: Ref<NodeEditorRef>,
 }) {
   const dispatch = useAppDispatch()
-  const node = useAppSelector(state => getNode(state.undoable.present.nodes, nodeView.nodeId))
-  const parent = useAppSelector(state => state.undoable.present.nodes[nodeView.parent.nodeId]!)
+  const { node, viewContext } = useAppSelector(state => resolveNodeView(state.undoable.present.nodes, nodeView))
+  const parent = viewContext.parent
   /** True if this node editor is shown under a different node than the node's owner. */
   const isLink = !!parent && (!node.ownerId || node.ownerId !== parent.id)
   const childRefs = node.content
@@ -113,6 +113,7 @@ export function TextNodeBlock({
   const keyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     const textarea = e.currentTarget
     const { selectionStart, selectionEnd } = e.currentTarget
+    const selection: Selection = { start: selectionStart, end: selectionEnd  }
     if (e.key === 'ArrowUp' && e.ctrlKey) {
       e.preventDefault()
       setExpanded(false)
@@ -128,7 +129,7 @@ export function TextNodeBlock({
       zoomIn()
       dispatch(focusRestoreRequested({
         nodeRef: { nodeId: node.id },
-        selection: { start: selectionStart, end: selectionEnd },
+        selection,
       }))
       return
     }
@@ -165,20 +166,25 @@ export function TextNodeBlock({
     if (e.key === 'Tab') {
       e.preventDefault()
       if (e.shiftKey) {
-        outdent?.({ start: selectionStart, end: selectionEnd })
+        outdent?.(selection)
       } else {
-        indent?.({ start: selectionStart, end: selectionEnd })
+        indent?.(selection)
       }
       return
     }
     if (e.key === 'Enter') {
       // Not allowing any line breaks for now to simplify things. Might change my mind on that later.
       e.preventDefault()
-      dispatch(splitNode(
-        nodeView,
-        selectionStart,
-        selectionEnd,
-      ))
+      if (node.title === '' && viewContext.childIndex === parent.content.length - 1 && outdent) {
+        // Outdent node instead of adding additional empty nodes
+        outdent(selection)
+      } else {
+        dispatch(splitNode(
+          nodeView,
+          selectionStart,
+          selectionEnd,
+        ))
+      }
       return
     }
     if (e.key === 'Backspace' && e.ctrlKey && e.shiftKey) {
