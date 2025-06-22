@@ -1,10 +1,11 @@
 import {NodeViewWithParent, ParentNodeView} from '@/common/node-views'
-import {indentNode, outdentNode, Selection} from '@/renderer/redux/nodes/thunks'
+import {Selection} from '@/renderer/util/selection'
 import {Ref, useImperativeHandle, useRef} from 'react'
 import {useAppDispatch} from '@/renderer/redux/hooks'
 import {twMerge} from 'tailwind-merge'
 import {EditorBlock} from '@/renderer/components/node-editor/EditorBlock'
 import {Node, TextNode} from '@/common/nodes'
+import {indentNode, outdentNode} from '@/renderer/redux/nodes/indent-outdent-thunks'
 
 export interface EditorBlockListRef {
   focus: (mode: 'first' | 'last') => void

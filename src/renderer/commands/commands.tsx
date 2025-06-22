@@ -1,6 +1,6 @@
 import {NodeView} from '@/common/node-views'
 import {Field, Id, Node, NodeGraphFlattened, Property, TextNode} from '@/common/nodes'
-import {Selection} from '@/renderer/redux/nodes/thunks'
+import {Selection} from '@/renderer/util/selection'
 import {AppDispatch, RootState} from '@/renderer/redux/store'
 import {nodeOpened} from '@/renderer/redux/ui/uiSlice'
 import React from 'react'

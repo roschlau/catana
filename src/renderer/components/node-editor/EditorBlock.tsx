@@ -1,5 +1,5 @@
 import {NodeViewWithParent} from '@/common/node-views'
-import {Selection} from '@/renderer/redux/nodes/thunks'
+import {Selection} from '@/renderer/util/selection'
 import {Ref} from 'react'
 import {NodeEditorRef, TextNodeBlock} from '@/renderer/components/node-editor/TextNodeBlock'
 import {useAppSelector} from '@/renderer/redux/hooks'

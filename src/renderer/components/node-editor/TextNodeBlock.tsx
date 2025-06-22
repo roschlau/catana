@@ -9,7 +9,7 @@ import {KeyboardEvent, MouseEvent, Ref, useCallback, useImperativeHandle, useMem
 import classNames from 'classnames'
 import {calculateCursorPosition} from '@/renderer/util/textarea-measuring'
 import {focusRestoreRequested, nodeOpened, useFocusRestore} from '@/renderer/redux/ui/uiSlice'
-import {deleteNodeTree, mergeNodeBackward, mergeNodeForward, Selection, splitNode} from '@/renderer/redux/nodes/thunks'
+import {Selection} from '@/renderer/util/selection'
 import {isRecursive, NodeViewWithParent} from '@/common/node-views'
 import {
   NodeTitleEditorTextField,
@@ -21,6 +21,8 @@ import {getNode} from '@/renderer/redux/nodes/helpers'
 import {ListItem} from '@/renderer/components/ui/list-item'
 import {twMerge} from 'tailwind-merge'
 import {Node, TextNode} from '@/common/nodes'
+import {mergeNodeBackward, mergeNodeForward, splitNode} from '@/renderer/redux/nodes/split-merge-thunks'
+import {deleteNodeTree} from '@/renderer/redux/nodes/delete-node-tree-thunk'
 
 export interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void

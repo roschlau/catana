@@ -1,54 +1,11 @@
-import {AppDispatch, RootState} from '../store'
-import {getNode, resolveNodeView} from './helpers'
+import {NodeView, NodeViewWithParent} from '@/common/node-views'
+import {Id, Node, TextNode} from '@/common/nodes'
+import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
+import {AppDispatch, RootState} from '@/renderer/redux/store'
+import {getNode, resolveNodeView} from '@/renderer/redux/nodes/helpers'
+import {nodeCreated, nodeExpandedChanged, nodesMerged, titleUpdated} from '@/renderer/redux/nodes/nodesSlice'
 import {nanoid} from '@reduxjs/toolkit'
-import {focusRestoreRequested, nodeOpened} from '../ui/uiSlice'
-import {nodeCreated, nodeExpandedChanged, nodeMoved, nodesMerged, nodeTreeDeleted, titleUpdated} from './nodesSlice'
-import {NodeView, NodeViewWithParent, ParentNodeView} from '@/common/node-views'
-import {createUndoTransaction} from '../undoTransactions'
-import {Id, isParentNode, Node, TextNode} from '@/common/nodes'
-
-export interface Selection {
-  start: number,
-  end: number,
-}
-
-export function indentNode(nodeView: NodeViewWithParent<Node>, intoNewParentRef: NodeViewWithParent<Node>, currentSelection: Selection) {
-  return createUndoTransaction((dispatch: AppDispatch, getState: () => RootState) => {
-    const {
-      node: newParent,
-      viewContext: newParentContext,
-    } = resolveNodeView(getState().undoable.present.nodes, intoNewParentRef)
-    if (!isParentNode(newParent)) {
-      console.debug(`Indent canceled: Can't indent node ${nodeView.nodeId} into non-parent node ${newParent.id}`)
-      return
-    }
-    // Move Node to new parent
-    dispatch(nodeMoved({
-      nodeView: nodeView,
-      newParentId: newParent.id,
-      newIndex: newParent.content.length,
-    }))
-    // Make sure the indented node stays in view
-    if (newParentContext && !newParentContext?.isExpanded) {
-      dispatch(nodeExpandedChanged({ nodeView: intoNewParentRef, expanded: true }))
-    }
-    // Restore focus
-    dispatch(focusRestoreRequested({
-      nodeRef: { nodeId: nodeView.nodeId, parent: { ...intoNewParentRef, nodeId: newParent.id } },
-      selection: currentSelection,
-    }))
-  })
-}
-
-export function outdentNode(nodeView: NodeViewWithParent<Node>, intoParentView: ParentNodeView, atIndex: number, currentSelection: Selection) {
-  return (dispatch: AppDispatch) => {
-    dispatch(nodeMoved({ nodeView: nodeView, newParentId: intoParentView.nodeId, newIndex: atIndex }))
-    dispatch(focusRestoreRequested({
-      nodeRef: { nodeId: nodeView.nodeId, parent: intoParentView },
-      selection: currentSelection,
-    }))
-  }
-}
+import {focusRestoreRequested} from '@/renderer/redux/ui/uiSlice'
 
 export function splitNode(nodeView: NodeView<TextNode>, selectionStart: number, selectionEnd: number) {
   return createUndoTransaction((dispatch: AppDispatch, getState: () => RootState) => {
@@ -191,28 +148,5 @@ export function mergeNodeForward(nodeView: NodeView<TextNode>) {
       nodeRef: nodeView,
       selection: { start: node.title.length },
     }))
-  }
-}
-
-export function deleteNodeTree(nodeId: Node['id']) {
-  return (dispatch: AppDispatch, getState: () => RootState) => {
-    const node = getNode(getState().undoable.present.nodes, nodeId)
-    if (!node) return
-    dispatch(nodeTreeDeleted({ nodeId }))
-    const openedNode = getState().undoable.present.ui.openedNode
-    if (openedNode !== nodeId) {
-      return
-    }
-    // Deleted Node was currently open in UI, need to switch to its owner
-    const parentNodeId = node.ownerId
-    if (parentNodeId) {
-      const parentNode = getNode(getState().undoable.present.nodes, parentNodeId)
-      if (parentNode.type === 'property') {
-        // Property nodes can't be opened by themselves, so go one step further up the tree
-        dispatch(nodeOpened({ nodeId: parentNode.ownerId }))
-      } else {
-        dispatch(nodeOpened({ nodeId: parentNode.id }))
-      }
-    }
   }
 }
