@@ -68,10 +68,10 @@ export const nodesSlice = createSlice({
      */
     nodesMerged: (
       state,
-      action: PayloadAction<{ firstNodeId: Id<'node'>, secondNodeRef: NodeViewWithParent<TextNode> }>,
+      action: PayloadAction<{ firstNodeId: Id<'node'>, secondNodeView: NodeViewWithParent<TextNode> }>,
     ) => {
       const firstNode = getNode(state, action.payload.firstNodeId)
-      const secondNode = getNode(state, action.payload.secondNodeRef.nodeId)
+      const secondNode = getNode(state, action.payload.secondNodeView.nodeId)
       // Merge titles
       firstNode.title += secondNode.title
       firstNode.history.lastModifiedTime = new Date().getTime()
@@ -80,7 +80,7 @@ export const nodesSlice = createSlice({
         moveNode(state, child.nodeId, secondNode.id, firstNode.id, 0)
       })
       // Delete second node
-      deleteNodeAfterMerge(state, action.payload.secondNodeRef, firstNode.id)
+      deleteNodeAfterMerge(state, action.payload.secondNodeView, firstNode.id)
     },
     checkboxUpdated: (state, action: PayloadAction<{ nodeId: Id<'node'>, checkbox: CheckboxConfig | undefined }>) => {
       getNode(state, action.payload.nodeId).checkbox = action.payload.checkbox

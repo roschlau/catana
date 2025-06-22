@@ -9,11 +9,11 @@ import {Id, Node, ParentNode} from '@/common/nodes'
  */
 export function deleteNodeAfterMerge(
   state: RootState['undoable']['present']['nodes'],
-  nodeRef: NodeViewWithParent<Node>,
+  nodeView: NodeViewWithParent<Node>,
   mergedNode: Id<'node'>,
 ) {
   // Remove from parent's children
-  const { node, viewContext } = resolveNodeView(state, nodeRef)
+  const { node, viewContext } = resolveNodeView(state, nodeView)
   const { parent, childIndex } = viewContext!
   parent.content.splice(childIndex, 1)
   // Move any remaining links

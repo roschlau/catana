@@ -9,12 +9,13 @@ import {
   CommandShortcut,
 } from '@/renderer/components/ui/command'
 import {useState} from 'react'
-import {AppCommand, CommandContext, commands} from '@/renderer/commands/commands'
+import {AppCommand, CommandContext} from '@/renderer/commands/command'
 import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
 import {focusRestoreRequested, nodeOpened, selectCommandFocus, setCommandFocus} from '@/renderer/redux/ui/uiSlice'
 import {selectNodes} from '@/renderer/redux/nodes/nodesSlice'
 import {TextNode} from '@/common/nodes'
 import {ChevronRight, DotIcon} from 'lucide-react'
+import {commands} from '@/renderer/commands/commands'
 
 export function CommandPrompt({ open, onOpenChange }: {
   open: boolean,
@@ -33,7 +34,7 @@ export function CommandPrompt({ open, onOpenChange }: {
   const _onOpenChange = (open: boolean) => {
     if (!open) {
       if (lastFocus) {
-        dispatch(focusRestoreRequested({ nodeRef: lastFocus.nodeView, selection: lastFocus.selection }))
+        dispatch(focusRestoreRequested({ nodeView: lastFocus.nodeView, selection: lastFocus.selection }))
       }
       dispatch(setCommandFocus(undefined))
     }

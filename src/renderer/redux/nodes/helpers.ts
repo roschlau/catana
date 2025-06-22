@@ -1,5 +1,7 @@
 import {NodeView, NodeViewWithParent, ParentNodeView} from '@/common/node-views'
 import {Id, Node, NodeGraphFlattened, NodeOfType, Property, TextNode} from '@/common/nodes'
+import {createSelector} from '@reduxjs/toolkit'
+import {RootState} from '@/renderer/redux/store'
 
 export type NodeWithContext<T extends Node> = {
   node: T,
@@ -33,8 +35,17 @@ export function getOptionalNode<T extends Node['type']>(
   return node as NodeOfType<T>
 }
 
-export function resolveNodeView<T extends Node>(state: NodeGraphFlattened, nodeRef: NodeViewWithParent<T>): Required<NodeWithContext<T>>
-export function resolveNodeView<T extends Node>(state: NodeGraphFlattened, nodeRef: NodeView<T>): NodeWithContext<T>
+export function selectResolvedNodeView<T extends Node>(nodeView: NodeViewWithParent<T>): (state: RootState) => Required<NodeWithContext<T>> {
+  return (state: RootState) => _selectResolvedNodeView(state, nodeView) as Required<NodeWithContext<T>>
+}
+
+const _selectResolvedNodeView = createSelector([
+  (state: RootState) => state.undoable.present.nodes,
+  (_: RootState, nodeView: NodeViewWithParent<Node>) => nodeView,
+], (nodes, nodeView) => resolveNodeView(nodes, nodeView))
+
+export function resolveNodeView<T extends Node>(state: NodeGraphFlattened, nodeView: NodeViewWithParent<T>): Required<NodeWithContext<T>>
+export function resolveNodeView<T extends Node>(state: NodeGraphFlattened, nodeView: NodeView<T>): NodeWithContext<T>
 export function resolveNodeView<T extends Node>(
   state: NodeGraphFlattened,
   nodeView: NodeView<T>,

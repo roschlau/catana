@@ -17,7 +17,7 @@ import {
 } from '@/renderer/components/node-editor/NodeTitleEditorTextField'
 import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-editor/EditorBlockList'
 import {ChevronRight} from 'lucide-react'
-import {resolveNodeView} from '@/renderer/redux/nodes/helpers'
+import {selectResolvedNodeView} from '@/renderer/redux/nodes/helpers'
 import {ListItem} from '@/renderer/components/ui/list-item'
 import {twMerge} from 'tailwind-merge'
 import {Node, TextNode} from '@/common/nodes'
@@ -54,11 +54,11 @@ export function TextNodeBlock({
   /** Called when the user triggers the outdent action on this node. */
   outdent?: (selection: Selection) => void,
   /** Called when the user triggers the outdent action on a child node of this node. */
-  outdentChild?: (nodeRef: NodeViewWithParent<Node>, selection: Selection) => void,
+  outdentChild?: (nodeView: NodeViewWithParent<Node>, selection: Selection) => void,
   ref?: Ref<NodeEditorRef>,
 }) {
   const dispatch = useAppDispatch()
-  const { node, viewContext } = useAppSelector(state => resolveNodeView(state.undoable.present.nodes, nodeView))
+  const { node, viewContext } = useAppSelector(selectResolvedNodeView(nodeView))
   const parent = viewContext.parent
   /** True if this node editor is shown under a different node than the node's owner. */
   const isLink = !!parent && (!node.ownerId || node.ownerId !== parent.id)
@@ -128,7 +128,7 @@ export function TextNodeBlock({
       e.preventDefault()
       zoomIn()
       dispatch(focusRestoreRequested({
-        nodeRef: { nodeId: node.id },
+        nodeView: { nodeId: node.id },
         selection,
       }))
       return

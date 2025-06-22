@@ -33,7 +33,7 @@ export function indentNode(
     }
     // Restore focus
     dispatch(focusRestoreRequested({
-      nodeRef: { nodeId: nodeView.nodeId, parent: { ...intoNewParentRef, nodeId: newParent.id } },
+      nodeView: { nodeId: nodeView.nodeId, parent: { ...intoNewParentRef, nodeId: newParent.id } },
       selection: currentSelection,
     }))
   })
@@ -48,7 +48,7 @@ export function outdentNode(
   return (dispatch: AppDispatch) => {
     dispatch(nodeMoved({ nodeView: nodeView, newParentId: intoParentView.nodeId, newIndex: atIndex }))
     dispatch(focusRestoreRequested({
-      nodeRef: { nodeId: nodeView.nodeId, parent: intoParentView },
+      nodeView: { nodeId: nodeView.nodeId, parent: intoParentView },
       selection: currentSelection,
     }))
   }

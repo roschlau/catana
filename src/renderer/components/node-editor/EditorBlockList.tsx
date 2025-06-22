@@ -68,8 +68,8 @@ export function EditorBlockList({ className, nodes, parentView, moveFocusBefore,
   }
 
   // Handles outdenting a child node of one of this list's nodes into this list
-  const outdentChildOfChild = (index: number, nodeRef: NodeViewWithParent<Node>, selection: Selection) => {
-    dispatch(outdentNode(nodeRef, parentView, index + 1, selection))
+  const outdentChildOfChild = (index: number, nodeView: NodeViewWithParent<Node>, selection: Selection) => {
+    dispatch(outdentNode(nodeView, parentView, index + 1, selection))
   }
 
   return (
@@ -86,7 +86,7 @@ export function EditorBlockList({ className, nodes, parentView, moveFocusBefore,
             moveFocusAfter={() => focusIndex(i + 1, 'first')}
             indent={(selection) => indent(i, childView, selection)}
             outdent={outdentChild ? (selection) => outdentChild(childView, selection) : undefined}
-            outdentChild={(nodeRef, selection) => outdentChildOfChild(i, nodeRef, selection)}
+            outdentChild={(nodeView, selection) => outdentChildOfChild(i, nodeView, selection)}
             ref={el => {
               childNodeRefs.current[i] = el
             }}

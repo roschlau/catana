@@ -39,7 +39,7 @@ export const undoableUiSlice = createSlice({
 })
 
 interface FocusRestoreRequest {
-  nodeRef: NodeView<Node>
+  nodeView: NodeView<Node>
   selection: Selection
 }
 
@@ -54,12 +54,12 @@ export const ephemeralUiSlice = createSlice({
   } satisfies EphemeralUiState as EphemeralUiState,
   reducers: {
     focusRestoreRequested: (state, action: PayloadAction<{
-      nodeRef: NodeView<Node>,
+      nodeView: NodeView<Node>,
       selection: PartialBy<Selection, 'end'>
     }>) => {
       state.focusRestoreRequest = {
         ...action.payload,
-        nodeRef: action.payload.nodeRef,
+        nodeView: action.payload.nodeView,
         selection: {
           ...action.payload.selection,
           end: action.payload.selection.end ?? action.payload.selection.start,
@@ -86,21 +86,21 @@ export const selectDebugMode = (state: { ui: EphemeralUiState }) => state.ui.deb
 export const selectCommandFocus = (state: { ui: EphemeralUiState }) => state.ui.commandFocus
 
 /**
- * Calls `focus` as an effect if a focus restore has been requested for the passed nodeRef.
+ * Calls `focus` as an effect if a focus restore has been requested for the passed nodeView.
  */
 export function useFocusRestore(
-  nodeRef: NodeView<Node>,
+  nodeView: NodeView<Node>,
   focus: (selection: Selection) => void,
 ) {
   const preparedFocusRestore = useAppSelector(selectPreparedFocusRestore)
   const dispatch = useAppDispatch()
   useEffect(() => {
     if (preparedFocusRestore) {
-      const { nodeRef: focusNodeRef, selection: focusSelection } = preparedFocusRestore
-      if (isSameView(focusNodeRef, nodeRef)) {
+      const { nodeView: focusNodeView, selection: focusSelection } = preparedFocusRestore
+      if (isSameView(focusNodeView, nodeView)) {
         focus(focusSelection)
         dispatch(focusRestored())
       }
     }
-  }, [preparedFocusRestore, dispatch, nodeRef, focus])
+  }, [preparedFocusRestore, dispatch, nodeView, focus])
 }

@@ -40,7 +40,7 @@ export function splitNode(nodeView: NodeView<TextNode>, selectionStart: number, 
         dispatch(nodeExpandedChanged({ nodeView: nodeViewWithParent, expanded: true }))
       }
       dispatch(focusRestoreRequested({
-        nodeRef: { nodeId: newNodeId, parent: nodeView },
+        nodeView: { nodeId: newNodeId, parent: nodeView },
         selection: { start: 0 },
       }))
     } else {
@@ -51,7 +51,7 @@ export function splitNode(nodeView: NodeView<TextNode>, selectionStart: number, 
         indexInOwner: viewContext.childIndex + 1,
       }))
       dispatch(focusRestoreRequested({
-        nodeRef: { nodeId: newNodeId, parent: viewContext.parentView },
+        nodeView: { nodeId: newNodeId, parent: viewContext.parentView },
         selection: { start: 0 },
       }))
     }
@@ -85,10 +85,10 @@ export function mergeNodeBackward(nodeView: NodeViewWithParent<TextNode>) {
       console.debug(`Merge canceled: Can't merge non-text node ${nodeToMergeWith.id} with ${node.id}`)
       return
     }
-    dispatch(nodesMerged({ firstNodeId: nodeToMergeWith.id, secondNodeRef: nodeView }))
+    dispatch(nodesMerged({ firstNodeId: nodeToMergeWith.id, secondNodeView: nodeView }))
     const focusParent = previousSiblingRef ? nodeView.parent : nodeView.parent.parent
     dispatch(focusRestoreRequested({
-      nodeRef: { nodeId: nodeToMergeWith.id, parent: focusParent },
+      nodeView: { nodeId: nodeToMergeWith.id, parent: focusParent },
       selection: { start: nodeToMergeWith.title.length },
     }))
   }
@@ -142,10 +142,10 @@ export function mergeNodeForward(nodeView: NodeView<TextNode>) {
     }
     dispatch(nodesMerged({
       firstNodeId: node.id,
-      secondNodeRef: { ...nodeToMergeWithRef, nodeId: nodeToMergeWith.id },
+      secondNodeView: { ...nodeToMergeWithRef, nodeId: nodeToMergeWith.id },
     }))
     dispatch(focusRestoreRequested({
-      nodeRef: nodeView,
+      nodeView: nodeView,
       selection: { start: node.title.length },
     }))
   }

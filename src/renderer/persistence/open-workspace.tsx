@@ -1,7 +1,7 @@
 import {useAppDispatch} from '@/renderer/redux/hooks'
 import {useEffect} from 'react'
 import {workspaceLoaded} from '@/renderer/redux/workspace-persistence'
-import {AppCommand} from '@/renderer/commands/commands'
+import {AppCommand} from '@/renderer/commands/command'
 import {AppDispatch} from '@/renderer/redux/store'
 import {FolderOpen} from 'lucide-react'
 

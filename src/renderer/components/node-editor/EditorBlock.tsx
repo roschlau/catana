@@ -37,7 +37,7 @@ export function EditorBlock({
   /** Called when the user triggers the outdent action on this node. */
   outdent?: (selection: Selection) => void,
   /** Called when the user triggers the outdent action on a child node of this node. */
-  outdentChild?: (nodeRef: NodeViewWithParent<Node>, selection: Selection) => void,
+  outdentChild?: (nodeView: NodeViewWithParent<Node>, selection: Selection) => void,
   ref?: Ref<NodeEditorRef>,
 }) {
   const node = useAppSelector(state => getOptionalNode(state.undoable.present.nodes, nodeView.nodeId))
