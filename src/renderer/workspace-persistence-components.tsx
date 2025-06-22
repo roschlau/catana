@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from '@/renderer/components/ui/dialog'
 import {Button} from '@/renderer/components/ui/button'
+import {selectDebugMode} from '@/renderer/redux/ui/uiSlice'
 
 export function useSaveWorkspace(): () => Promise<void> {
   const store = useAppStore()
@@ -44,8 +45,16 @@ export function SaveOnExitDialog() {
   const saveWorkspace = useSaveWorkspace()
   const isWorkspaceDirty = useAppSelector(selectWorkspaceDirty)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const debugMode = useAppSelector(selectDebugMode)
 
   useEffect(() => {
+    if (debugMode) {
+      if (isWorkspaceDirty) {
+        console.debug('Debug mode enabled, not registering onbeforeunload listener')
+      }
+      window.onbeforeunload = null
+      return
+    }
     window.onbeforeunload = (e) => {
       if (isWorkspaceDirty) {
         setDialogOpen(true)
@@ -55,7 +64,7 @@ export function SaveOnExitDialog() {
     return () => {
       window.onbeforeunload = null
     }
-  }, [isWorkspaceDirty, dialogOpen])
+  }, [isWorkspaceDirty, debugMode])
 
   const saveAndClose = async () => {
     await saveWorkspace()
