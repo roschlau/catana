@@ -1,5 +1,5 @@
-import {NodeView, NodeViewWithParent} from '@/common/node-views'
-import {Field, Id, Node, NodeGraphFlattened, ParentNode, Property, TextNode} from '@/common/nodes'
+import {NodeView} from '@/common/node-views'
+import {Field, Id, Node, NodeGraphFlattened, Property, TextNode} from '@/common/nodes'
 import {Selection} from '@/renderer/redux/nodes/thunks'
 import {AppDispatch, RootState} from '@/renderer/redux/store'
 import {nodeOpened} from '@/renderer/redux/ui/uiSlice'
@@ -9,10 +9,10 @@ import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
 import {flatten} from '@/common/node-tree'
 import {demoGraph} from '@/common/demoGraph'
 import {nanoid} from '@reduxjs/toolkit'
-import {nodeExpandedChanged, nodeTreeAdded, nodeTreeDeleted} from '@/renderer/redux/nodes/nodesSlice'
-import {resolveNodeRef} from '@/renderer/redux/nodes/helpers'
 import {saveWorkspaceCommand} from '@/renderer/persistence/save-workspace'
 import {openWorkspaceCommand} from '@/renderer/persistence/open-workspace'
+import {importFromTanaCommand} from '@/renderer/persistence/tana-import'
+import {insertSubtreeAtCurrentNode} from '@/renderer/redux/nodes/insert-subtree-at-current-node'
 
 export type CommandContext = {
   openedNode?: Id<'node'>
@@ -50,16 +50,13 @@ export const commands: AppCommand[] = [
     name: 'Insert Demo Content',
     icon: <FileQuestion/>,
     canActivate: (context) => !!context.focus || !!context.openedNode,
-    thunkCreator: (context: CommandContext) => createUndoTransaction((
-      dispatch: AppDispatch,
-      getState: () => RootState,
-    ) => {
+    thunkCreator: (context: CommandContext) => createUndoTransaction((dispatch: AppDispatch) => {
       const nodeView = context.focus?.nodeView ?? { nodeId: context.openedNode! }
       if (!nodeView) {
         console.warn('Insert Demo Content command triggered without node in context')
         return
       }
-      const flattenedDemoGraph = randomizeIds(flatten(demoGraph))
+      const flattenedDemoGraph = mapIds(flatten(demoGraph), id => nanoid())
       const roots = Object.values(flattenedDemoGraph).filter(node => !node!.ownerId)
       if (roots.length !== 1) {
         console.warn('Demo graph contains the following roots: ', roots.map(node => node!.id).join(','))
@@ -70,35 +67,27 @@ export const commands: AppCommand[] = [
         console.warn(`Demo graph root node ${root.id} was ${root.type}`)
         throw new Error('Demo graph root node must be a text node')
       }
-      const { node, viewContext } = resolveNodeRef(getState().undoable.present.nodes, nodeView)
-      let parentNode: ParentNode
-      if (node.title === '' && node.content.length === 0 && viewContext) {
-        // If the focused node is empty, replace it with the inserted content's root node
-        parentNode = viewContext.parent
-        dispatch(nodeTreeDeleted({ nodeId: node.id }))
-      } else {
-        parentNode = node
-        if (nodeView.parent) {
-          // Make sure the target node is expanded in the current view
-          const nodeViewWithParent = nodeView as NodeViewWithParent<TextNode>
-          dispatch(nodeExpandedChanged({ nodeView: nodeViewWithParent, expanded: true }))
-        }
-      }
-      dispatch(nodeTreeAdded({ graph: flattenedDemoGraph, root: root.id, parent: parentNode.id }))
+      dispatch(insertSubtreeAtCurrentNode(nodeView, flattenedDemoGraph, root.id))
     }),
   },
   openWorkspaceCommand,
   saveWorkspaceCommand,
+  importFromTanaCommand,
 ]
 
-function randomizeIds(nodeGraph: NodeGraphFlattened): NodeGraphFlattened {
+/**
+ * Updates all IDs used in the given nodeGraph via `mapId`, keeping links etc. intact. Don't use this on subgraphs whose
+ * nodes might be referenced from elsewhere, as those references won't be caught. Meant for assigning random IDs to
+ * nodes in a
+ */
+export function mapIds(nodeGraph: NodeGraphFlattened, mapId: (id: string) => string): NodeGraphFlattened {
   const idMapping = new Map<Node['id'], Node['id']>()
 
   function replaceId<T extends Node['id']>(id: T): T {
     if (idMapping.has(id)) {
       return idMapping.get(id)! as T
     }
-    const newId = nanoid() as T
+    const newId = mapId(id) as T
     idMapping.set(id, newId)
     return newId as T
   }

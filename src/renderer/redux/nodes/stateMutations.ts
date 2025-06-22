@@ -1,5 +1,5 @@
 import {NodeViewWithParent} from '@/common/node-views'
-import {findBacklinks, getNode, getViewContext, resolveNodeRef} from './helpers'
+import {findBacklinks, getNode, getViewContext, resolveNodeView} from './helpers'
 import {RootState} from '@/renderer/redux/store'
 import {Id, Node, ParentNode} from '@/common/nodes'
 
@@ -13,7 +13,7 @@ export function deleteNodeAfterMerge(
   mergedNode: Id<'node'>,
 ) {
   // Remove from parent's children
-  const { node, viewContext } = resolveNodeRef(state, nodeRef)
+  const { node, viewContext } = resolveNodeView(state, nodeRef)
   const { parent, childIndex } = viewContext!
   parent.content.splice(childIndex, 1)
   // Move any remaining links

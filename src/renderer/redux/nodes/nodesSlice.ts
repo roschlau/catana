@@ -1,6 +1,6 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {clamp} from '../../util/math'
-import {getNode, getViewContext, resolveNodeRef} from './helpers'
+import {getNode, getViewContext, resolveNodeView} from './helpers'
 import {addChildReference, deleteNodeAfterMerge, deleteNodeTree, moveNode, removeChildReference} from './stateMutations'
 import {CheckboxConfig} from '@/common/checkboxes'
 import {Id, Node, NodeGraphFlattened, ParentNode, TextNode} from '@/common/nodes'
@@ -11,16 +11,6 @@ export const nodesSlice = createSlice({
   name: 'nodes',
   initialState: {} satisfies NodeGraphFlattened as NodeGraphFlattened,
   reducers: {
-    nodeGraphLoaded: (state, action: PayloadAction<NodeGraphFlattened>) => {
-      // Delete all existing nodes
-      Object.keys(state).forEach(nodeId => {
-        delete state[nodeId]
-      })
-      // Add all new nodes
-      Object.keys(action.payload).forEach(nodeId => {
-        state[nodeId] = action.payload[nodeId]
-      })
-    },
     nodeCreated: (state, action: PayloadAction<{
       nodeId: Id<'node'>,
       title: string,
@@ -53,12 +43,12 @@ export const nodesSlice = createSlice({
       node.history.lastModifiedTime = new Date().getTime()
     },
     nodeExpandedChanged: (state, action: PayloadAction<{ nodeView: NodeViewWithParent<Node>, expanded: boolean }>) => {
-      const { viewContext } = resolveNodeRef(state, action.payload.nodeView)
+      const { viewContext } = resolveNodeView(state, action.payload.nodeView)
       const { parent, childIndex } = viewContext
       parent.content[childIndex].expanded = action.payload.expanded
     },
     nodeIndexChanged: (state, action: PayloadAction<{ nodeView: NodeViewWithParent<Node>, indexChange: number }>) => {
-      const { node, viewContext } = resolveNodeRef(state, action.payload.nodeView)
+      const { node, viewContext } = resolveNodeView(state, action.payload.nodeView)
       const parentNode = viewContext.parent
       const { childIndex: currentChildIndex } = viewContext
       const newIndex = clamp(currentChildIndex + action.payload.indexChange, 0, parentNode.content.length - 1)
@@ -96,7 +86,7 @@ export const nodesSlice = createSlice({
       getNode(state, action.payload.nodeId).checkbox = action.payload.checkbox
     },
     nodeLinkRemoved: (state, action: PayloadAction<{ nodeView: NodeViewWithParent<Node> }>) => {
-      const { node, viewContext } = resolveNodeRef(state, action.payload.nodeView)
+      const { node, viewContext } = resolveNodeView(state, action.payload.nodeView)
       if (node.ownerId === viewContext.parent.id) {
         throw new Error(`Can't remove link to ${node.id} from owner node ${viewContext.parent.id}`)
       }
@@ -111,15 +101,22 @@ export const nodesSlice = createSlice({
       }
       deleteNodeTree(state, action.payload.nodeId)
     },
-    nodeTreeAdded: (
-      state,
-      action: PayloadAction<{ graph: NodeGraphFlattened, root: Id<'node'>, parent: ParentNode['id'] }>,
-    ) => {
+    nodeTreeAdded: (state, action: PayloadAction<{
+      graph: NodeGraphFlattened,
+      root: Id<'node'>,
+      parent: ParentNode['id'],
+      index?: number,
+    }>) => {
       Object.assign(state, action.payload.graph)
       const rootNode = getNode(state, action.payload.root)
       const parentNode = getNode(state, action.payload.parent)
       rootNode.ownerId = parentNode.id
-      parentNode.content.push({ nodeId: rootNode.id, expanded: true })
+      const childRef = { nodeId: rootNode.id, expanded: true }
+      if (action.payload.index) {
+        parentNode.content.splice(action.payload.index, 0, childRef)
+      } else {
+        parentNode.content.push(childRef)
+      }
     },
   },
 })
@@ -133,7 +130,6 @@ export const selectNodes = createSelector([
 })
 
 export const {
-  nodeGraphLoaded,
   titleUpdated,
   nodeIndexChanged,
   nodeMoved,

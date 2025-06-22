@@ -1,5 +1,5 @@
 import {AppDispatch, RootState} from '../store'
-import {getNode, resolveNodeRef} from './helpers'
+import {getNode, resolveNodeView} from './helpers'
 import {nanoid} from '@reduxjs/toolkit'
 import {focusRestoreRequested, nodeOpened} from '../ui/uiSlice'
 import {nodeCreated, nodeExpandedChanged, nodeMoved, nodesMerged, nodeTreeDeleted, titleUpdated} from './nodesSlice'
@@ -17,7 +17,7 @@ export function indentNode(nodeView: NodeViewWithParent<Node>, intoNewParentRef:
     const {
       node: newParent,
       viewContext: newParentContext,
-    } = resolveNodeRef(getState().undoable.present.nodes, intoNewParentRef)
+    } = resolveNodeView(getState().undoable.present.nodes, intoNewParentRef)
     if (!isParentNode(newParent)) {
       console.debug(`Indent canceled: Can't indent node ${nodeView.nodeId} into non-parent node ${newParent.id}`)
       return
@@ -52,7 +52,7 @@ export function outdentNode(nodeView: NodeViewWithParent<Node>, intoParentView: 
 
 export function splitNode(nodeView: NodeView<TextNode>, selectionStart: number, selectionEnd: number) {
   return createUndoTransaction((dispatch: AppDispatch, getState: () => RootState) => {
-    const { node, viewContext } = resolveNodeRef(getState().undoable.present.nodes, nodeView)
+    const { node, viewContext } = resolveNodeView(getState().undoable.present.nodes, nodeView)
     if (node.type !== 'node') {
       console.debug(`Split canceled: Can't split non-node node ${node.id}`)
       return
@@ -111,7 +111,7 @@ export function splitNode(nodeView: NodeView<TextNode>, selectionStart: number, 
 export function mergeNodeBackward(nodeView: NodeViewWithParent<TextNode>) {
   return (dispatch: AppDispatch, getState: () => RootState) => {
     const state = getState().undoable.present.nodes
-    const { node, viewContext } = resolveNodeRef(state, nodeView)
+    const { node, viewContext } = resolveNodeView(state, nodeView)
     if (node.ownerId !== viewContext?.parent.id) {
       console.debug(`Node Merge canceled: Can't merge node link ${node.id} into surrounding nodes`)
       return
@@ -147,7 +147,7 @@ export function mergeNodeBackward(nodeView: NodeViewWithParent<TextNode>) {
 export function mergeNodeForward(nodeView: NodeView<TextNode>) {
   return (dispatch: AppDispatch, getState: () => RootState) => {
     const state = getState().undoable.present.nodes
-    const { node, viewContext } = resolveNodeRef(state, nodeView)
+    const { node, viewContext } = resolveNodeView(state, nodeView)
     if (node.type !== 'node') {
       console.debug(`Merge canceled: Can't merge non-text node ${node.id}`)
       return

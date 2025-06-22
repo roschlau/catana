@@ -5,10 +5,9 @@ import {Provider as ReduxProvider} from 'react-redux'
 import {store} from '@/renderer/redux/store'
 import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
 import {ActionCreators} from 'redux-undo'
-import {nodeGraphLoaded} from '@/renderer/redux/nodes/nodesSlice'
 import {NodeEditorPage} from '@/renderer/components/node-editor/NodeEditorPage'
-import {debugModeSet, nodeOpened, selectDebugMode} from '@/renderer/redux/ui/uiSlice'
-import {ArrowUpFromLine, SearchIcon, SunMoon} from 'lucide-react'
+import {debugModeSet, selectDebugMode} from '@/renderer/redux/ui/uiSlice'
+import {SearchIcon, SunMoon} from 'lucide-react'
 import {Button} from '@/renderer/components/ui/button'
 import {Switch} from '@/renderer/components/ui/switch'
 import {Label} from '@/renderer/components/ui/label'
@@ -72,26 +71,12 @@ function Sidebar({ searchClicked }: {
   const dispatch = useAppDispatch()
   const debugMode = useAppSelector(selectDebugMode)
 
-  const importClicked = async () => {
-    const result = await window.catanaAPI.loadTanaExport()
-    if (!result) {
-      return
-    }
-    const { rootId, nodes } = result
-    dispatch(nodeGraphLoaded(nodes))
-    dispatch(nodeOpened({ nodeId: rootId }))
-  }
-
   return (
     <div className={'flex flex-col gap-2'}>
       <Button onClick={searchClicked}>
         <SearchIcon size={16}/>
         Search
         <CommandShortcut>Ctrl+K</CommandShortcut>
-      </Button>
-      <Button onClick={importClicked} variant={'outline'}>
-        <ArrowUpFromLine size={16}/>
-        Load Tana Export
       </Button>
       <Button
         variant={'ghost'}

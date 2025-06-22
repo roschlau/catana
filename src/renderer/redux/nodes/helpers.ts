@@ -33,15 +33,15 @@ export function getOptionalNode<T extends Node['type']>(
   return node as NodeOfType<T>
 }
 
-export function resolveNodeRef<T extends Node>(state: NodeGraphFlattened, nodeRef: NodeViewWithParent<T>): Required<NodeWithContext<T>>
-export function resolveNodeRef<T extends Node>(state: NodeGraphFlattened, nodeRef: NodeView<T>): NodeWithContext<T>
-export function resolveNodeRef<T extends Node>(
+export function resolveNodeView<T extends Node>(state: NodeGraphFlattened, nodeRef: NodeViewWithParent<T>): Required<NodeWithContext<T>>
+export function resolveNodeView<T extends Node>(state: NodeGraphFlattened, nodeRef: NodeView<T>): NodeWithContext<T>
+export function resolveNodeView<T extends Node>(
   state: NodeGraphFlattened,
-  nodeRef: NodeView<T>,
+  nodeView: NodeView<T>,
 ): NodeWithContext<T> {
-  const node = getNode(state, nodeRef.nodeId) as T
-  const viewContext = nodeRef.parent
-    ? { ...getViewContext(getNode(state, nodeRef.parent.nodeId), nodeRef.nodeId), parentView: nodeRef.parent }
+  const node = getNode(state, nodeView.nodeId) as T
+  const viewContext = nodeView.parent
+    ? { ...getViewContext(getNode(state, nodeView.parent.nodeId), nodeView.nodeId), parentView: nodeView.parent }
     : undefined
   return { node, viewContext }
 }
