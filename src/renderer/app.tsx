@@ -57,7 +57,7 @@ function App() {
   }, [globalKeydown])
 
   return (
-    <div className={'h-full flex flex-row p-2 gap-2 items-stretch bg-muted overflow-hidden'}>
+    <div className={'h-full flex flex-row p-2 gap-2 items-stretch bg-sidebar overflow-hidden'}>
       <CommandPrompt open={commandPromptOpen} onOpenChange={setCommandPromptOpen}/>
       <Sidebar searchClicked={() => setCommandPromptOpen(true)}/>
       {nodeId && <NodeEditorPage nodeId={nodeId}/>}
