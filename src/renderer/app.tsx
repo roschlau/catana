@@ -8,19 +8,20 @@ import {ActionCreators} from 'redux-undo'
 import {nodeGraphLoaded} from '@/renderer/redux/nodes/nodesSlice'
 import {NodeEditorPage} from '@/renderer/components/node-editor/NodeEditorPage'
 import {debugModeSet, nodeOpened, selectDebugMode} from '@/renderer/redux/ui/uiSlice'
-import {ArrowDownToLine, ArrowUpFromLine, SearchIcon, SunMoon} from 'lucide-react'
+import {ArrowUpFromLine, SearchIcon, SunMoon} from 'lucide-react'
 import {Button} from '@/renderer/components/ui/button'
 import {Switch} from '@/renderer/components/ui/switch'
 import {Label} from '@/renderer/components/ui/label'
-import {selectWorkspaceDirty, workspaceLoaded} from '@/renderer/redux/workspace-persistence'
-import {LoadWorkspaceOnStartup, SaveOnExitDialog, useSaveWorkspace} from '@/renderer/workspace-persistence-components'
+import {saveWorkspace} from '@/renderer/persistence/save-workspace'
 import {CommandPrompt} from '@/renderer/commands/command-prompt'
 import {CommandShortcut} from '@/renderer/components/ui/command'
+import {SaveOnExitDialog} from '@/renderer/persistence/save-on-exit-dialog'
+import {OpenWorkspaceOnStartup} from '@/renderer/persistence/open-workspace'
 
 const root = createRoot(document.body)
 root.render(
   <ReduxProvider store={store}>
-    <LoadWorkspaceOnStartup/>
+    <OpenWorkspaceOnStartup/>
     <SaveOnExitDialog/>
     <ThemeProvider attribute={'class'}>
       <App/>
@@ -33,7 +34,7 @@ function App() {
   const nodeId = useAppSelector((state) => state.undoable.present.ui.openedNode)
   const [commandPromptOpen, setCommandPromptOpen] = useState(false)
 
-  const globalKeydown = useCallback((e: KeyboardEvent) => {
+  const globalKeydown = useCallback(async (e: KeyboardEvent) => {
     if (e.ctrlKey && e.key === 'z') {
       dispatch(ActionCreators.undo())
     }
@@ -42,6 +43,9 @@ function App() {
     }
     if (e.key === 'k' && e.ctrlKey) {
       setCommandPromptOpen(!commandPromptOpen)
+    }
+    if (e.key === 's' && e.ctrlKey) {
+      await dispatch(saveWorkspace)
     }
   }, [dispatch])
 
@@ -67,17 +71,6 @@ function Sidebar({ searchClicked }: {
   const { resolvedTheme, setTheme } = useTheme()
   const dispatch = useAppDispatch()
   const debugMode = useAppSelector(selectDebugMode)
-  const isWorkspaceDirty = useAppSelector(selectWorkspaceDirty)
-  const saveWorkspace = useSaveWorkspace()
-
-  const openGraphClicked = async () => {
-    const result = await window.catanaAPI.openNodeGraph('pick')
-    if (!result) {
-      return
-    }
-    console.log('Graph loaded', result)
-    dispatch(workspaceLoaded(result))
-  }
 
   const importClicked = async () => {
     const result = await window.catanaAPI.loadTanaExport()
@@ -95,14 +88,6 @@ function Sidebar({ searchClicked }: {
         <SearchIcon size={16}/>
         Search
         <CommandShortcut>Ctrl+K</CommandShortcut>
-      </Button>
-      <Button onClick={saveWorkspace} variant={'outline'} disabled={!isWorkspaceDirty}>
-        <ArrowDownToLine size={16}/>
-        Save Graph
-      </Button>
-      <Button onClick={openGraphClicked} variant={'outline'}>
-        <ArrowUpFromLine size={16}/>
-        Open Graph
       </Button>
       <Button onClick={importClicked} variant={'outline'}>
         <ArrowUpFromLine size={16}/>

@@ -11,6 +11,8 @@ import {demoGraph} from '@/common/demoGraph'
 import {nanoid} from '@reduxjs/toolkit'
 import {nodeExpandedChanged, nodeTreeAdded, nodeTreeDeleted} from '@/renderer/redux/nodes/nodesSlice'
 import {resolveNodeRef} from '@/renderer/redux/nodes/helpers'
+import {saveWorkspaceCommand} from '@/renderer/persistence/save-workspace'
+import {openWorkspaceCommand} from '@/renderer/persistence/open-workspace'
 
 export type CommandContext = {
   openedNode?: Id<'node'>
@@ -85,6 +87,8 @@ export const commands: AppCommand[] = [
       dispatch(nodeTreeAdded({ graph: flattenedDemoGraph, root: root.id, parent: parentNode.id }))
     }),
   },
+  openWorkspaceCommand,
+  saveWorkspaceCommand,
 ]
 
 function randomizeIds(nodeGraph: NodeGraphFlattened): NodeGraphFlattened {

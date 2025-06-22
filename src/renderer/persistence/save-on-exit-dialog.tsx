@@ -1,11 +1,7 @@
-import {useAppDispatch, useAppSelector, useAppStore} from '@/renderer/redux/hooks'
-import {useCallback, useEffect, useState} from 'react'
-import {
-  markWorkspaceClean,
-  selectWorkspaceDirty,
-  serialize,
-  workspaceLoaded,
-} from '@/renderer/redux/workspace-persistence'
+import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
+import {selectWorkspaceDirty} from '@/renderer/redux/workspace-persistence'
+import {useEffect, useState} from 'react'
+import {selectDebugMode} from '@/renderer/redux/ui/uiSlice'
 import {
   Dialog,
   DialogContent,
@@ -15,34 +11,10 @@ import {
   DialogTitle,
 } from '@/renderer/components/ui/dialog'
 import {Button} from '@/renderer/components/ui/button'
-import {selectDebugMode} from '@/renderer/redux/ui/uiSlice'
-
-export function useSaveWorkspace(): () => Promise<void> {
-  const store = useAppStore()
-  const dispatch = useAppDispatch()
-  return useCallback(async () => {
-    await window.catanaAPI.saveNodeGraph(serialize(store.getState()))
-    dispatch(markWorkspaceClean())
-  }, [dispatch, store])
-}
-
-export function LoadWorkspaceOnStartup() {
-  const dispatch = useAppDispatch()
-  useEffect(() => {
-    window.catanaAPI.openNodeGraph('last').then(result => {
-      if (!result) {
-        console.warn(`Couldn't load node graph: Main process returned no result`)
-        return
-      }
-      console.log('Graph loaded:', result.path)
-      dispatch(workspaceLoaded(result))
-    })
-  }, [dispatch])
-  return null
-}
+import {saveWorkspace} from '@/renderer/persistence/save-workspace'
 
 export function SaveOnExitDialog() {
-  const saveWorkspace = useSaveWorkspace()
+  const dispatch = useAppDispatch()
   const isWorkspaceDirty = useAppSelector(selectWorkspaceDirty)
   const [dialogOpen, setDialogOpen] = useState(false)
   const debugMode = useAppSelector(selectDebugMode)
@@ -67,7 +39,7 @@ export function SaveOnExitDialog() {
   }, [isWorkspaceDirty, debugMode])
 
   const saveAndClose = async () => {
-    await saveWorkspace()
+    await dispatch(saveWorkspace)
     window.onbeforeunload = null
     window.close()
   }

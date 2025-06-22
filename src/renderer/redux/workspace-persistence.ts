@@ -4,17 +4,6 @@ import {Node} from '@/common/nodes'
 import {createAction, PayloadAction, Reducer, UnknownAction} from '@reduxjs/toolkit'
 import {OpenNodeGraphResult} from '@/preload/catana-api'
 
-export function serialize(state: RootState): SaveFile {
-  const nodes: SaveFile['nodes'] = []
-  nodes.push(...Object.values(state.undoable.present.nodes as Record<string, Node>))
-  return {
-    v: 1,
-    openedNode: state.undoable.present.ui.openedNode,
-    debugMode: state.ui.debugMode,
-    nodes,
-  }
-}
-
 export const workspaceLoaded = createAction<OpenNodeGraphResult>('root/workspaceLoaded')
 
 /**
