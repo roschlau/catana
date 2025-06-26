@@ -12,6 +12,7 @@ export const openWorkspace = (mode: 'last' | 'pick') => async (dispatch: AppDisp
     return
   }
   console.log('Graph loaded', result.path)
+  document.title = 'Catana - ' + result.path
   dispatch(workspaceLoaded(result))
 }
 
