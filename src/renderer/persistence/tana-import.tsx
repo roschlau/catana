@@ -1,4 +1,4 @@
-import {AppCommand, CommandContext} from '@/renderer/commands/command'
+import {AppCommand, CommandContext} from '@/renderer/commands/app-command'
 import {ImportIcon} from 'lucide-react'
 import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
 import {AppDispatch} from '@/renderer/redux/store'

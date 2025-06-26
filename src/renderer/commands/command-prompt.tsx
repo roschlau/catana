@@ -9,7 +9,7 @@ import {
   CommandShortcut,
 } from '@/renderer/components/ui/command'
 import {useState} from 'react'
-import {AppCommand, CommandContext} from '@/renderer/commands/command'
+import {AppCommand, CommandContext} from '@/renderer/commands/app-command'
 import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
 import {focusRestoreRequested, nodeOpened, selectCommandFocus, setCommandFocus} from '@/renderer/redux/ui/uiSlice'
 import {selectNodes} from '@/renderer/redux/nodes/nodesSlice'

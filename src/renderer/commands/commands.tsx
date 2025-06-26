@@ -10,7 +10,7 @@ import {openWorkspaceCommand} from '@/renderer/persistence/open-workspace'
 import {saveWorkspaceCommand} from '@/renderer/persistence/save-workspace'
 import {importFromTanaCommand} from '@/renderer/persistence/tana-import'
 import React from 'react'
-import {AppCommand, CommandContext} from '@/renderer/commands/command'
+import {AppCommand, CommandContext} from '@/renderer/commands/app-command'
 import {mapIds} from '@/renderer/redux/nodes/mapIds'
 
 export const commands: AppCommand[] = [

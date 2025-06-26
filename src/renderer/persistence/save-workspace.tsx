@@ -2,7 +2,7 @@ import {markWorkspaceClean} from '@/renderer/redux/workspace-persistence'
 import {AppDispatch, RootState} from '@/renderer/redux/store'
 import {SaveFile} from '@/main/nodegraph-file-schema'
 import {Node} from '@/common/nodes'
-import {AppCommand} from '@/renderer/commands/command'
+import {AppCommand} from '@/renderer/commands/app-command'
 import {SaveIcon} from 'lucide-react'
 
 export const saveWorkspaceCommand: AppCommand = {
