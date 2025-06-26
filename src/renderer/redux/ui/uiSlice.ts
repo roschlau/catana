@@ -9,6 +9,8 @@ import {Id, Node, TextNode} from '@/common/nodes'
 
 export interface UndoableUiState {
   openedNode: Id<'node'> | null
+  backStack: Id<'node'>[]
+  forwardStack: Id<'node'>[]
   workspaceDirty: false,
 }
 
@@ -29,11 +31,33 @@ export const undoableUiSlice = createSlice({
   name: 'ui',
   initialState: {
     openedNode: ROOT_NODE,
+    backStack: [],
+    forwardStack: [],
     workspaceDirty: false,
   } satisfies UndoableUiState as UndoableUiState,
   reducers: {
     nodeOpened: (state, action: PayloadAction<{ nodeId: Id<'node'> | null }>) => {
+      if (state.openedNode) {
+        state.backStack.push(state.openedNode)
+      }
+      state.forwardStack = []
       state.openedNode = action.payload.nodeId
+    },
+    navigatedBack: (state) => {
+      if (state.backStack.length > 0) {
+        if (state.openedNode) {
+          state.forwardStack.push(state.openedNode)
+        }
+        state.openedNode = state.backStack.pop()!
+      }
+    },
+    navigatedForward: (state) => {
+      if (state.forwardStack.length > 0) {
+        if (state.openedNode) {
+          state.backStack.push(state.openedNode)
+        }
+        state.openedNode = state.forwardStack.pop()!
+      }
     },
   },
 })
@@ -78,7 +102,7 @@ export const ephemeralUiSlice = createSlice({
   },
 })
 
-export const { nodeOpened } = undoableUiSlice.actions
+export const { nodeOpened, navigatedBack, navigatedForward } = undoableUiSlice.actions
 export const { focusRestoreRequested, focusRestored, debugModeSet, setCommandFocus } = ephemeralUiSlice.actions
 
 export const selectPreparedFocusRestore = (state: { ui: EphemeralUiState }) => state.ui.focusRestoreRequest

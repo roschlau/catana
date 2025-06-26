@@ -6,7 +6,7 @@ import {store} from '@/renderer/redux/store'
 import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
 import {ActionCreators} from 'redux-undo'
 import {NodeEditorPage} from '@/renderer/components/node-editor/NodeEditorPage'
-import {debugModeSet, selectDebugMode} from '@/renderer/redux/ui/uiSlice'
+import {debugModeSet, navigatedBack, navigatedForward, selectDebugMode} from '@/renderer/redux/ui/uiSlice'
 import {SearchIcon, SunMoon} from 'lucide-react'
 import {Button} from '@/renderer/components/ui/button'
 import {Switch} from '@/renderer/components/ui/switch'
@@ -36,24 +36,59 @@ function App() {
   const globalKeydown = useCallback(async (e: KeyboardEvent) => {
     if (e.ctrlKey && e.key === 'z') {
       dispatch(ActionCreators.undo())
+      e.preventDefault()
+      return
     }
     if (e.ctrlKey && e.key === 'Z') {
       dispatch(ActionCreators.redo())
+      e.preventDefault()
+      return
     }
     if (e.key === 'k' && e.ctrlKey) {
       setCommandPromptOpen(!commandPromptOpen)
+      e.preventDefault()
+      return
     }
     if (e.key === 's' && e.ctrlKey) {
       await dispatch(saveWorkspace)
+      e.preventDefault()
+      return
+    }
+    if (e.key === 'ArrowRight' && e.altKey && e.ctrlKey) {
+      dispatch(navigatedForward())
+      e.preventDefault()
+      return
+    }
+    if (e.key === 'ArrowLeft' && e.altKey) {
+      // Ctrl not required on purpose. This is handy as the inverse action for Ctrl + Right "zooming in" on a node,
+      //  since "zooming out" is equivalent a back navigation in most cases.
+      dispatch(navigatedBack())
+      e.preventDefault()
+      return
+    }
+  }, [commandPromptOpen, dispatch])
+
+  const globalMouseup = useCallback(async (e: MouseEvent) => {
+    if (e.button === 3) {
+      dispatch(navigatedBack())
+      e.preventDefault()
+      return
+    }
+    if (e.button === 4) {
+      dispatch(navigatedForward())
+      e.preventDefault()
+      return
     }
   }, [dispatch])
 
   useEffect(() => {
     document.addEventListener('keydown', globalKeydown)
+    document.addEventListener('mouseup', globalMouseup)
     return () => {
       document.removeEventListener('keydown', globalKeydown)
+      document.removeEventListener('mouseup', globalMouseup)
     }
-  }, [globalKeydown])
+  }, [globalKeydown, globalMouseup])
 
   return (
     <div className={'h-full flex flex-row p-2 gap-2 items-stretch bg-sidebar overflow-hidden'}>

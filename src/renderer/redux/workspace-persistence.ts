@@ -29,6 +29,8 @@ export const createWorkspaceRootReducer = (reducer: Reducer) => {
           present: {
             ui: {
               openedNode: saveFile.content.openedNode,
+              backStack: [],
+              forwardStack: [],
               workspaceDirty: false,
             },
             nodes: nodesById,
