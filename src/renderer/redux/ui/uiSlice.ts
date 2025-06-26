@@ -13,7 +13,7 @@ export interface UndoableUiState {
 }
 
 export interface EphemeralUiState {
-  nodeGraphPath: string | null
+  workspacePath: string | null
   debugMode: boolean
   commandFocus?: {
     nodeView: NodeView<TextNode>
@@ -49,7 +49,7 @@ interface FocusRestoreRequest {
 export const ephemeralUiSlice = createSlice({
   name: 'ui',
   initialState: {
-    nodeGraphPath: null,
+    workspacePath: null,
     debugMode: true,
   } satisfies EphemeralUiState as EphemeralUiState,
   reducers: {

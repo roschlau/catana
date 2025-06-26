@@ -1,10 +1,10 @@
 import {RootState, undoableReducers} from '@/renderer/redux/store'
-import {SaveFile} from '@/main/nodegraph-file-schema'
+import {SaveFile} from '@/main/workspace-file-schema'
 import {Node} from '@/common/nodes'
 import {createAction, PayloadAction, Reducer, UnknownAction} from '@reduxjs/toolkit'
-import {OpenNodeGraphResult} from '@/preload/catana-api'
+import {OpenWorkspaceResult} from '@/preload/catana-api'
 
-export const workspaceLoaded = createAction<OpenNodeGraphResult>('root/workspaceLoaded')
+export const workspaceLoaded = createAction<OpenWorkspaceResult>('root/workspaceLoaded')
 
 /**
  * Creates a reducer that will load a saved workspace and replace the current state with it.
@@ -12,7 +12,7 @@ export const workspaceLoaded = createAction<OpenNodeGraphResult>('root/workspace
 export const createWorkspaceRootReducer = (reducer: Reducer) => {
   return (state: RootState | undefined, action: UnknownAction): RootState => {
     if (action.type === workspaceLoaded.type) {
-      const saveFile = (action as PayloadAction<OpenNodeGraphResult>).payload
+      const saveFile = (action as PayloadAction<OpenWorkspaceResult>).payload
       const nodes: SaveFile['nodes'] = saveFile.content.nodes
       const nodesById = nodes.reduce((acc, node) => ({
         ...acc,
@@ -21,7 +21,7 @@ export const createWorkspaceRootReducer = (reducer: Reducer) => {
 
       return {
         ui: {
-          nodeGraphPath: saveFile.path,
+          workspacePath: saveFile.path,
           debugMode: saveFile.content.debugMode ?? false,
         },
         undoable: {

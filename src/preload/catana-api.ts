@@ -1,13 +1,13 @@
 import {Id, NodeGraphFlattened} from '@/common/nodes'
-import {SaveFile} from '@/main/nodegraph-file-schema'
+import {SaveFile} from '@/main/workspace-file-schema'
 
 export interface CatanaAPI {
-  openNodeGraph: (mode: 'last' | 'pick') => Promise<OpenNodeGraphResult | null>
-  saveNodeGraph: (content: SaveFile) => Promise<void>
+  openWorkspace: (mode: 'last' | 'pick') => Promise<OpenWorkspaceResult | null>
+  saveWorkspace: (content: SaveFile) => Promise<void>
   loadTanaExport: () => Promise<{ rootId: Id<'node'>, nodes: NodeGraphFlattened } | null>
 }
 
-export interface OpenNodeGraphResult {
+export interface OpenWorkspaceResult {
   path: string,
   content: SaveFile,
 }

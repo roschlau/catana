@@ -3,7 +3,7 @@ import {CatanaAPI} from '@/preload/catana-api'
 import {settings} from '@/main/settings'
 import path from 'node:path'
 import {readOrCreateFile} from '@/main/utils/file-system'
-import {emptySaveFile, SaveFile} from '@/main/nodegraph-file-schema'
+import {emptySaveFile, SaveFile} from '@/main/workspace-file-schema'
 import {type} from 'arktype'
 import fs from 'node:fs'
 
@@ -13,10 +13,10 @@ const fileName = '.catana'
 let openedGraphDirectory: string | null = null
 
 export function registerStorageApi(ipcMain: Electron.IpcMain) {
-  ipcMain.handle('open-node-graph', async (
+  ipcMain.handle('open-workspace', async (
     _event,
     mode: 'last' | 'pick',
-  ): ReturnType<CatanaAPI['openNodeGraph']> => {
+  ): ReturnType<CatanaAPI['openWorkspace']> => {
     let directory = openedGraphDirectory ?? settings.get('last-graph-location')
     if (mode === 'pick' || !directory) {
       directory = await promptForGraphDirectory()
@@ -38,10 +38,10 @@ export function registerStorageApi(ipcMain: Electron.IpcMain) {
     return { path: directory, content: saveFile }
   })
 
-  ipcMain.handle('save-node-graph', async (
+  ipcMain.handle('save-workspace', async (
     _event,
     content: typeof SaveFile.infer,
-  ): ReturnType<CatanaAPI['saveNodeGraph']> => {
+  ): ReturnType<CatanaAPI['saveWorkspace']> => {
     if (!openedGraphDirectory) {
       console.log('No node graph location opened, asking user to pick')
       openedGraphDirectory = await promptForGraphDirectory()
