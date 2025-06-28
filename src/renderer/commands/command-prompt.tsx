@@ -75,6 +75,7 @@ export function CommandPrompt({ open, onOpenChange }: {
         {node.title || <span className={'text-muted-foreground'}>Empty</span>}
       </CommandItem>
     ))
+    .slice(0, 10)
 
   return <CommandDialog
     open={open}
