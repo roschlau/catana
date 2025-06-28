@@ -1,10 +1,10 @@
 # Catana
 
 > [!IMPORTANT]  
-> This project is in very early stages of development, with lots of core functionality still missing. This readme is so far more of an aspiration than a reality, and the software is not ready for any kind of productive use. I'll update this note once that changes.
+> This project is in very early stages of development, with lots of core functionality still missing. This readme is currently more of an aspiration than a reality, and the software is not ready for any kind of productive use. I'll update this note once that changes.
 
 ## What is Catana?
-Catana was born from my desire to have an outliner / note taker / "second brain" that works similar to [Tana](https://tana.inc), but without having to put all my data into yet another web service that I don't control.
+Catana was born from my desire to have a note-taking software that works similar to [Tana](https://tana.inc), but able to interface with my local files better and without having to put all my data into yet another web service that I don't control.
 
 Catana aspires to be _the_ central hub for your personal, digital life, without making you give up control over your data. That includes being:
 - A place to put and link all your notes, thoughts, etc. (Some people call this a "Second Brain", even though I don't particularly like that term)
