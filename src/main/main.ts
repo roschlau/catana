@@ -7,6 +7,8 @@ import {loadTanaExport} from './tanaImport'
 import {CatanaAPI} from '@/preload/catana-api'
 import {registerStorageApi} from '@/main/storage-api'
 
+const environment = MAIN_WINDOW_VITE_DEV_SERVER_URL ? 'dev' : 'prod'
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit()
@@ -31,6 +33,7 @@ const createWindow = async () => {
   const mainWindow = new BrowserWindow({
     width: 1800,
     height: 1000,
+    icon: `src/renderer/assets/app-icon/${environment === 'dev' ? 'dev_' : ''}catana.png`,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },

@@ -7,12 +7,25 @@ import {VitePlugin} from '@electron-forge/plugin-vite'
 import {FusesPlugin} from '@electron-forge/plugin-fuses'
 import {FuseV1Options, FuseVersion} from '@electron/fuses'
 
+const icon_base = process.env.CATANA_ENV === 'dev' ? 'dev_catana' : 'catana'
+console.log('Environment: ', process.env.ENVIRONMENT, icon_base)
+
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
+    icon: 'src/renderer/assets/app-icon/' + icon_base,
   },
   rebuildConfig: {},
-  makers: [new MakerSquirrel({}), new MakerZIP({}, ['darwin']), new MakerRpm({}), new MakerDeb({})],
+  makers: [
+    new MakerSquirrel({}),
+    new MakerZIP({}, ['darwin']),
+    new MakerRpm({}),
+    new MakerDeb({
+      options: {
+        icon: 'src/renderer/assets/app-icon/' + icon_base,
+      }
+    }),
+  ],
   plugins: [
     new VitePlugin({
       // `build` can specify multiple entry builds, which can be Main process, Preload scripts, Worker process, etc.
