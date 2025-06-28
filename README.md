@@ -46,3 +46,12 @@ If you want to test Catana in its current state, here are some things to keep in
   - If something goes wrong, the first thing to try is Ctrl+Z. Almost all application state is captured in the undo history, so that's your first way out.
   - There is currently no auto-save. Catana only saves when you explicitly request it via Ctrl+S. If something seems entirely messed up, you can close the window and chose "Discard and Close" when asked if you want to save, and you'll be back to the last time you saved.
   - If you have git installed, Catana will automatically initialize a git repo in any workspace that you open, and add a commit whenever you save. This way you can access any previously saved state easily in case the `.catana` file becomes corrupted or stuff got accidentally deleted.
+
+## Roadmap
+Here's a non-exhaustive list of the bigger things I have planned for the future, in no particular order:
+- [ ] Supertags and Node Properties
+- [ ] Node properties
+- [ ] Markdown-style formatting and inline-linking
+- [ ] Dedicated Journal page
+- [ ] Templates
+- [ ] Filesystem integration
