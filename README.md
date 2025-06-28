@@ -1,7 +1,12 @@
+<p align="center">
+    <img src="src/renderer/assets/app-icon/catana_64.png" alt="Catana Logo"/>
+</p>
+
 # Catana
 
 > [!IMPORTANT]  
-> This project is in very early stages of development, with lots of core functionality still missing. This readme is currently more of an aspiration than a reality, and the software is not ready for any kind of productive use. I'll update this note once that changes.
+> This project is in very early stages of development, with lots of core functionality still missing. This readme is currently more of an aspiration than a reality, and the software is missing a lot of stuff to be considered production-ready. If you still want to give it a try, read [Testing Catana](#testing-catana).
+
 
 ## What is Catana?
 Catana was born from my desire to have a note-taking software that works similar to [Tana](https://tana.inc), but able to interface with my local files better and without having to put all my data into yet another web service that I don't control.
@@ -28,3 +33,16 @@ Granted, some or even all of these _could_ probably be overcome even with a mark
 With Catana, I am explicitly not making markdown-compatibility a goal, in exchange for getting the more structured and flexible internal model that I liked so much about Tana.
 
 I still want Catana to have a file system integration so that any kind of file, including markdown files, can be linked to and made part of your knowledge graph. It's just not going to be the core persistence mechanism. I'm still fleshing out my thoughts around this at the current time.
+
+---
+
+## Testing Catana
+If you want to test Catana in its current state, here are some things to keep in mind:
+- Download the latest version from the [Releases Page](https://github.com/roschlau/catana/releases). There is no auto-update for new versions yet, so for now, the best way to stay up to date is subscribing to release notifications on this repository.
+- The UI is very barebones, most actions are available only via keyboard shortcut and/or the command prompt. If in doubt, press Ctrl+K and search for what you're looking for, but there's a high chance that it might not be implemented yet.
+- No guarantees on backwards-compatibility. Your workspaces might need manual intervention to keep working with newer versions of the app.
+- Bugs might happen. Save early, save often, back up your data. Here's what you need to know about how Catana saves your data and tries to keep it safe:
+  - To open a workspace, you chose a directory on your PC. Catana will create a `.catana` file in that directory. Currently, this file contains all content you create in Catana, although that might change in the future. It is using plain JSON, so manually editing it is possible if necessary. Refer to [workspace-file-schema.ts](src/main/workspace-file-schema.ts) for the arktype schema.
+  - If something goes wrong, the first thing to try is Ctrl+Z. Almost all application state is captured in the undo history, so that's your first way out.
+  - There is currently no auto-save. Catana only saves when you explicitly request it via Ctrl+S. If something seems entirely messed up, you can close the window and chose "Discard and Close" when asked if you want to save, and you'll be back to the last time you saved.
+  - If you have git installed, Catana will automatically initialize a git repo in any workspace that you open, and add a commit whenever you save. This way you can access any previously saved state easily in case the `.catana` file becomes corrupted or stuff got accidentally deleted.
