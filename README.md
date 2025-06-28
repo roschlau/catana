@@ -38,7 +38,7 @@ I still want Catana to have a file system integration so that any kind of file, 
 
 ## Testing Catana
 If you want to test Catana in its current state, here are some things to keep in mind:
-- Download the latest version from the [Releases Page](https://github.com/roschlau/catana/releases). There is no auto-update for new versions yet, so for now, the best way to stay up to date is subscribing to release notifications on this repository.
+- Download the latest version from the [Releases Page](https://github.com/roschlau/catana/releases). There is no auto-update for new versions yet, so for now, the best way to stay up to date is subscribing to release notifications on this repository. You can also follow me on [Bluesky](https://bsky.app/profile/das-robin.bsky.social) or [Mastodon](https://defcon.social/@das_robin) to follow development!
 - The UI is very barebones, most actions are available only via keyboard shortcut and/or the command prompt. If in doubt, press Ctrl+K and search for what you're looking for, but there's a high chance that it might not be implemented yet.
 - No guarantees on backwards-compatibility. Your workspaces might need manual intervention to keep working with newer versions of the app.
 - Bugs might happen. Save early, save often, back up your data. Here's what you need to know about how Catana saves your data and tries to keep it safe:
