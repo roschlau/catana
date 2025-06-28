@@ -26,7 +26,7 @@ const config: ForgeConfig = {
     new MakerRpm({}),
     new MakerDeb({
       options: {
-        icon: 'src/renderer/assets/app-icon/' + icon_base,
+        icon: 'src/renderer/assets/app-icon/' + icon_base + '.ico',
       },
     }),
   ],
