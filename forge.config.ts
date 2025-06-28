@@ -6,6 +6,7 @@ import {MakerRpm} from '@electron-forge/maker-rpm'
 import {VitePlugin} from '@electron-forge/plugin-vite'
 import {FusesPlugin} from '@electron-forge/plugin-fuses'
 import {FuseV1Options, FuseVersion} from '@electron/fuses'
+import {PublisherGithub} from '@electron-forge/publisher-github'
 
 const icon_base = process.env.CATANA_ENV === 'dev' ? 'dev_catana' : 'catana'
 console.log('Environment: ', process.env.ENVIRONMENT, icon_base)
@@ -26,7 +27,18 @@ const config: ForgeConfig = {
     new MakerDeb({
       options: {
         icon: 'src/renderer/assets/app-icon/' + icon_base,
-      }
+      },
+    }),
+  ],
+  publishers: [
+    new PublisherGithub({
+      repository: {
+        owner: 'roschlau',
+        name: 'catana',
+      },
+      prerelease: true,
+      generateReleaseNotes: true,
+      authToken: process.env.GITHUB_TOKEN,
     }),
   ],
   plugins: [
