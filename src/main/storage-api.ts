@@ -1,13 +1,14 @@
-import {dialog} from 'electron'
-import {CatanaAPI} from '@/preload/catana-api'
 import {settings} from '@/main/settings'
-import path from 'node:path'
 import {readOrCreateFile} from '@/main/utils/file-system'
+import {gitCommitWorkspace, gitInitializeWorkspace} from '@/main/utils/git'
 import {emptySaveFile, SaveFile} from '@/main/workspace-file-schema'
+import {CatanaAPI} from '@/preload/catana-api'
 import {type} from 'arktype'
+import {dialog} from 'electron'
 import fs from 'node:fs'
+import path from 'node:path'
 
-const fileName = '.catana'
+export const workspaceFileName = '.catana'
 
 /** Stores the location of the node graph that is currently opened. */
 let openedGraphDirectory: string | null = null
@@ -25,7 +26,8 @@ export function registerStorageApi(ipcMain: Electron.IpcMain) {
         return null
       }
     }
-    const filePath = path.join(directory, fileName)
+
+    const filePath = path.join(directory, workspaceFileName)
     console.log('Loading node graph:', filePath)
     const fileContent = await readOrCreateFile(filePath, () => JSON.stringify(emptySaveFile))
     const saveFile = SaveFile(JSON.parse(fileContent))
@@ -35,6 +37,9 @@ export function registerStorageApi(ipcMain: Electron.IpcMain) {
     }
     settings.set('last-graph-location', directory)
     openedGraphDirectory = directory
+
+    await gitInitializeWorkspace(directory)
+
     return { path: directory, content: saveFile }
   })
 
@@ -55,9 +60,17 @@ export function registerStorageApi(ipcMain: Electron.IpcMain) {
     if (parsedSaveFile instanceof type.errors) {
       throw Error(parsedSaveFile.summary)
     }
-    const filePath = path.join(openedGraphDirectory, fileName)
+    const filePath = path.join(openedGraphDirectory, workspaceFileName)
     console.log('Saving node graph:', filePath)
-    await fs.promises.writeFile(filePath, JSON.stringify(parsedSaveFile), 'utf8')
+    await fs.promises.writeFile(filePath, JSON.stringify(parsedSaveFile, null, 2), 'utf8')
+
+    // Commit the workspace file to git
+    try {
+      await gitCommitWorkspace(openedGraphDirectory)
+    } catch (error) {
+      console.error('Failed to commit workspace file to git:', error)
+      throw Error('Failed to commit workspace file to git')
+    }
   })
 }
 
