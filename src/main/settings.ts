@@ -1,14 +1,16 @@
 import path from 'node:path'
 import fs from 'node:fs'
 import {app} from 'electron'
+import {environment} from '@/main/main'
 
 function getSettingsPath(): string {
   const userData = app.getPath('userData')
-  return path.join(userData, 'settings')
+  const dirName = environment === 'dev' ? 'settings-dev' : 'settings'
+  return path.join(userData, dirName)
 }
 
 export type SettingsKey =
-  | 'last-graph-location'
+  | 'last-workspace-location'
 
 export const settings = {
   get(key: SettingsKey): string | null {

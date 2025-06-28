@@ -17,7 +17,10 @@ const config: ForgeConfig = {
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({}),
+    new MakerSquirrel({
+      iconUrl: 'https://roschlau.me/img/catana.ico',
+      setupIcon: 'src/renderer/assets/app-icon/' + icon_base + '.ico',
+    }),
     new MakerZIP({}, ['darwin']),
     new MakerRpm({}),
     new MakerDeb({

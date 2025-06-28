@@ -7,7 +7,7 @@ import {loadTanaExport} from './tanaImport'
 import {CatanaAPI} from '@/preload/catana-api'
 import {registerStorageApi} from '@/main/storage-api'
 
-const environment = MAIN_WINDOW_VITE_DEV_SERVER_URL ? 'dev' : 'prod'
+export const environment = MAIN_WINDOW_VITE_DEV_SERVER_URL ? 'dev' : 'prod'
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -25,7 +25,7 @@ const createWindow = async () => {
     callback({
       responseHeaders: {
         ...details.responseHeaders,
-        'Content-Security-Policy': [`default-src 'self'; style-src 'unsafe-inline'`],
+        'Content-Security-Policy': [`default-src 'self'; style-src 'self' 'unsafe-inline' file:`],
       },
     })
   })
@@ -66,8 +66,10 @@ const createWindow = async () => {
     return loadTanaExport(fileContent)
   })
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  if (environment === 'dev') {
+    // Open the DevTools.
+    mainWindow.webContents.openDevTools()
+  }
 }
 
 // This method will be called when Electron has finished

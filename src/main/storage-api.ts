@@ -18,7 +18,7 @@ export function registerStorageApi(ipcMain: Electron.IpcMain) {
     _event,
     mode: 'last' | 'pick',
   ): ReturnType<CatanaAPI['openWorkspace']> => {
-    let directory = openedGraphDirectory ?? settings.get('last-graph-location')
+    let directory = openedGraphDirectory ?? settings.get('last-workspace-location')
     if (mode === 'pick' || !directory) {
       directory = await promptForGraphDirectory()
       if (!directory) {
@@ -35,7 +35,7 @@ export function registerStorageApi(ipcMain: Electron.IpcMain) {
       console.error(`Save File ${filePath} could not be loaded: `, saveFile)
       throw Error(saveFile.summary)
     }
-    settings.set('last-graph-location', directory)
+    settings.set('last-workspace-location', directory)
     openedGraphDirectory = directory
 
     await gitInitializeWorkspace(directory)
@@ -55,7 +55,7 @@ export function registerStorageApi(ipcMain: Electron.IpcMain) {
       console.warn('User aborted saving node graph')
       return
     }
-    settings.set('last-graph-location', openedGraphDirectory)
+    settings.set('last-workspace-location', openedGraphDirectory)
     const parsedSaveFile = SaveFile(content)
     if (parsedSaveFile instanceof type.errors) {
       throw Error(parsedSaveFile.summary)
@@ -77,7 +77,7 @@ export function registerStorageApi(ipcMain: Electron.IpcMain) {
 export async function promptForGraphDirectory(): Promise<string | null> {
   const pickFileResult = await dialog.showOpenDialog({
     title: 'Open Node Graph',
-    defaultPath: settings.get('last-graph-location') ?? undefined,
+    defaultPath: settings.get('last-workspace-location') ?? undefined,
     buttonLabel: 'Open Node Graph',
     properties: ['openDirectory'],
   })
