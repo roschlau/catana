@@ -92,9 +92,9 @@ export function CommandPrompt({ open, onOpenChange }: {
         {commandElements}
       </CommandGroup>
       <CommandSeparator/>
-      <CommandGroup heading={'Nodes'}>
+      {nodeElements.length > 0 && <CommandGroup heading={'Nodes'}>
         {nodeElements}
-      </CommandGroup>
+      </CommandGroup>}
     </CommandList>
   </CommandDialog>
 }
