@@ -15,6 +15,7 @@ const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
     icon: 'src/renderer/assets/app-icon/' + icon_base,
+    executableName: 'catana', // Needs to be identical to `name` in package.json, see https://github.com/electron/forge/issues/3753#issuecomment-2641436481
   },
   rebuildConfig: {},
   makers: [
