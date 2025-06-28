@@ -23,7 +23,7 @@ export function CommandPrompt({ open, onOpenChange }: {
 }) {
   const [searchQuery, setSearchQuery] = useState('')
   const dispatch = useAppDispatch()
-  const filteredNodes = useAppSelector(state => selectNodes(state, searchQuery))
+  const filteredNodes = useAppSelector(state => open && searchQuery !== '' ? selectNodes(state, searchQuery) : [])
   const openedNode = useAppSelector(state => state.undoable.present.ui.openedNode)
   const lastFocus = useAppSelector(selectCommandFocus)
   const context: CommandContext = {
