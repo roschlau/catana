@@ -10,5 +10,5 @@ export function ListItem({ className, children }: {
   className?: string,
   children: ReactNode,
 }) {
-  return (<div className={twMerge('flex flex-row gap-2 items-start py-0.5', className)}>{children}</div>)
+  return (<div className={twMerge('flex flex-row gap-1.5 items-start py-0.5', className)}>{children}</div>)
 }

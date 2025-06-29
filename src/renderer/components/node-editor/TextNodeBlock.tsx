@@ -284,7 +284,7 @@ export function TextNodeBulletButton({ isLink, hasContent, isExpanded, disabled,
     >
       {hasContent
         ? <ChevronRight size={16} className={chevronIconClasses}/>
-        : <div className={'size-1 rounded-full bg-current'}/>}
+        : <div className={'size-1.25 rounded-full bg-current'}/>}
     </button>
   )
 }
