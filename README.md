@@ -50,7 +50,6 @@ If you want to test Catana in its current state, here are some things to keep in
 ## Roadmap
 Here's a non-exhaustive list of the bigger things I have planned for the future, in no particular order:
 - [ ] Supertags and Node Properties
-- [ ] Node properties
 - [ ] Markdown-style formatting and inline-linking
 - [ ] Dedicated Journal page
 - [ ] Templates
