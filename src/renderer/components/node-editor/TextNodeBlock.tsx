@@ -279,7 +279,7 @@ export function TextNodeBulletButton({ isLink, hasContent, isExpanded, disabled,
   return (
     <button
       className={toggleButtonClasses}
-      disabled={disabled}
+      disabled={disabled || !hasContent}
       onClick={bulletClicked}
     >
       {hasContent
