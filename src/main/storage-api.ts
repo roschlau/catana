@@ -20,7 +20,7 @@ export function registerStorageApi(ipcMain: Electron.IpcMain) {
   ): ReturnType<CatanaAPI['openWorkspace']> => {
     let directory = openedGraphDirectory ?? settings.get('last-workspace-location')
     if (mode === 'pick' || !directory) {
-      directory = await promptForGraphDirectory()
+      directory = await promptForWorkspaceDirectory()
       if (!directory) {
         console.warn('User aborted opening node graph')
         return null
@@ -49,7 +49,7 @@ export function registerStorageApi(ipcMain: Electron.IpcMain) {
   ): ReturnType<CatanaAPI['saveWorkspace']> => {
     if (!openedGraphDirectory) {
       console.log('No node graph location opened, asking user to pick')
-      openedGraphDirectory = await promptForGraphDirectory()
+      openedGraphDirectory = await promptForWorkspaceDirectory()
     }
     if (!openedGraphDirectory) {
       console.warn('User aborted saving node graph')
@@ -74,11 +74,11 @@ export function registerStorageApi(ipcMain: Electron.IpcMain) {
   })
 }
 
-export async function promptForGraphDirectory(): Promise<string | null> {
+export async function promptForWorkspaceDirectory(): Promise<string | null> {
   const pickFileResult = await dialog.showOpenDialog({
-    title: 'Open Node Graph',
+    title: 'Select Workspace Folder',
     defaultPath: settings.get('last-workspace-location') ?? undefined,
-    buttonLabel: 'Open Node Graph',
+    buttonLabel: 'Open Folder',
     properties: ['openDirectory'],
   })
   if (pickFileResult.canceled || pickFileResult.filePaths.length === 0) {
