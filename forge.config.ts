@@ -24,10 +24,19 @@ const config: ForgeConfig = {
       setupIcon: 'src/renderer/assets/app-icon/' + icon_base + '.ico',
     }),
     new MakerZIP({}, ['darwin']),
-    new MakerRpm({}),
+    new MakerRpm({
+      options: {
+        icon: 'src/renderer/assets/app-icon/' + icon_base + '.png',
+        categories: ['Office'],
+        homepage: 'https://github.com/roschlau/catana',
+      }
+    }),
     new MakerDeb({
       options: {
-        icon: 'src/renderer/assets/app-icon/' + icon_base + '.ico',
+        icon: 'src/renderer/assets/app-icon/' + icon_base + '.png',
+        section: 'misc',
+        categories: ['Office'],
+        homepage: 'https://github.com/roschlau/catana',
       },
     }),
   ],
