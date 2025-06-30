@@ -194,6 +194,8 @@ export function TextNodeBlock({
       } else {
         dispatch(deleteNodeTree(node.id))
       }
+      // Move focus to the previous node in the current view so that you can delete a bunch of nodes quickly
+      moveFocusBefore?.()
       return
     }
     if (e.key === 'Backspace') {
