@@ -4,6 +4,7 @@ import {
   nodeExpandedChanged,
   nodeIndexChanged,
   nodeLinkRemoved,
+  nodeTreeDeleted,
 } from '@/renderer/redux/nodes/nodesSlice'
 import {KeyboardEvent, MouseEvent, Ref, useCallback, useImperativeHandle, useMemo, useRef, useState} from 'react'
 import classNames from 'classnames'
@@ -206,6 +207,10 @@ export function TextNodeBlock({
       if (selectionStart === 0 && selectionEnd === selectionStart) {
         if (node.checkbox?.type === 'intrinsic') {
           dispatch(checkboxUpdated({ nodeId: node.id, checkbox: undefined }))
+        } else if (node.title === '' && node.content.length === 0) {
+          // More intuitive behavior for empty nodes
+          dispatch(nodeTreeDeleted({ nodeId: node.id }))
+          moveFocusBefore?.()
         } else {
           dispatch(mergeNodeBackward(nodeView))
         }

@@ -95,7 +95,7 @@ export function splitIntoSibling(
 
 /**
  * Merges a node into the node preceding it in the current view. That can either be its parent if it is the first child
- * node, or its preceding sibling node if it isn't.
+ * node, or its preceding sibling node if it isn't. Focus will be moved to the merge node.
  * Nodes can only be merged with siblings or parents when the current view parent is their owner; this function will
  * no-op when attempting to merge a node in any other view.
  */
