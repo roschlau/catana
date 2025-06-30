@@ -1,6 +1,6 @@
 import {NodeView, NodeViewWithParent} from '@/common/node-views'
 import {Id, NodeGraphFlattened, ParentNode, TextNode} from '@/common/nodes'
-import {AppDispatch, RootState} from '@/renderer/redux/store'
+import {AppDispatch, AppState} from '@/renderer/redux/store'
 import {resolveNodeView} from '@/renderer/redux/nodes/helpers'
 import {nodeExpandedChanged, nodeTreeAdded, nodeTreeDeleted} from '@/renderer/redux/nodes/nodesSlice'
 
@@ -10,7 +10,7 @@ export const insertSubtreeAtCurrentNode = (
   rootId: Id<'node'>,
 ) => (
   dispatch: AppDispatch,
-  getState: () => RootState,
+  getState: () => AppState,
 ) => {
   const { node, viewContext } = resolveNodeView(getState().undoable.present.nodes, nodeView)
   let parentNode: ParentNode

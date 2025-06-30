@@ -1,5 +1,5 @@
 import {markWorkspaceClean} from '@/renderer/redux/workspace-persistence'
-import {AppDispatch, RootState} from '@/renderer/redux/store'
+import {AppDispatch, AppState} from '@/renderer/redux/store'
 import {SaveFile} from '@/main/workspace-file-schema'
 import {Node} from '@/common/nodes'
 import {AppCommand} from '@/renderer/commands/app-command'
@@ -14,12 +14,12 @@ export const saveWorkspaceCommand: AppCommand = {
   thunkCreator: () => saveWorkspace,
 }
 
-export async function saveWorkspace(dispatch: AppDispatch, getStore: () => RootState) {
+export async function saveWorkspace(dispatch: AppDispatch, getStore: () => AppState) {
   await window.catanaAPI.saveWorkspace(serialize(getStore()))
   dispatch(markWorkspaceClean())
 }
 
-export function serialize(state: RootState): SaveFile {
+export function serialize(state: AppState): SaveFile {
   const nodes: SaveFile['nodes'] = []
   nodes.push(...Object.values(state.undoable.present.nodes as Record<string, Node>))
   return {

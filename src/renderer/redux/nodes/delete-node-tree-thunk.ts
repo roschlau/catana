@@ -1,11 +1,11 @@
 import {Node} from '@/common/nodes'
-import {AppDispatch, RootState} from '@/renderer/redux/store'
+import {AppDispatch, AppState} from '@/renderer/redux/store'
 import {getNode} from '@/renderer/redux/nodes/helpers'
 import {nodeTreeDeleted} from '@/renderer/redux/nodes/nodesSlice'
 import {nodeOpened} from '@/renderer/redux/ui/uiSlice'
 
 export function deleteNodeTree(nodeId: Node['id']) {
-  return (dispatch: AppDispatch, getState: () => RootState) => {
+  return (dispatch: AppDispatch, getState: () => AppState) => {
     const node = getNode(getState().undoable.present.nodes, nodeId)
     if (!node) return
     dispatch(nodeTreeDeleted({ nodeId }))

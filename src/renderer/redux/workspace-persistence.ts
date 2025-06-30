@@ -1,4 +1,4 @@
-import {RootState, undoableReducers} from '@/renderer/redux/store'
+import {AppState, undoableReducers} from '@/renderer/redux/store'
 import {SaveFile} from '@/main/workspace-file-schema'
 import {Node} from '@/common/nodes'
 import {createAction, PayloadAction, Reducer, UnknownAction} from '@reduxjs/toolkit'
@@ -10,7 +10,7 @@ export const workspaceLoaded = createAction<OpenWorkspaceResult>('root/workspace
  * Creates a reducer that will load a saved workspace and replace the current state with it.
  */
 export const createWorkspaceRootReducer = (reducer: Reducer) => {
-  return (state: RootState | undefined, action: UnknownAction): RootState => {
+  return (state: AppState | undefined, action: UnknownAction): AppState => {
     if (action.type === workspaceLoaded.type) {
       const saveFile = (action as PayloadAction<OpenWorkspaceResult>).payload
       const nodes: SaveFile['nodes'] = saveFile.content.nodes
@@ -72,4 +72,4 @@ export const trackWorkspaceDirtyState = (reducer: Reducer) => {
   }
 }
 
-export const selectWorkspaceDirty = (state: RootState) => state.undoable.present.ui.workspaceDirty
+export const selectWorkspaceDirty = (state: AppState) => state.undoable.present.ui.workspaceDirty

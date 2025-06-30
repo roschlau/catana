@@ -1,4 +1,4 @@
-import {AppDispatch, RootState} from './store'
+import {AppDispatch, AppState} from './store'
 import {UnknownAction} from '@reduxjs/toolkit'
 
 
@@ -14,8 +14,8 @@ let nextTransactionKey = 0
  * as a single unit if no other actions are dispatched in between the actions of the transaction.
  */
 export function createUndoTransaction<ReturnType>(
-  callback: (dispatch: AppDispatch, getState: () => RootState) => ReturnType,
-): (dispatch: AppDispatch, getState: () => RootState) => ReturnType {
+  callback: (dispatch: AppDispatch, getState: () => AppState) => ReturnType,
+): (dispatch: AppDispatch, getState: () => AppState) => ReturnType {
   return (dispatch, getState) => {
     const undoTransactionKey = `undo_group_${nextTransactionKey++}`
 

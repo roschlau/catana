@@ -1,6 +1,6 @@
 import {NodeViewWithParent} from '@/common/node-views'
 import {findBacklinks, getNode, getOptionalNode, getViewContext, resolveNodeView} from './helpers'
-import {RootState} from '@/renderer/redux/store'
+import {AppState} from '@/renderer/redux/store'
 import {Id, Node, ParentNode} from '@/common/nodes'
 
 /**
@@ -8,7 +8,7 @@ import {Id, Node, ParentNode} from '@/common/nodes'
  * finalizing the merge of two nodes.
  */
 export function deleteNodeAfterMerge(
-  state: RootState['undoable']['present']['nodes'],
+  state: AppState['undoable']['present']['nodes'],
   nodeView: NodeViewWithParent<Node>,
   mergedNode: Id<'node'>,
 ) {
@@ -33,7 +33,7 @@ export function deleteNodeAfterMerge(
  * don't appear in the `content` list of their owner node will not be deleted correctly.
  */
 export function deleteNodeTree(
-  state: RootState['undoable']['present']['nodes'],
+  state: AppState['undoable']['present']['nodes'],
   root: Node['id'],
 ) {
   const node = getNode(state, root)
@@ -61,7 +61,7 @@ export function deleteNodeTree(
  * changed as necessary, but no second link will be created in the new parent.
  */
 export function moveNode(
-  state: RootState['undoable']['present']['nodes'],
+  state: AppState['undoable']['present']['nodes'],
   nodeId: Node['id'],
   oldParentId: ParentNode['id'],
   newParentId: ParentNode['id'],
@@ -82,7 +82,7 @@ export function moveNode(
 }
 
 export function addChildReference(
-  state: RootState['undoable']['present']['nodes'],
+  state: AppState['undoable']['present']['nodes'],
   childId: Node['id'],
   parentId: ParentNode['id'],
   atIndex: number,
@@ -97,7 +97,7 @@ export function addChildReference(
 }
 
 export function removeChildReference(
-  state: RootState['undoable']['present']['nodes'],
+  state: AppState['undoable']['present']['nodes'],
   childId: Node['id'],
   parentId: ParentNode['id'],
 ) {

@@ -43,6 +43,6 @@ export const store = configureStore({
   reducer: rootReducer,
 })
 
-export type RootState = ReturnType<typeof workspaceState>
+export type AppState = ReturnType<typeof workspaceState>
 export type AppDispatch = typeof store.dispatch
 export type AppStore = typeof store

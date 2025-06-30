@@ -1,5 +1,5 @@
 import {createSelector} from '@reduxjs/toolkit'
-import {RootState} from '@/renderer/redux/store'
+import {AppState} from '@/renderer/redux/store'
 import {getNode} from '@/renderer/redux/nodes/helpers'
 import {Node, ParentNode} from '@/common/nodes'
 
@@ -22,8 +22,8 @@ import {Node, ParentNode} from '@/common/nodes'
  *
  */
 export const selectAncestry = createSelector([
-  (_: RootState, node: Node) => node,
-  (state: RootState) => state.undoable.present.nodes,
+  (_: AppState, node: Node) => node,
+  (state: AppState) => state.undoable.present.nodes,
 ], (node, nodes) => {
   const path = [] as ParentNode[]
   let next: ParentNode['id'] | null = node.ownerId

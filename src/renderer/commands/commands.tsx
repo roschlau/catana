@@ -1,5 +1,5 @@
 import {FileQuestion, FullscreenIcon} from 'lucide-react'
-import {AppDispatch, RootState} from '@/renderer/redux/store'
+import {AppDispatch, AppState} from '@/renderer/redux/store'
 import {nodeOpened} from '@/renderer/redux/ui/uiSlice'
 import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
 import {flatten} from '@/common/node-tree'
@@ -20,7 +20,7 @@ export const commands: AppCommand[] = [
     icon: <FullscreenIcon/>,
     shortcut: 'Alt →',
     canActivate: (context) => !!context.focus?.nodeView?.parent,
-    thunkCreator: (context: CommandContext) => (dispatch: AppDispatch, _getState: () => RootState) => {
+    thunkCreator: (context: CommandContext) => (dispatch: AppDispatch, _getState: () => AppState) => {
       if (!context.focus) {
         console.warn('Zoom command triggered without node in context')
         return

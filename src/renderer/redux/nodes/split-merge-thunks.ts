@@ -1,14 +1,14 @@
 import {NodeView, NodeViewWithParent} from '@/common/node-views'
 import {Id, Node, TextNode} from '@/common/nodes'
 import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
-import {AppDispatch, RootState} from '@/renderer/redux/store'
+import {AppDispatch, AppState} from '@/renderer/redux/store'
 import {getNode, NodeWithContext, resolveNodeView} from '@/renderer/redux/nodes/helpers'
 import {nodeCreated, nodeExpandedChanged, nodesMerged, titleUpdated} from '@/renderer/redux/nodes/nodesSlice'
 import {nanoid} from '@reduxjs/toolkit'
 import {focusRestoreRequested} from '@/renderer/redux/ui/uiSlice'
 
 export function splitNode(nodeView: NodeView<TextNode>, selectionStart: number, selectionEnd: number) {
-  return createUndoTransaction((dispatch: AppDispatch, getState: () => RootState) => {
+  return createUndoTransaction((dispatch: AppDispatch, getState: () => AppState) => {
     const { node, viewContext } = resolveNodeView(getState().undoable.present.nodes, nodeView)
     if (node.type !== 'node') {
       console.debug(`Split canceled: Can't split non-node node ${node.id}`)
@@ -100,7 +100,7 @@ export function splitIntoSibling(
  * no-op when attempting to merge a node in any other view.
  */
 export function mergeNodeBackward(nodeView: NodeViewWithParent<TextNode>) {
-  return (dispatch: AppDispatch, getState: () => RootState) => {
+  return (dispatch: AppDispatch, getState: () => AppState) => {
     const state = getState().undoable.present.nodes
     const { node, viewContext } = resolveNodeView(state, nodeView)
     if (node.ownerId !== viewContext?.parent.id) {
@@ -136,7 +136,7 @@ export function mergeNodeBackward(nodeView: NodeViewWithParent<TextNode>) {
  * This function will also no-op if `nodeView` has no parent and the node has no children to merge with.
  */
 export function mergeNodeForward(nodeView: NodeView<TextNode>) {
-  return (dispatch: AppDispatch, getState: () => RootState) => {
+  return (dispatch: AppDispatch, getState: () => AppState) => {
     const state = getState().undoable.present.nodes
     const { node, viewContext } = resolveNodeView(state, nodeView)
     if (node.type !== 'node') {

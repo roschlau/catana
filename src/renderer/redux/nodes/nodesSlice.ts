@@ -5,7 +5,7 @@ import {addChildReference, deleteNodeAfterMerge, deleteNodeTree, moveNode, remov
 import {CheckboxConfig} from '@/common/checkboxes'
 import {Id, Node, NodeGraphFlattened, ParentNode, TextNode} from '@/common/nodes'
 import {NodeViewWithParent} from '@/common/node-views'
-import {RootState} from '@/renderer/redux/store'
+import {AppState} from '@/renderer/redux/store'
 
 export const nodesSlice = createSlice({
   name: 'nodes',
@@ -124,8 +124,8 @@ export const nodesSlice = createSlice({
 })
 
 export const selectNodes = createSelector([
-  (state: RootState) => state.undoable.present.nodes,
-  (_: RootState, query: string) => query,
+  (state: AppState) => state.undoable.present.nodes,
+  (_: AppState, query: string) => query,
 ], (nodes, query) => {
   return Object.values(nodes)
     .filter((node): node is TextNode => node?.type === 'node' && node.title.toLowerCase().includes(query.toLowerCase()))

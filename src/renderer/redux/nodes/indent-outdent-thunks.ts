@@ -1,7 +1,7 @@
 import {NodeViewWithParent, ParentNodeView} from '@/common/node-views'
 import {isParentNode, Node} from '@/common/nodes'
 import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
-import {AppDispatch, RootState} from '@/renderer/redux/store'
+import {AppDispatch, AppState} from '@/renderer/redux/store'
 import {resolveNodeView} from '@/renderer/redux/nodes/helpers'
 import {nodeExpandedChanged, nodeMoved} from '@/renderer/redux/nodes/nodesSlice'
 import {focusRestoreRequested} from '@/renderer/redux/ui/uiSlice'
@@ -12,7 +12,7 @@ export function indentNode(
   intoNewParentRef: NodeViewWithParent<Node>,
   currentSelection: Selection,
 ) {
-  return createUndoTransaction((dispatch: AppDispatch, getState: () => RootState) => {
+  return createUndoTransaction((dispatch: AppDispatch, getState: () => AppState) => {
     const {
       node: newParent,
       viewContext: newParentContext,
