@@ -14,14 +14,14 @@ import {Label} from '@/renderer/components/ui/label'
 import {saveWorkspace} from '@/renderer/persistence/save-workspace'
 import {CommandPrompt} from '@/renderer/commands/command-prompt'
 import {CommandShortcut} from '@/renderer/components/ui/command'
-import {SaveOnExitDialog} from '@/renderer/persistence/save-on-exit-dialog'
+import {SaveWorkspacePrompt} from '@/renderer/persistence/save-workspace-prompt'
 import {OpenWorkspaceOnStartup} from '@/renderer/persistence/open-workspace'
 
 const root = createRoot(document.body)
 root.render(
   <ReduxProvider store={store}>
     <OpenWorkspaceOnStartup/>
-    <SaveOnExitDialog/>
+    <SaveWorkspacePrompt/>
     <ThemeProvider attribute={'class'}>
       <App/>
     </ThemeProvider>

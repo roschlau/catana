@@ -1,4 +1,4 @@
-import {AppState, undoableReducers} from '@/renderer/redux/store'
+import {AppState, UndoableState} from '@/renderer/redux/store'
 import {SaveFile} from '@/main/workspace-file-schema'
 import {Node} from '@/common/nodes'
 import {createAction, PayloadAction, Reducer, UnknownAction} from '@reduxjs/toolkit'
@@ -21,13 +21,13 @@ export const createWorkspaceRootReducer = (reducer: Reducer) => {
 
       return {
         ui: {
-          workspacePath: saveFile.path,
           debugMode: saveFile.content.debugMode ?? false,
         },
         undoable: {
           past: [],
           present: {
             ui: {
+              workspacePath: saveFile.path,
               openedNode: saveFile.content.openedNode,
               backStack: [],
               forwardStack: [],
@@ -48,8 +48,8 @@ export const markWorkspaceClean = createAction('root/markWorkspaceClean')
 export const trackWorkspaceDirtyState = (reducer: Reducer) => {
   // TODO I feel like this reducer could probably be implemented more elegantly. It mostly bugs me that `workspaceDirty`
   //  lives in the nested ui state, rather than being its own top-level (relative to this reducer) field.
-  return (state: ReturnType<typeof undoableReducers> | undefined, action: UnknownAction): ReturnType<typeof undoableReducers> => {
-    const newState = reducer(state, action)
+  return (state: UndoableState | undefined, action: UnknownAction): UndoableState => {
+    const newState = reducer(state, action) as UndoableState
     if (action.type === markWorkspaceClean.type) {
       return {
         ...newState,
@@ -59,7 +59,7 @@ export const trackWorkspaceDirtyState = (reducer: Reducer) => {
         },
       }
     }
-    if (newState === state) {
+    if (newState.ui.workspaceDirty || !newState.ui.workspacePath || newState === state) {
       return newState
     }
     return {
