@@ -16,6 +16,7 @@ export const nodesSlice = createSlice({
       title: string,
       ownerId: ParentNode['id'],
       indexInOwner: number
+      checkbox?: CheckboxConfig,
     }>) => {
       const nodeData = action.payload
       const now = new Date().getTime()
@@ -24,6 +25,7 @@ export const nodesSlice = createSlice({
         type: 'node',
         title: action.payload.title,
         ownerId: action.payload.ownerId,
+        checkbox: action.payload.checkbox,
         content: [],
         history: {
           createdTime: now,

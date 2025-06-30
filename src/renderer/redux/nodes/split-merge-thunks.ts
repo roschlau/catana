@@ -45,10 +45,13 @@ export function splitNode(nodeView: NodeView<TextNode>, selectionStart: number, 
       }))
     } else {
       // Split into sibling
+      // If the split node has a checkbox, new one should also have one, but unchecked
+      const checkbox = node.checkbox ? { ...node.checkbox, state: 'unchecked' as const } : undefined
       dispatch(nodeCreated({
         ...newNodeBase,
         ownerId: viewContext.parentView.nodeId,
         indexInOwner: viewContext.childIndex + 1,
+        checkbox,
       }))
       dispatch(focusRestoreRequested({
         nodeView: { nodeId: newNodeId, parent: viewContext.parentView },
