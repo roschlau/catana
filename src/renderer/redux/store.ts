@@ -11,6 +11,8 @@ export const undoableReducers = combineReducers({
   ui: undoableUiSlice.reducer,
 })
 
+export type UndoableState = ReturnType<typeof undoableReducers>
+
 const undoableRootReducer = undoable(
   trackWorkspaceDirtyState(
     undoableReducers,

@@ -8,20 +8,21 @@ import {ROOT_NODE} from '@/common/demoGraph'
 import {Id, Node, TextNode} from '@/common/nodes'
 
 export interface UndoableUiState {
+  workspacePath: string | null
   openedNode: Id<'node'> | null
   backStack: Id<'node'>[]
   forwardStack: Id<'node'>[]
-  workspaceDirty: false,
+  workspaceDirty: boolean,
 }
 
 export interface EphemeralUiState {
-  workspacePath: string | null
   debugMode: boolean
   commandFocus?: {
     nodeView: NodeView<TextNode>
     selection: Selection,
   }
   focusRestoreRequest?: FocusRestoreRequest
+  saveWorkspacePromptShown?: boolean
 }
 
 /**
@@ -30,6 +31,7 @@ export interface EphemeralUiState {
 export const undoableUiSlice = createSlice({
   name: 'ui',
   initialState: {
+    workspacePath: null,
     openedNode: ROOT_NODE,
     backStack: [],
     forwardStack: [],
@@ -73,7 +75,6 @@ interface FocusRestoreRequest {
 export const ephemeralUiSlice = createSlice({
   name: 'ui',
   initialState: {
-    workspacePath: null,
     debugMode: true,
   } satisfies EphemeralUiState as EphemeralUiState,
   reducers: {
@@ -99,15 +100,29 @@ export const ephemeralUiSlice = createSlice({
     setCommandFocus: (state, action: PayloadAction<EphemeralUiState['commandFocus']>) => {
       state.commandFocus = action.payload
     },
+    saveWorkspacePromptShown: (state, action: PayloadAction<boolean>) => {
+      state.saveWorkspacePromptShown = action.payload
+    },
   },
 })
 
-export const { nodeOpened, navigatedBack, navigatedForward } = undoableUiSlice.actions
-export const { focusRestoreRequested, focusRestored, debugModeSet, setCommandFocus } = ephemeralUiSlice.actions
+export const {
+  nodeOpened,
+  navigatedBack,
+  navigatedForward,
+} = undoableUiSlice.actions
+export const {
+  focusRestoreRequested,
+  focusRestored,
+  debugModeSet,
+  setCommandFocus,
+  saveWorkspacePromptShown,
+} = ephemeralUiSlice.actions
 
 export const selectPreparedFocusRestore = (state: { ui: EphemeralUiState }) => state.ui.focusRestoreRequest
 export const selectDebugMode = (state: { ui: EphemeralUiState }) => state.ui.debugMode
 export const selectCommandFocus = (state: { ui: EphemeralUiState }) => state.ui.commandFocus
+export const selectSaveWorkspacePromptShown = (state: { ui: EphemeralUiState }) => state.ui.saveWorkspacePromptShown
 
 /**
  * Calls `focus` as an effect if a focus restore has been requested for the passed nodeView.
