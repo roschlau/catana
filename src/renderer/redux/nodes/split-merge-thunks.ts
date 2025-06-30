@@ -2,7 +2,7 @@ import {NodeView, NodeViewWithParent} from '@/common/node-views'
 import {Id, Node, TextNode} from '@/common/nodes'
 import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
 import {AppDispatch, RootState} from '@/renderer/redux/store'
-import {getNode, resolveNodeView} from '@/renderer/redux/nodes/helpers'
+import {getNode, NodeWithContext, resolveNodeView} from '@/renderer/redux/nodes/helpers'
 import {nodeCreated, nodeExpandedChanged, nodesMerged, titleUpdated} from '@/renderer/redux/nodes/nodesSlice'
 import {nanoid} from '@reduxjs/toolkit'
 import {focusRestoreRequested} from '@/renderer/redux/ui/uiSlice'
@@ -19,6 +19,12 @@ export function splitNode(nodeView: NodeView<TextNode>, selectionStart: number, 
         nodeId: node.id,
         title: node.title.slice(0, selectionStart) + node.title.slice(selectionEnd),
       }))
+    }
+    if (selectionStart === 0 && node.title !== '' && viewContext) {
+      // Enter at the start of a non-empty node should create an empty node above and focus that,
+      //  instead of the regular splitting behavior
+      splitIntoSibling(dispatch, node, viewContext, selectionStart, 'before')
+      return
     }
     const splitIndex = selectionStart
     const newNodeId = nanoid() as Id<'node'>
@@ -44,22 +50,47 @@ export function splitNode(nodeView: NodeView<TextNode>, selectionStart: number, 
         selection: { start: 0 },
       }))
     } else {
-      // Split into sibling
-      // If the split node has a checkbox, new one should also have one, but unchecked
-      const checkbox = node.checkbox ? { ...node.checkbox, state: 'unchecked' as const } : undefined
-      dispatch(nodeCreated({
-        ...newNodeBase,
-        ownerId: viewContext.parentView.nodeId,
-        indexInOwner: viewContext.childIndex + 1,
-        checkbox,
-      }))
-      dispatch(focusRestoreRequested({
-        nodeView: { nodeId: newNodeId, parent: viewContext.parentView },
-        selection: { start: 0 },
-      }))
+      splitIntoSibling(dispatch, node, viewContext, splitIndex)
     }
     dispatch(titleUpdated({ nodeId: node.id, title: node.title.slice(0, splitIndex) }))
   })
+}
+
+/**
+ * Splits the given node at the given position by creating a new sibling node in the given viewContext, and focuses the
+ * newly created node.
+ * By default, the new node will be placed after the node and contain the part of the title after the split point.
+ * Passing 'before' as the `newNodePosition` will place the new node before the node and make it contain the part of the
+ * title before the split point.
+ * Regardless of order, the newly created node will be focused.
+ */
+export function splitIntoSibling(
+  dispatch: AppDispatch,
+  node: TextNode,
+  viewContext: NonNullable<NodeWithContext<Node>['viewContext']>,
+  splitAt: number,
+  newNodePosition: 'before' | 'after' = 'after',
+) {
+  const title1 = node.title.slice(0, splitAt)
+  const title2 = node.title.slice(splitAt)
+  dispatch(titleUpdated({
+    nodeId: node.id,
+    title: newNodePosition === 'before' ? title2 : title1,
+  }))
+  const newNodeId = nanoid() as Id<'node'>
+  // If the split node has a checkbox, the new node should also have one, but unchecked
+  const checkbox = node.checkbox ? { ...node.checkbox, state: 'unchecked' as const } : undefined
+  dispatch(nodeCreated({
+    nodeId: newNodeId,
+    title: newNodePosition === 'before' ? title1 : title2,
+    ownerId: viewContext.parentView.nodeId,
+    indexInOwner: newNodePosition === 'before' ? viewContext.childIndex : viewContext.childIndex + 1,
+    checkbox,
+  }))
+  dispatch(focusRestoreRequested({
+    nodeView: { nodeId: newNodeId, parent: viewContext.parentView },
+    selection: { start: 0 },
+  }))
 }
 
 /**
