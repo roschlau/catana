@@ -17,7 +17,8 @@ Catana aspires to be _the_ central hub for your personal, digital life, without 
 - A management tool for your personal tasks and projects
 - A file manager (possibly. Let's see if we get there)
 
-Catana is not, and will likely never be:
+Catana is not:
+- A markdown-first or plain-text-first tool. Catana has its own open, but custom file format. You can read more on why [below](#why-not-use-obsidian-or-logseq). That being said, I do plan to add seamless file system integration in the future so that you can reuse existing Obsidian Vaults or Logseq Graphs with some caveats.
 - A collaboration tool. I want this to work for me and my personal life. Adding any kind of collaboration functionality would be a cross-cutting concern that massively complicates every aspect of how Catana works and needs to be developed. You might find ways to make it work well enough for you, but it's not going to be a primary concern for the foreseeable future.
 
 ## Why not use [Obsidian](https://obsidian.md) or [Logseq](https://logseq.com)?
