@@ -34,27 +34,27 @@ function App() {
   const [commandPromptOpen, setCommandPromptOpen] = useState(false)
 
   const globalKeydown = useCallback(async (e: KeyboardEvent) => {
-    if (e.ctrlKey && e.key === 'z') {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
       dispatch(ActionCreators.undo())
       e.preventDefault()
       return
     }
-    if (e.ctrlKey && e.key === 'Z') {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Z') {
       dispatch(ActionCreators.redo())
       e.preventDefault()
       return
     }
-    if (e.key === 'k' && e.ctrlKey) {
+    if (e.key === 'k' && (e.ctrlKey || e.metaKey)) {
       setCommandPromptOpen(!commandPromptOpen)
       e.preventDefault()
       return
     }
-    if (e.key === 's' && e.ctrlKey) {
+    if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
       await dispatch(saveWorkspace)
       e.preventDefault()
       return
     }
-    if (e.key === 'ArrowRight' && e.altKey && e.ctrlKey) {
+    if (e.key === 'ArrowRight' && e.altKey && (e.ctrlKey || e.metaKey)) {
       dispatch(navigatedForward())
       e.preventDefault()
       return

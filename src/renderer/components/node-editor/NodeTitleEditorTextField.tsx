@@ -48,12 +48,12 @@ export function NodeTitleEditorTextField({
   }
 
   const _keyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (['z', 'Z'].includes(e.key) && e.ctrlKey) {
+    if (['z', 'Z'].includes(e.key) && (e.ctrlKey || e.metaKey)) {
       // Undo/Redo is handled globally, so prevent the browser's default behavior from interfering
       e.preventDefault()
       return
     }
-    if (e.key === 'Enter' && e.ctrlKey) {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault()
       const newState = cycleCheckboxState(node.checkbox?.state)
       if (newState !== undefined) {
@@ -63,7 +63,7 @@ export function NodeTitleEditorTextField({
       }
       return
     }
-    if (e.key === 'k' && e.ctrlKey) {
+    if (e.key === 'k' && (e.ctrlKey || e.metaKey)) {
       // User triggered the command prompt while focused on this node, so set this node as the command focus
       dispatch(setCommandFocus({
         nodeView,

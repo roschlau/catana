@@ -1,12 +1,12 @@
 import type {ForgeConfig} from '@electron-forge/shared-types'
 import {MakerSquirrel} from '@electron-forge/maker-squirrel'
-import {MakerZIP} from '@electron-forge/maker-zip'
 import {MakerDeb} from '@electron-forge/maker-deb'
 import {MakerRpm} from '@electron-forge/maker-rpm'
 import {VitePlugin} from '@electron-forge/plugin-vite'
 import {FusesPlugin} from '@electron-forge/plugin-fuses'
 import {FuseV1Options, FuseVersion} from '@electron/fuses'
 import {PublisherGithub} from '@electron-forge/publisher-github'
+import {MakerDMG} from "@electron-forge/maker-dmg";
 
 const icon_base = process.env.CATANA_ENV === 'dev' ? 'dev_catana' : 'catana'
 console.log('Environment: ', process.env.ENVIRONMENT, icon_base)
@@ -23,7 +23,9 @@ const config: ForgeConfig = {
       iconUrl: 'https://roschlau.me/img/catana.ico',
       setupIcon: 'src/renderer/assets/app-icon/' + icon_base + '.ico',
     }),
-    new MakerZIP({}, ['darwin']),
+    new MakerDMG({
+      icon: 'src/renderer/assets/app-icon/' + icon_base + '.icns',
+    }),
     new MakerRpm({
       options: {
         icon: 'src/renderer/assets/app-icon/' + icon_base + '.png',

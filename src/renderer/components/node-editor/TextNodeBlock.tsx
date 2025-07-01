@@ -82,7 +82,7 @@ export function TextNodeBlock({
     dispatch(nodeOpened({ nodeId: node.id }))
   }
   const bulletClicked = (e: MouseEvent) => {
-    if (e.ctrlKey) {
+    if ((e.ctrlKey || e.metaKey)) {
       zoomIn()
     } else {
       setExpanded(!isExpanded)
@@ -115,12 +115,12 @@ export function TextNodeBlock({
     const textarea = e.currentTarget
     const { selectionStart, selectionEnd } = e.currentTarget
     const selection: Selection = { start: selectionStart, end: selectionEnd  }
-    if (e.key === 'ArrowUp' && e.ctrlKey) {
+    if (e.key === 'ArrowUp' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault()
       setExpanded(false)
       return
     }
-    if (e.key === 'ArrowDown' && e.ctrlKey) {
+    if (e.key === 'ArrowDown' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault()
       setExpanded(true)
       return
@@ -188,7 +188,7 @@ export function TextNodeBlock({
       }
       return
     }
-    if (e.key === 'Backspace' && e.ctrlKey && e.shiftKey) {
+    if (e.key === 'Backspace' && (e.ctrlKey || e.metaKey) && e.shiftKey) {
       e.preventDefault()
       if (isLink) {
         dispatch(nodeLinkRemoved({ nodeView }))
