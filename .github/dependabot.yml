@@ -1,0 +1,21 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+      time: "02:00"
+    groups:
+      electron:
+        applies-to: version-updates
+        patterns:
+          - "@electron*"
+          - "electron*"
+      radix-ui:
+        applies-to: version-updates
+        patterns:
+          - "@radix-ui*"
+      tailwind:
+        applies-to: version-updates
+        patterns:
+          - "tailwind*"
