@@ -24,6 +24,7 @@ import {twMerge} from 'tailwind-merge'
 import {Node, TextNode} from '@/common/nodes'
 import {mergeNodeBackward, mergeNodeForward, splitNode} from '@/renderer/redux/nodes/split-merge-thunks'
 import {deleteNodeTree} from '@/renderer/redux/nodes/delete-node-tree-thunk'
+import {modKey} from '@/renderer/util/keyboard'
 
 export interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void
@@ -82,7 +83,7 @@ export function TextNodeBlock({
     dispatch(nodeOpened({ nodeId: node.id }))
   }
   const bulletClicked = (e: MouseEvent) => {
-    if ((e.ctrlKey || e.metaKey)) {
+    if (modKey(e)) {
       zoomIn()
     } else {
       setExpanded(!isExpanded)
@@ -115,12 +116,12 @@ export function TextNodeBlock({
     const textarea = e.currentTarget
     const { selectionStart, selectionEnd } = e.currentTarget
     const selection: Selection = { start: selectionStart, end: selectionEnd  }
-    if (e.key === 'ArrowUp' && (e.ctrlKey || e.metaKey)) {
+    if (e.key === 'ArrowUp' && modKey(e)) {
       e.preventDefault()
       setExpanded(false)
       return
     }
-    if (e.key === 'ArrowDown' && (e.ctrlKey || e.metaKey)) {
+    if (e.key === 'ArrowDown' && modKey(e)) {
       e.preventDefault()
       setExpanded(true)
       return
@@ -188,7 +189,7 @@ export function TextNodeBlock({
       }
       return
     }
-    if (e.key === 'Backspace' && (e.ctrlKey || e.metaKey) && e.shiftKey) {
+    if (e.key === 'Backspace' && modKey(e) && e.shiftKey) {
       e.preventDefault()
       if (isLink) {
         dispatch(nodeLinkRemoved({ nodeView }))

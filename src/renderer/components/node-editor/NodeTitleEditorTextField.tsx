@@ -11,6 +11,7 @@ import {TextNode} from '@/common/nodes'
 import {NodeView} from '@/common/node-views'
 import {setCommandFocus} from '@/renderer/redux/ui/uiSlice'
 import {getNode} from '@/renderer/redux/nodes/helpers'
+import {modKey} from '@/renderer/util/keyboard'
 
 export interface NodeTitleEditorTextFieldRef {
   focus: (selection?: Selection) => void
@@ -48,12 +49,12 @@ export function NodeTitleEditorTextField({
   }
 
   const _keyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (['z', 'Z'].includes(e.key) && (e.ctrlKey || e.metaKey)) {
+    if (['z', 'Z'].includes(e.key) && modKey(e)) {
       // Undo/Redo is handled globally, so prevent the browser's default behavior from interfering
       e.preventDefault()
       return
     }
-    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    if (e.key === 'Enter' && modKey(e)) {
       e.preventDefault()
       const newState = cycleCheckboxState(node.checkbox?.state)
       if (newState !== undefined) {
@@ -63,7 +64,7 @@ export function NodeTitleEditorTextField({
       }
       return
     }
-    if (e.key === 'k' && (e.ctrlKey || e.metaKey)) {
+    if (e.key === 'k' && modKey(e)) {
       // User triggered the command prompt while focused on this node, so set this node as the command focus
       dispatch(setCommandFocus({
         nodeView,

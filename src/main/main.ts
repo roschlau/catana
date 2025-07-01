@@ -6,6 +6,7 @@ import fs from 'node:fs'
 import {loadTanaExport} from './tanaImport'
 import {CatanaAPI} from '@/preload/catana-api'
 import {registerStorageApi} from '@/main/storage-api'
+import * as os from 'node:os'
 
 export const environment = MAIN_WINDOW_VITE_DEV_SERVER_URL ? 'dev' : 'prod'
 
@@ -60,11 +61,12 @@ async function createWindow() {
   })
   mainWindow.maximize()
 
+  const platform = os.platform()
   // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    await mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL)
+    await mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL + `?os=${platform}`)
   } else {
-    await mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`))
+    await mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html?os=${platform}`))
   }
 
   registerStorageApi(ipcMain)

@@ -16,6 +16,7 @@ import {CommandPrompt} from '@/renderer/commands/command-prompt'
 import {CommandShortcut} from '@/renderer/components/ui/command'
 import {SaveWorkspacePrompt} from '@/renderer/persistence/save-workspace-prompt'
 import {OpenWorkspaceOnStartup} from '@/renderer/persistence/open-workspace'
+import {modKey} from '@/renderer/util/keyboard'
 
 const root = createRoot(document.body)
 root.render(
@@ -34,27 +35,27 @@ function App() {
   const [commandPromptOpen, setCommandPromptOpen] = useState(false)
 
   const globalKeydown = useCallback(async (e: KeyboardEvent) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+    if (e.key === 'z' && modKey(e)) {
       dispatch(ActionCreators.undo())
       e.preventDefault()
       return
     }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Z') {
+    if (e.key === 'Z' && modKey(e)) {
       dispatch(ActionCreators.redo())
       e.preventDefault()
       return
     }
-    if (e.key === 'k' && (e.ctrlKey || e.metaKey)) {
+    if (e.key === 'k' && modKey(e)) {
       setCommandPromptOpen(!commandPromptOpen)
       e.preventDefault()
       return
     }
-    if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
+    if (e.key === 's' && modKey(e)) {
       await dispatch(saveWorkspace)
       e.preventDefault()
       return
     }
-    if (e.key === 'ArrowRight' && e.altKey && (e.ctrlKey || e.metaKey)) {
+    if (e.key === 'ArrowRight' && e.altKey && modKey(e)) {
       dispatch(navigatedForward())
       e.preventDefault()
       return
