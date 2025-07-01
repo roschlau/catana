@@ -1,7 +1,7 @@
 {
   "name": "catana",
   "productName": "Catana",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Privacy-first hub for your digital life.",
   "main": ".vite/build/main.js",
   "scripts": {
