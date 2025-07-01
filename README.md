@@ -48,6 +48,10 @@ If you want to test Catana in its current state, here are some things to keep in
   - There is currently no auto-save. Catana only saves when you explicitly request it via Ctrl+S. If something seems entirely messed up, you can close the window and chose "Discard and Close" when asked if you want to save, and you'll be back to the last time you saved.
   - If you have git installed, Catana will automatically initialize a git repo in any workspace that you open, and add a commit whenever you save. This way you can access any previously saved state easily in case the `.catana` file becomes corrupted or stuff got accidentally deleted.
 
+### Installing on macOS
+macOS by default doesn't trust DMG files downloaded from the internet. After installing, if you get a message that Catana is damaged and should be moved to the trash, instead locate the app in your Applications folder, and run the following command on it:
+`xattr -c Catana.app`. Afterwards, the app should start up normally.
+
 ## Roadmap
 Here's a non-exhaustive list of the bigger things I have planned for the future, in no particular order:
 - [ ] Supertags and Node Properties
