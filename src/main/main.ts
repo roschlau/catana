@@ -7,6 +7,7 @@ import {loadTanaExport} from './tanaImport'
 import {CatanaAPI} from '@/preload/catana-api'
 import {registerStorageApi} from '@/main/storage-api'
 import * as os from 'node:os'
+import {applyWindowPosition, getLastWindowPosition, startStoringWindowPosition} from '@/main/window-management'
 
 export const environment = MAIN_WINDOW_VITE_DEV_SERVER_URL ? 'dev' : 'prod'
 
@@ -50,16 +51,19 @@ async function createWindow() {
       },
     })
   })
-  // Create the browser window.
+
+  const lastWindowPosition = getLastWindowPosition()
   const mainWindow = new BrowserWindow({
-    width: 1800,
-    height: 1000,
+    title: 'Catana',
     icon: `src/renderer/assets/app-icon/${environment === 'dev' ? 'dev_' : ''}catana.png`,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
   })
-  mainWindow.maximize()
+  if (lastWindowPosition) {
+    applyWindowPosition(mainWindow, lastWindowPosition)
+  }
+  startStoringWindowPosition(mainWindow)
 
   const platform = os.platform()
   // and load the index.html of the app.

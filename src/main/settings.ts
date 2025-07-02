@@ -11,6 +11,7 @@ function getSettingsPath(): string {
 
 export type SettingsKey =
   | 'last-workspace-location'
+  | 'last-window-position'
 
 export const settings = {
   get(key: SettingsKey): string | null {
