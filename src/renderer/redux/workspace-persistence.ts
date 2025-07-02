@@ -1,5 +1,5 @@
 import {AppState, UndoableState} from '@/renderer/redux/store'
-import {SaveFile} from '@/main/workspace-file-schema'
+import {SaveFile} from '@/main/persistence/schema/workspace-file-schema'
 import {Node} from '@/common/nodes'
 import {createAction, PayloadAction, Reducer, UnknownAction} from '@reduxjs/toolkit'
 import {OpenWorkspaceResult} from '@/preload/catana-api'

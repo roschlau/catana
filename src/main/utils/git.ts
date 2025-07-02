@@ -1,7 +1,7 @@
 import {spawn} from 'node:child_process'
 import path from 'node:path'
 import fs from 'node:fs/promises'
-import {workspaceFileName} from '../storage-api'
+import {workspaceFileName} from '../persistence/storage-api'
 
 let gitStatus: null | 'initialized' | 'could-not-initialize' = null
 

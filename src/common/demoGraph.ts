@@ -82,7 +82,7 @@ export const demoGraph: Exclude<NodeTree, NodeLink> = {
       type: 'node',
       checkbox: {
         type: 'intrinsic',
-        state: 'unchecked',
+        state: false,
       },
       content: [
         {

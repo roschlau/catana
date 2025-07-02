@@ -5,7 +5,7 @@ import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
 import {Selection} from '@/renderer/util/selection'
 import {Checkbox} from '@/renderer/components/ui/checkbox'
 import classNames from 'classnames'
-import {cycleCheckboxState} from '@/common/checkboxes'
+import {CheckboxState, cycleCheckboxState} from '@/common/checkboxes'
 import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
 import {TextNode} from '@/common/nodes'
 import {NodeView} from '@/common/node-views'
@@ -40,11 +40,13 @@ export function NodeTitleEditorTextField({
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
   const node = useAppSelector(state => getNode(state.undoable.present.nodes, nodeView.nodeId))
 
-  const checkboxChecked = node.checkbox ? node.checkbox.state === 'checked' : undefined
-  const setChecked = (checked: boolean) => {
+  const checkboxChecked = node.checkbox
+    ? node.checkbox.state === 'indeterminate' ? 'indeterminate' : node.checkbox.state
+    : undefined
+  const setCheckbox = (state: CheckboxState | null) => {
     dispatch(checkboxUpdated({
       nodeId: node.id,
-      checkbox: { type: 'intrinsic', state: checked ? 'checked' : 'unchecked' },
+      state: state,
     }))
   }
 
@@ -57,11 +59,7 @@ export function NodeTitleEditorTextField({
     if (e.key === 'Enter' && modKey(e)) {
       e.preventDefault()
       const newState = cycleCheckboxState(node.checkbox?.state)
-      if (newState !== undefined) {
-        setChecked(newState === 'checked')
-      } else {
-        dispatch(checkboxUpdated({ nodeId: node.id, checkbox: undefined }))
-      }
+      setCheckbox(newState)
       return
     }
     if (e.key === 'k' && modKey(e)) {
@@ -83,7 +81,7 @@ export function NodeTitleEditorTextField({
       dispatch(createUndoTransaction((dispatch) => {
         dispatch(checkboxUpdated({
           nodeId: node.id,
-          checkbox: { type: 'intrinsic', state: 'unchecked' },
+          state: false,
         }))
         dispatch(titleUpdated({ nodeId: node.id, title: node.title.slice(2) }))
       }))
@@ -103,7 +101,7 @@ export function NodeTitleEditorTextField({
         <Checkbox
           className={'translate-y-0.5'}
           checked={checkboxChecked}
-          onCheckedChange={setChecked}
+          onCheckedChange={setCheckbox}
         />
       )}
       <TextareaAutosize

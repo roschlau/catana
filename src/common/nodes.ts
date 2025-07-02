@@ -1,4 +1,4 @@
-import {CheckboxConfig} from '@/common/checkboxes'
+import {CheckboxConfig, CheckboxState} from '@/common/checkboxes'
 import {Brand} from '@ark/util/'
 
 export type Node =
@@ -41,10 +41,13 @@ export interface Field {
   history: NodeHistory
 }
 
-type NodeHistory = {
+export type NodeHistory = {
   createdTime: number,
   lastModifiedTime: number,
+  checkbox?: CheckboxHistoryEntry[]
 }
+
+export type CheckboxHistoryEntry = [number, CheckboxState | null]
 
 export type NodeOfType<T extends Node['type']> = Node & { type: T }
 

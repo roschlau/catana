@@ -5,7 +5,7 @@ import installExtension, {REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS} from 'electron-
 import fs from 'node:fs'
 import {loadTanaExport} from './tanaImport'
 import {CatanaAPI} from '@/preload/catana-api'
-import {registerStorageApi} from '@/main/storage-api'
+import {registerStorageApi} from '@/main/persistence/storage-api'
 import * as os from 'node:os'
 import {applyWindowPosition, getLastWindowPosition, startStoringWindowPosition} from '@/main/window-management'
 

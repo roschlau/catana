@@ -1,7 +1,7 @@
 import {settings} from '@/main/settings'
 import {readOrCreateFile} from '@/main/utils/file-system'
 import {gitCommitWorkspace, gitInitializeWorkspace} from '@/main/utils/git'
-import {emptySaveFile, SaveFile} from '@/main/workspace-file-schema'
+import {emptySaveFile, loadSaveFile, SaveFile} from '@/main/persistence/schema/workspace-file-schema'
 import {CatanaAPI} from '@/preload/catana-api'
 import {type} from 'arktype'
 import {dialog} from 'electron'
@@ -30,7 +30,7 @@ export function registerStorageApi(ipcMain: Electron.IpcMain) {
     const filePath = path.join(directory, workspaceFileName)
     console.log('Loading node graph:', filePath)
     const fileContent = await readOrCreateFile(filePath, () => JSON.stringify(emptySaveFile))
-    const saveFile = SaveFile(JSON.parse(fileContent))
+    const saveFile = loadSaveFile(fileContent)
     if (saveFile instanceof type.errors) {
       console.error(`Save File ${filePath} could not be loaded: `, saveFile)
       throw Error(saveFile.summary)
@@ -58,6 +58,7 @@ export function registerStorageApi(ipcMain: Electron.IpcMain) {
     settings.set('last-workspace-location', openedGraphDirectory)
     const parsedSaveFile = SaveFile(content)
     if (parsedSaveFile instanceof type.errors) {
+      console.log(content)
       throw Error(parsedSaveFile.summary)
     }
     const filePath = path.join(openedGraphDirectory, workspaceFileName)

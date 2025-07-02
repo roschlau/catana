@@ -1,8 +1,9 @@
-import {type} from 'arktype'
-import {flatten} from '@/common/node-tree'
-import {demoGraph, ROOT_NODE} from '@/common/demoGraph'
+// noinspection DuplicatedCode
 
-const CheckboxState = type('"checked" | "unchecked"')
+import {type} from 'arktype'
+import * as v1 from '@/main/persistence/schema/v1'
+
+const CheckboxState = type('boolean|"indeterminate"')
 
 const CheckboxConfig = type({
   type: '"intrinsic"',
@@ -12,6 +13,7 @@ const CheckboxConfig = type({
 const NodeHistory = type({
   createdTime: 'number',
   lastModifiedTime: 'number',
+  'checkbox?': type(['number', CheckboxState.or('null')]).array(),
 })
 
 const ParentId = type('string#node|string#property')
@@ -54,7 +56,7 @@ const Node = type.or(TextNode, Property, Field)
 export type Node = typeof TextNode.infer | typeof Property.infer | typeof Field.infer
 
 export const SaveFile = type({
-  v: '1',
+  v: '2',
   openedNode: 'string#node|null',
   'debugMode?': 'boolean',
   nodes: Node.array(),
@@ -62,8 +64,24 @@ export const SaveFile = type({
 
 export type SaveFile = typeof SaveFile.infer
 
-export const emptySaveFile: SaveFile = {
-  v: 1,
-  openedNode: ROOT_NODE,
-  nodes: [...Object.values(flatten(demoGraph) as Record<string, Node>)],
+export function migrate(v1: v1.SaveFile): SaveFile {
+  function migrateNode(node: v1.Node): Node {
+    if (node.type !== 'node') {
+      return node
+    }
+    if (!node.checkbox) {
+      // Inference not quite doing what it should here
+      return node as Node
+    }
+    return {
+      ...node,
+      checkbox: { type: 'intrinsic', state: node.checkbox.state === 'checked' },
+    }
+  }
+
+  return {
+    ...v1,
+    v: 2,
+    nodes: [...v1.nodes.map(migrateNode)],
+  }
 }

@@ -207,7 +207,7 @@ export function TextNodeBlock({
       }
       if (selectionStart === 0 && selectionEnd === selectionStart) {
         if (node.checkbox?.type === 'intrinsic') {
-          dispatch(checkboxUpdated({ nodeId: node.id, checkbox: undefined }))
+          dispatch(checkboxUpdated({ nodeId: node.id, state: null }))
         } else if (node.title === '' && node.content.length === 0) {
           // More intuitive behavior for empty nodes
           dispatch(nodeTreeDeleted({ nodeId: node.id }))

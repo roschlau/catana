@@ -1,6 +1,6 @@
 import {markWorkspaceClean} from '@/renderer/redux/workspace-persistence'
 import {AppDispatch, AppState} from '@/renderer/redux/store'
-import {SaveFile} from '@/main/workspace-file-schema'
+import {SaveFile} from '@/main/persistence/schema/workspace-file-schema'
 import {Node} from '@/common/nodes'
 import {AppCommand} from '@/renderer/commands/app-command'
 import {SaveIcon} from 'lucide-react'
@@ -23,7 +23,7 @@ export function serialize(state: AppState): SaveFile {
   const nodes: SaveFile['nodes'] = []
   nodes.push(...Object.values(state.undoable.present.nodes as Record<string, Node>))
   return {
-    v: 1,
+    v: 2,
     openedNode: state.undoable.present.ui.openedNode,
     debugMode: state.ui.debugMode,
     nodes,

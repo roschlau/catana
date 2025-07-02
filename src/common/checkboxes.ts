@@ -1,20 +1,25 @@
-
 // Already a separate type to enable property-backed checkboxes as well in the future
+import {CheckedState} from '@radix-ui/react-checkbox'
+
 export type CheckboxConfig = IntrinsicCheckboxConfig
 
 export type IntrinsicCheckboxConfig = {
   type: 'intrinsic'
   state: CheckboxState
 }
-export type CheckboxState = 'checked' | 'unchecked'
 
-export function cycleCheckboxState(prevState: CheckboxState | undefined): CheckboxState | undefined {
+export type CheckboxState = CheckedState
+
+export function cycleCheckboxState(prevState: CheckboxState | null | undefined): CheckboxState | null {
   switch (prevState) {
+    case null:
     case undefined:
-      return 'unchecked'
-    case 'checked':
-      return undefined
-    case 'unchecked':
-      return 'checked'
+      return false
+    case false:
+      return 'indeterminate'
+    case 'indeterminate':
+      return true
+    case true:
+      return null
   }
 }

@@ -2,8 +2,8 @@ import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {clamp} from '../../util/math'
 import {getNode, getViewContext, resolveNodeView} from './helpers'
 import {addChildReference, deleteNodeAfterMerge, deleteNodeTree, moveNode, removeChildReference} from './stateMutations'
-import {CheckboxConfig} from '@/common/checkboxes'
-import {Id, Node, NodeGraphFlattened, ParentNode, TextNode} from '@/common/nodes'
+import {CheckboxConfig, CheckboxState} from '@/common/checkboxes'
+import {CheckboxHistoryEntry, Id, Node, NodeGraphFlattened, ParentNode, TextNode} from '@/common/nodes'
 import {NodeViewWithParent} from '@/common/node-views'
 import {AppState} from '@/renderer/redux/store'
 
@@ -84,8 +84,31 @@ export const nodesSlice = createSlice({
       // Delete second node
       deleteNodeAfterMerge(state, action.payload.secondNodeView, firstNode.id)
     },
-    checkboxUpdated: (state, action: PayloadAction<{ nodeId: Id<'node'>, checkbox: CheckboxConfig | undefined }>) => {
-      getNode(state, action.payload.nodeId).checkbox = action.payload.checkbox
+    checkboxUpdated: (state, action: PayloadAction<{
+      nodeId: Id<'node'>,
+      state: CheckboxState | null
+    }>) => {
+      const node = getNode(state, action.payload.nodeId)
+      if (action.payload.state === null) {
+        delete node.checkbox
+      } else {
+        node.checkbox = { type: 'intrinsic', state: action.payload.state }
+      }
+      const historyEntry: CheckboxHistoryEntry = [new Date().getTime(), action.payload.state]
+      const lastEntryTime = node.history.checkbox?.[0]?.[0]
+      if (lastEntryTime && lastEntryTime > historyEntry[0] - 1000) {
+        // User is cycling through states quickly, so replace instead of add to prevent unnecessary noise in the history
+        node.history.checkbox?.splice(0, 1)
+      }
+      const lastEntryState = node.history.checkbox?.[0]?.[1]
+      if (lastEntryState === action.payload.state) {
+        // User cycled through states and arrived at the same one as before. Don't create a new entry in this case.
+        return
+      }
+      node.history.checkbox = [
+        historyEntry,
+        ...(node.history.checkbox ?? []),
+      ]
     },
     nodeLinkRemoved: (state, action: PayloadAction<{ nodeView: NodeViewWithParent<Node> }>) => {
       const { node, viewContext } = resolveNodeView(state, action.payload.nodeView)

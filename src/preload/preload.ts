@@ -1,6 +1,6 @@
 import {contextBridge, ipcRenderer} from 'electron'
 import {CatanaAPI} from './catana-api'
-import {SaveFile} from '@/main/workspace-file-schema'
+import {SaveFile} from '@/main/persistence/schema/workspace-file-schema'
 
 contextBridge.exposeInMainWorld('catanaAPI', {
   openWorkspace: (mode: 'last' | 'pick') => ipcRenderer.invoke('open-workspace', mode) as ReturnType<CatanaAPI['openWorkspace']>,
