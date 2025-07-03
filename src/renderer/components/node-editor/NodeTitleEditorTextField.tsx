@@ -1,6 +1,6 @@
 import TextareaAutosize from 'react-textarea-autosize'
 import {checkboxUpdated, titleUpdated} from '@/renderer/redux/nodes/nodesSlice'
-import React, {KeyboardEvent, Ref, useImperativeHandle, useRef} from 'react'
+import React, {ClipboardEvent, KeyboardEvent, Ref, useImperativeHandle, useRef} from 'react'
 import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
 import {Selection} from '@/renderer/util/selection'
 import {Checkbox} from '@/renderer/components/ui/checkbox'
@@ -12,6 +12,8 @@ import {NodeView} from '@/common/node-views'
 import {setCommandFocus} from '@/renderer/redux/ui/uiSlice'
 import {getNode} from '@/renderer/redux/nodes/helpers'
 import {modKey} from '@/renderer/util/keyboard'
+import {insertNodeLinks} from '@/renderer/redux/nodes/insert-content'
+import {copyNode, readClipboard} from '@/main/conversion/clipboard'
 
 export interface NodeTitleEditorTextFieldRef {
   focus: (selection?: Selection) => void
@@ -90,6 +92,24 @@ export function NodeTitleEditorTextField({
     onKeyDown?.(e)
   }
 
+  const onCopy = (e: ClipboardEvent<HTMLTextAreaElement>) => {
+    if (e.currentTarget.selectionStart !== e.currentTarget.selectionEnd) {
+      // Let the default behavior do its thing to copy just a selection of the node's title
+      return
+    }
+    e.preventDefault()
+    copyNode(node, e.clipboardData)
+  }
+
+  const onPaste = async (e: ClipboardEvent<HTMLTextAreaElement>) => {
+    const { nodeIds } = readClipboard(e.clipboardData)
+    if (!nodeIds) {
+      return
+    }
+    e.preventDefault()
+    dispatch(insertNodeLinks(nodeView, nodeIds))
+  }
+
   const textareaClasses = classNames(
     'grow bg-none border-none resize-none text-foreground/80 focus:text-foreground outline-none',
     { 'line-through text-muted-foreground': checkboxChecked === true },
@@ -111,6 +131,8 @@ export function NodeTitleEditorTextField({
         placeholder={'Empty'}
         onChange={e => dispatch(titleUpdated({ nodeId: node.id, title: e.target.value }))}
         onKeyDown={_keyDown}
+        onCopy={onCopy}
+        onPaste={onPaste}
       />
     </div>
   )

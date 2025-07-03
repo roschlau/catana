@@ -78,22 +78,21 @@ export function moveNode(
   // Remove node from old parent
   const childRef = oldParent.content.splice(currentChildIndex, 1)[0]
   // Add node to new parent
-  addChildReference(state, node.id, newParentId, childIndex, childRef.expanded)
+  addChildReferences(state, [node.id], newParentId, childIndex, childRef.expanded)
 }
 
-export function addChildReference(
+export function addChildReferences(
   state: AppState['undoable']['present']['nodes'],
-  childId: Node['id'],
+  childIds: Node['id'][],
   parentId: ParentNode['id'],
   atIndex: number,
   expanded: boolean = false,
 ) {
   const parent = getNode(state, parentId)
-  if (parent.content.some(it => it.nodeId === childId)) {
-    // Node already linked in parent, can't link a second time
-    return
-  }
-  parent.content.splice(atIndex, 0, { nodeId: childId, expanded })
+  const newChildRefs = childIds
+    .filter(it => !parent.content.some(ref => ref.nodeId === it))
+    .map(it => ({ nodeId: it, expanded }))
+  parent.content.splice(atIndex, 0, ...newChildRefs)
 }
 
 export function removeChildReference(

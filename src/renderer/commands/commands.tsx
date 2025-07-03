@@ -5,7 +5,7 @@ import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
 import {flatten} from '@/common/node-tree'
 import {demoGraph} from '@/common/demoGraph'
 import {nanoid} from '@reduxjs/toolkit'
-import {insertSubtreeAtCurrentNode} from '@/renderer/redux/nodes/insert-subtree-at-current-node'
+import {insertSubtree} from '@/renderer/redux/nodes/insert-content'
 import {openWorkspaceCommand} from '@/renderer/persistence/open-workspace'
 import {saveWorkspaceCommand} from '@/renderer/persistence/save-workspace'
 import {importFromTanaCommand} from '@/renderer/persistence/tana-import'
@@ -49,7 +49,7 @@ export const commands: AppCommand[] = [
         console.warn(`Demo graph root node ${root.id} was ${root.type}`)
         throw new Error('Demo graph root node must be a text node')
       }
-      dispatch(insertSubtreeAtCurrentNode(nodeView, flattenedDemoGraph, root.id))
+      dispatch(insertSubtree(nodeView, flattenedDemoGraph, root.id))
     }),
   },
   openWorkspaceCommand,

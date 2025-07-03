@@ -1,7 +1,13 @@
 import {createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {clamp} from '../../util/math'
 import {getNode, getViewContext, resolveNodeView} from './helpers'
-import {addChildReference, deleteNodeAfterMerge, deleteNodeTree, moveNode, removeChildReference} from './stateMutations'
+import {
+  addChildReferences,
+  deleteNodeAfterMerge,
+  deleteNodeTree,
+  moveNode,
+  removeChildReference,
+} from './stateMutations'
 import {CheckboxConfig, CheckboxState} from '@/common/checkboxes'
 import {CheckboxHistoryEntry, Id, Node, NodeGraphFlattened, ParentNode, TextNode} from '@/common/nodes'
 import {NodeViewWithParent} from '@/common/node-views'
@@ -33,7 +39,7 @@ export const nodesSlice = createSlice({
         },
       }
       state[action.payload.nodeId] = node
-      addChildReference(state, node.id, nodeData.ownerId, nodeData.indexInOwner, false)
+      addChildReferences(state, [node.id], nodeData.ownerId, nodeData.indexInOwner, false)
     },
     titleUpdated: (state, action: PayloadAction<{ nodeId: Id<'node'>, title: string }>) => {
       const node = getNode(state, action.payload.nodeId)
@@ -110,6 +116,15 @@ export const nodesSlice = createSlice({
         ...(node.history.checkbox ?? []),
       ]
     },
+    nodeLinksAdded: (state, action: PayloadAction<{
+      parentId: ParentNode['id'],
+      childIds: TextNode['id'][],
+      index?: number,
+    }>) => {
+      const parentNode = getNode(state, action.payload.parentId)
+      const index = action.payload.index ?? parentNode.content.length
+      addChildReferences(state, action.payload.childIds, parentNode.id, index, false)
+    },
     nodeLinkRemoved: (state, action: PayloadAction<{ nodeView: NodeViewWithParent<Node> }>) => {
       const { node, viewContext } = resolveNodeView(state, action.payload.nodeView)
       if (node.ownerId === viewContext.parent.id) {
@@ -162,6 +177,7 @@ export const {
   nodeExpandedChanged,
   nodesMerged,
   checkboxUpdated,
+  nodeLinksAdded,
   nodeLinkRemoved,
   nodeTreeDeleted,
   nodeTreeAdded,
