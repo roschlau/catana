@@ -24,7 +24,7 @@ const TextNode = type({
   type: '"node"',
   title: 'string',
   ownerId: type(ParentId, '|', 'null'),
-  'checkbox?': CheckboxConfig,
+  'checkbox?': CheckboxConfig.or('undefined'),
   content: type({
     nodeId: NodeId,
     'expanded?': 'boolean|undefined',
