@@ -1,9 +1,10 @@
-import {NodeView, NodeViewWithParent} from '@/common/node-views'
-import {Id, NodeGraphFlattened, ParentNode, TextNode} from '@/common/nodes'
+import {NodeView} from '@/common/node-views'
+import {Id, NodeGraphFlattened, TextNode} from '@/common/nodes'
 import {AppDispatch, AppState} from '@/renderer/redux/store'
 import {resolveNodeView} from '@/renderer/redux/nodes/helpers'
-import {nodeExpandedChanged, nodeLinksAdded, nodeTreeAdded, nodeTreeDeleted} from '@/renderer/redux/nodes/nodesSlice'
+import {nodeLinksAdded, nodeTreeAdded, nodeTreeDeleted} from '@/renderer/redux/nodes/nodesSlice'
 import {focusRestoreRequested} from '@/renderer/redux/ui/uiSlice'
+import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
 
 export const insertNodeLinks = (
   currentNode: NodeView<TextNode>,
@@ -37,29 +38,29 @@ export const insertNodeLinks = (
   }
 }
 
-export const insertSubtree = (
+export const insertTrees = (
   currentNode: NodeView<TextNode>,
-  graph: NodeGraphFlattened,
-  rootId: Id<'node'>,
-) => (
+  graphs: { nodes: NodeGraphFlattened, rootId: Id<'node'> }[],
+) => createUndoTransaction((
   dispatch: AppDispatch,
   getState: () => AppState,
 ) => {
   const { node, viewContext } = resolveNodeView(getState().undoable.present.nodes, currentNode)
-  let parentNode: ParentNode
-  let index: number | undefined = undefined
   if (node.title === '' && node.content.length === 0 && viewContext) {
     // Current node is empty, replace it with the inserted content's root node
-    parentNode = viewContext.parent
+    const parentNode = viewContext.parent
     dispatch(nodeTreeDeleted({ nodeId: node.id }))
-    index = viewContext.childIndex
+    const index = viewContext.childIndex
+    for (const { nodes, rootId } of graphs.toReversed()) {
+      dispatch(nodeTreeAdded({ graph: nodes, root: rootId, parent: parentNode.id, index }))
+    }
   } else {
-    parentNode = node
-    if (currentNode.parent) {
-      // Make sure the target node is expanded in the current view
-      const nodeViewWithParent = currentNode as NodeViewWithParent<TextNode>
-      dispatch(nodeExpandedChanged({ nodeView: nodeViewWithParent, expanded: true }))
+    // Insert after current (if it has a view parent) or inside current (if it is view root)
+    const parentId = viewContext?.parent.id ?? currentNode.nodeId
+    const index = parentId === node.id ? 0 : (viewContext!.childIndex + 1)
+    console.log('Inserting at index' + index)
+    for (const { nodes, rootId } of graphs.toReversed()) {
+      dispatch(nodeTreeAdded({ graph: nodes, root: rootId, parent: parentId, index }))
     }
   }
-  dispatch(nodeTreeAdded({ graph: graph, root: rootId, parent: parentNode.id, index }))
-}
+})

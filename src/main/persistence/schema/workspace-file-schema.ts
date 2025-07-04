@@ -11,7 +11,7 @@ type Node = v2.Node
 export const emptySaveFile: SaveFile = {
   v: 2,
   openedNode: ROOT_NODE,
-  nodes: [...Object.values(flatten(demoGraph) as Record<string, Node>)],
+  nodes: [...Object.values(flatten(demoGraph).nodes as Record<string, Node>)],
 }
 
 export function loadSaveFile(content: string): SaveFile {

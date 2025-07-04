@@ -44,6 +44,7 @@ export interface Field {
 export type NodeHistory = {
   createdTime: number,
   lastModifiedTime: number,
+  /** Record of checkbox state changes in reverse chronological order. */
   checkbox?: CheckboxHistoryEntry[]
 }
 

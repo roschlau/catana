@@ -1,11 +1,10 @@
 import {FileQuestion, FullscreenIcon} from 'lucide-react'
 import {AppDispatch, AppState} from '@/renderer/redux/store'
 import {nodeOpened} from '@/renderer/redux/ui/uiSlice'
-import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
 import {flatten} from '@/common/node-tree'
 import {demoGraph} from '@/common/demoGraph'
 import {nanoid} from '@reduxjs/toolkit'
-import {insertSubtree} from '@/renderer/redux/nodes/insert-content'
+import {insertTrees} from '@/renderer/redux/nodes/insert-content'
 import {openWorkspaceCommand} from '@/renderer/persistence/open-workspace'
 import {saveWorkspaceCommand} from '@/renderer/persistence/save-workspace'
 import {importFromTanaCommand} from '@/renderer/persistence/tana-import'
@@ -32,13 +31,13 @@ export const commands: AppCommand[] = [
     name: 'Insert Demo Content',
     icon: <FileQuestion/>,
     canActivate: (context) => !!context.focus || !!context.openedNode,
-    thunkCreator: (context: CommandContext) => createUndoTransaction((dispatch: AppDispatch) => {
+    thunkCreator: (context: CommandContext) => (dispatch: AppDispatch) => {
       const nodeView = context.focus?.nodeView ?? { nodeId: context.openedNode! }
       if (!nodeView) {
         console.warn('Insert Demo Content command triggered without node in context')
         return
       }
-      const flattenedDemoGraph = mapIds(flatten(demoGraph), id => nanoid())
+      const flattenedDemoGraph = mapIds(flatten(demoGraph).nodes, () => nanoid())
       const roots = Object.values(flattenedDemoGraph).filter(node => !node!.ownerId)
       if (roots.length !== 1) {
         console.warn('Demo graph contains the following roots: ', roots.map(node => node!.id).join(','))
@@ -49,8 +48,8 @@ export const commands: AppCommand[] = [
         console.warn(`Demo graph root node ${root.id} was ${root.type}`)
         throw new Error('Demo graph root node must be a text node')
       }
-      dispatch(insertSubtree(nodeView, flattenedDemoGraph, root.id))
-    }),
+      dispatch(insertTrees(nodeView, [{ nodes: flattenedDemoGraph, rootId: root.id }]))
+    },
   },
   openWorkspaceCommand,
   saveWorkspaceCommand,

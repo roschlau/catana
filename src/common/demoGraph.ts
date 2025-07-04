@@ -1,10 +1,10 @@
-import {NodeLink, NodeTree} from '@/common/node-tree'
+import {TreeTextNode} from '@/common/node-tree'
 import {systemFields} from '@/common/system-fields'
 import {Id} from '@/common/nodes'
 
 export const ROOT_NODE = '_root' as Id<'node'>
 
-export const demoGraph: Exclude<NodeTree, NodeLink> = {
+export const demoGraph: TreeTextNode = {
   type: 'node',
   id: ROOT_NODE,
   title: '👋 Welcome to Catana!',
@@ -80,10 +80,7 @@ export const demoGraph: Exclude<NodeTree, NodeLink> = {
     }, {
       title: 'Checkboxes',
       type: 'node',
-      checkbox: {
-        type: 'intrinsic',
-        state: false,
-      },
+      checkbox: false,
       content: [
         {
           title: 'Press Ctrl + Enter to add a checkbox to a node. Pressing it again will check it, and a third time will remove it again.',

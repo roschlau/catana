@@ -12,8 +12,9 @@ import {NodeView} from '@/common/node-views'
 import {setCommandFocus} from '@/renderer/redux/ui/uiSlice'
 import {getNode} from '@/renderer/redux/nodes/helpers'
 import {modKey} from '@/renderer/util/keyboard'
-import {insertNodeLinks} from '@/renderer/redux/nodes/insert-content'
+import {insertNodeLinks, insertTrees} from '@/renderer/redux/nodes/insert-content'
 import {copyNode, readClipboard} from '@/main/conversion/clipboard'
+import {flatten} from '@/common/node-tree'
 
 export interface NodeTitleEditorTextFieldRef {
   focus: (selection?: Selection) => void
@@ -102,12 +103,16 @@ export function NodeTitleEditorTextField({
   }
 
   const onPaste = async (e: ClipboardEvent<HTMLTextAreaElement>) => {
-    const { nodeIds } = readClipboard(e.clipboardData)
-    if (!nodeIds) {
+    const { nodeIds, nodeTrees } = readClipboard(e.clipboardData)
+    if (nodeIds) {
+      e.preventDefault()
+      dispatch(insertNodeLinks(nodeView, nodeIds))
       return
     }
-    e.preventDefault()
-    dispatch(insertNodeLinks(nodeView, nodeIds))
+    if (nodeTrees) {
+      e.preventDefault()
+      dispatch(insertTrees(nodeView, nodeTrees.map(nodeTree => flatten(nodeTree))))
+    }
   }
 
   const textareaClasses = classNames(

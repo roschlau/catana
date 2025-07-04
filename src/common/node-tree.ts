@@ -1,6 +1,7 @@
 import {nanoid} from '@reduxjs/toolkit'
 import {isPresent} from '@/renderer/util/optionals'
 import {Field, id, Id, Node, NodeGraphFlattened, Property, TextNode} from '@/common/nodes'
+import {CheckboxState} from '@/common/checkboxes'
 
 export type NodeTree =
   | NodeLink
@@ -8,10 +9,12 @@ export type NodeTree =
   | TreeField
   | TreeProperty
 
-export type TreeTextNode = Omit<TextNode, 'id' | 'ownerId' | 'content' | 'history'> & {
+export type TreeTextNode = Omit<TextNode, 'id' | 'ownerId' | 'content' | 'history' | 'checkbox'> & {
   id?: string
   content?: NodeTree[],
   expanded?: boolean,
+  checkbox?: CheckboxState,
+  history?: Partial<TextNode['history']>
 }
 
 export type TreeField = Omit<Field, 'id' | 'ownerId' | 'history'> & {
@@ -30,7 +33,7 @@ export interface NodeLink {
   expanded?: boolean
 }
 
-export function flatten(tree: Exclude<NodeTree, NodeLink>): NodeGraphFlattened {
+export function flatten(tree: TreeTextNode): { nodes: NodeGraphFlattened, rootId: TextNode['id'] } {
   const nodes: NodeGraphFlattened = {}
 
   function parseNode(node: TreeTextNode, ownerId: Id<'node'> | Id<'property'> | null): TextNode {
@@ -47,10 +50,11 @@ export function flatten(tree: Exclude<NodeTree, NodeLink>): NodeGraphFlattened {
       id: nodeId,
       ownerId,
       content: childRefs,
+      checkbox: rest.checkbox === undefined ? undefined : { type: 'intrinsic', state: rest.checkbox },
       history: {
         createdTime: new Date().getTime(),
         lastModifiedTime: new Date().getTime(),
-      }
+      },
     } satisfies TextNode
   }
 
@@ -71,7 +75,7 @@ export function flatten(tree: Exclude<NodeTree, NodeLink>): NodeGraphFlattened {
       history: {
         createdTime: new Date().getTime(),
         lastModifiedTime: new Date().getTime(),
-      }
+      },
     }
   }
 
@@ -102,15 +106,15 @@ export function flatten(tree: Exclude<NodeTree, NodeLink>): NodeGraphFlattened {
           history: {
             createdTime: new Date().getTime(),
             lastModifiedTime: new Date().getTime(),
-          }
+          },
         }
         return node.id as Node['id']
       }
     }
   }
 
-  traverse(tree, null)
-  return nodes
+  const rootId = traverse(tree, null) as TextNode['id']
+  return { nodes, rootId }
 }
 
 export function buildTree(nodes: NodeGraphFlattened): NodeTree | null {
@@ -124,8 +128,13 @@ export function buildTree(nodes: NodeGraphFlattened): NodeTree | null {
     }
     switch (node.type) {
       case 'node': {
-        const { ownerId, content, ...rest } = node
-        const result: TreeTextNode = { ...rest, type: 'node', id: node.id }
+        const { ownerId, content, checkbox, ...rest } = node
+        const result: TreeTextNode = {
+          ...rest,
+          type: 'node',
+          checkbox: checkbox?.state,
+          id: node.id,
+        }
         // Recursively build children
         if (node.content) {
           result.content = node.content

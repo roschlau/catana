@@ -2,7 +2,7 @@ import {AppCommand, CommandContext} from '@/renderer/commands/app-command'
 import {ImportIcon} from 'lucide-react'
 import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
 import {AppDispatch} from '@/renderer/redux/store'
-import {insertSubtree} from '@/renderer/redux/nodes/insert-content'
+import {insertTrees} from '@/renderer/redux/nodes/insert-content'
 import {mapIds} from '@/renderer/redux/nodes/mapIds'
 
 export const importFromTanaCommand: AppCommand = {
@@ -22,6 +22,6 @@ export const importFromTanaCommand: AppCommand = {
     }
     const { rootId, nodes } = nodeGraph
     const graph = mapIds(nodes, (id) => id === rootId ? id : 'tana_' + id)
-    dispatch(insertSubtree(nodeView, graph, rootId))
+    dispatch(insertTrees(nodeView, [{ nodes: graph, rootId }]))
   }),
 }
