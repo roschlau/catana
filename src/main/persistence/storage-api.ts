@@ -58,7 +58,7 @@ export function registerStorageApi(ipcMain: Electron.IpcMain) {
     settings.set('last-workspace-location', openedGraphDirectory)
     const parsedSaveFile = SaveFile(content)
     if (parsedSaveFile instanceof type.errors) {
-      console.log(content)
+      console.error(parsedSaveFile)
       throw Error(parsedSaveFile.summary)
     }
     const filePath = path.join(openedGraphDirectory, workspaceFileName)
