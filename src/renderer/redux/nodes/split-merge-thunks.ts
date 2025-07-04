@@ -23,10 +23,10 @@ export function splitNode(nodeView: NodeView<TextNode>, selectionStart: number, 
     if (selectionStart === 0 && node.title !== '' && viewContext) {
       // Enter at the start of a non-empty node should create an empty node above and focus that,
       //  instead of the regular splitting behavior
-      splitIntoSibling(dispatch, node, viewContext, selectionStart, 'before')
+      splitIntoSibling(dispatch, node, viewContext, 0, 'before')
       return
     }
-    const splitIndex = selectionStart
+    const splitIndex = selectionEnd
     const newNodeId = nanoid() as Id<'node'>
     const newNodeBase = {
       nodeId: newNodeId,
@@ -49,10 +49,10 @@ export function splitNode(nodeView: NodeView<TextNode>, selectionStart: number, 
         nodeView: { nodeId: newNodeId, parent: nodeView },
         selection: { start: 0 },
       }))
+      dispatch(titleUpdated({ nodeId: node.id, title: node.title.slice(0, splitIndex) }))
     } else {
       splitIntoSibling(dispatch, node, viewContext, splitIndex)
     }
-    dispatch(titleUpdated({ nodeId: node.id, title: node.title.slice(0, splitIndex) }))
   })
 }
 
@@ -73,10 +73,6 @@ export function splitIntoSibling(
 ) {
   const title1 = node.title.slice(0, splitAt)
   const title2 = node.title.slice(splitAt)
-  dispatch(titleUpdated({
-    nodeId: node.id,
-    title: newNodePosition === 'before' ? title2 : title1,
-  }))
   const newNodeId = nanoid() as Id<'node'>
   // If the split node has a checkbox, the new node should also have one, but unchecked
   const checkbox = node.checkbox ? { ...node.checkbox, state: false } : undefined
@@ -87,6 +83,13 @@ export function splitIntoSibling(
     indexInOwner: newNodePosition === 'before' ? viewContext.childIndex : viewContext.childIndex + 1,
     checkbox,
   }))
+  const oldNodeTitleUpdated = newNodePosition === 'before' ? title2 : title1
+  if (oldNodeTitleUpdated !== node.title) {
+    dispatch(titleUpdated({
+      nodeId: node.id,
+      title: oldNodeTitleUpdated,
+    }))
+  }
   dispatch(focusRestoreRequested({
     nodeView: { nodeId: newNodeId, parent: viewContext.parentView },
     selection: { start: 0 },
