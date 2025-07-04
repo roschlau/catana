@@ -1,20 +1,26 @@
 import {Field, Node, NodeGraphFlattened, Property, TextNode} from '@/common/nodes'
 
 /**
- * Updates all IDs used in the given nodeGraph via `mapId`, keeping links etc. intact. Don't use this on subgraphs whose
- * nodes might be referenced from elsewhere, as those references won't be caught. Meant for assigning random IDs to
- * nodes in a
+ * Replaces the ID of every node in the given nodeGraph with the result of passing it to `mapId`, and updates all
+ * references within the node graph to make sure they keep pointing to the same nodes.
+ * References pointing to nodes that are not part of the passed node graph will be kept unchanged.
+ *
+ * This function can be used for assigning new random IDs to nodes duplicated from a template while keeping internal
+ * references within the template intact.
  */
 export function mapIds(nodeGraph: NodeGraphFlattened, mapId: (id: string) => string): NodeGraphFlattened {
   const idMapping = new Map<Node['id'], Node['id']>()
 
-  function replaceId<T extends Node['id']>(id: T): T {
-    if (idMapping.has(id)) {
-      return idMapping.get(id)! as T
+  Object.values(nodeGraph).forEach(node => {
+    if (!node) return
+    if (idMapping.has(node.id)) {
+      throw new Error(`Duplicate node id '${node.id}'`)
     }
-    const newId = mapId(id) as T
-    idMapping.set(id, newId)
-    return newId as T
+    idMapping.set(node.id, mapId(node.id) as Node['id'])
+  })
+
+  function replaceId<T extends Node['id']>(id: T): T {
+    return idMapping.has(id) ? idMapping.get(id)! as T : id
   }
 
   const newGraph: NodeGraphFlattened = {}
