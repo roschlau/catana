@@ -152,7 +152,7 @@ export const nodesSlice = createSlice({
       const parentNode = getNode(state, action.payload.parent)
       rootNode.ownerId = parentNode.id
       const childRef = { nodeId: rootNode.id, expanded: true }
-      if (action.payload.index) {
+      if (action.payload.index !== undefined) {
         parentNode.content.splice(action.payload.index, 0, childRef)
       } else {
         parentNode.content.push(childRef)
