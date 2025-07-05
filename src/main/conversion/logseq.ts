@@ -153,7 +153,7 @@ function processNodeProperties(
       const collapsedValue = currentLine.substring(PROPERTY_COLLAPSED.length).trim()
       node.expanded = collapsedValue !== 'true'
       currentIndex++
-    } else if (currentLine === PROPERTY_LOGBOOK_START) {
+    } else if (currentLine.toLowerCase() === PROPERTY_LOGBOOK_START.toLowerCase()) {
       currentIndex = processLogbook(lines, currentIndex + 1, node)
     } else {
       // Not a recognized property, check if it's a new bullet point
@@ -181,7 +181,7 @@ function processLogbook(lines: string[], startIndex: number, node: TreeTextNode)
   const logbookEntries: LogbookEntry[] = []
 
   // Collect all logbook entries
-  while (currentIndex < lines.length && !lines[currentIndex].trim().startsWith(PROPERTY_LOGBOOK_END)) {
+  while (currentIndex < lines.length && !lines[currentIndex].trim().toLowerCase().startsWith(PROPERTY_LOGBOOK_END.toLowerCase())) {
     const logLine = lines[currentIndex].trim()
     const clockEntry = parseClockEntry(logLine)
 
@@ -193,7 +193,7 @@ function processLogbook(lines: string[], startIndex: number, node: TreeTextNode)
   }
 
   // Skip the :END: line
-  if (currentIndex < lines.length && lines[currentIndex].trim() === PROPERTY_LOGBOOK_END) {
+  if (currentIndex < lines.length && lines[currentIndex].trim().toLowerCase() === PROPERTY_LOGBOOK_END.toLowerCase()) {
     currentIndex++
   }
 

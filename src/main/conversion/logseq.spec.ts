@@ -94,6 +94,32 @@ test('Open Task with logbook entry', () => {
   expect(tryParseLogseq(input)).toEqual(expected)
 })
 
+test('Tolerate lowercase logbook markers', () => {
+  const input = `
+- TODO Task
+  :logbook:
+  CLOCK: [2025-05-26 Mon 21:31:52]--[2025-05-29 Thu 15:04:41] =>  65:32:49
+  :end:
+- Second node`
+  const expected: TreeTextNode[] = [{
+    type: 'node',
+    title: 'Task',
+    expanded: true,
+    checkbox: false,
+    history: {
+      checkbox: [
+        [1748523881000, false],
+        [1748287912000, 'indeterminate'],
+      ],
+    },
+  }, {
+    type: 'node',
+    title: 'Second node',
+    expanded: true,
+  }]
+  expect(tryParseLogseq(input)).toEqual(expected)
+})
+
 test('Task with multiple logbook entries', () => {
   const input = `
 - DONE Task
