@@ -109,7 +109,7 @@ export function NodeTitleEditorTextField({
       dispatch(insertNodeLinks(nodeView, nodeIds))
       return
     }
-    if (nodeTrees) {
+    if (nodeTrees && nodeTrees.length > 0) {
       e.preventDefault()
       dispatch(insertTrees(nodeView, nodeTrees.map(nodeTree => flatten(nodeTree))))
     }
