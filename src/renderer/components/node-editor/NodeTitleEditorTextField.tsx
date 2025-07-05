@@ -44,8 +44,6 @@ export function NodeTitleEditorTextField({
   const node = useAppSelector(state => getNode(state.undoable.present.nodes, nodeView.nodeId))
 
   const checkboxChecked = node.checkbox
-    ? node.checkbox.state === 'indeterminate' ? 'indeterminate' : node.checkbox.state
-    : undefined
   const setCheckbox = (state: CheckboxState | null) => {
     dispatch(checkboxUpdated({
       nodeId: node.id,
@@ -61,7 +59,7 @@ export function NodeTitleEditorTextField({
     }
     if (e.key === 'Enter' && modKey(e)) {
       e.preventDefault()
-      const newState = cycleCheckboxState(node.checkbox?.state)
+      const newState = cycleCheckboxState(node.checkbox)
       setCheckbox(newState)
       return
     }

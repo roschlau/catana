@@ -23,7 +23,7 @@ export function serialize(state: AppState): SaveFile {
   const nodes: SaveFile['nodes'] = []
   nodes.push(...Object.values(state.undoable.present.nodes as Record<string, Node>))
   return {
-    v: 2,
+    v: 3,
     openedNode: state.undoable.present.ui.openedNode,
     debugMode: state.ui.debugMode,
     nodes,

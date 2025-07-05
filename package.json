@@ -8,6 +8,7 @@
     "start": "electron-forge start",
     "test": "vitest run --config vite.main.config.mts",
     "testWatch": "vitest --config vite.main.config.mts",
+    "typeCheckWatch": "tsc --noEmit --watch",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",

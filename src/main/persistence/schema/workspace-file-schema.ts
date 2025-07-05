@@ -2,14 +2,15 @@ import {flatten} from '@/common/node-tree'
 import {demoGraph, ROOT_NODE} from '@/common/demoGraph'
 import * as v1 from './v1'
 import * as v2 from './v2'
+import * as v3 from './v3'
 import {type} from 'arktype'
+import {Node} from '@/common/nodes'
 
-export const SaveFile = v2.SaveFile
-export type SaveFile = v2.SaveFile
-type Node = v2.Node
+export const SaveFile = v3.SaveFile
+export type SaveFile = v3.SaveFile
 
 export const emptySaveFile: SaveFile = {
-  v: 2,
+  v: 3,
   openedNode: ROOT_NODE,
   nodes: [...Object.values(flatten(demoGraph).nodes as Record<string, Node>)],
 }
@@ -24,14 +25,27 @@ export function loadSaveFile(content: string): SaveFile {
 }
 
 export function migrate(saveFile: UnmigratedSaveFile): SaveFile {
-  if (saveFile.v === 2) {
-    return saveFile
+  let migrated = saveFile
+  while (migrated.v !== 3) {
+    console.log(`Save file has version ${migrated.v}, migrating...`)
+    migrated = migrateToNextVersion(migrated)
   }
-  console.log(`Save file has version ${saveFile.v}, migrating...`)
-  return v2.migrate(saveFile)
+  return migrated
+}
+
+function migrateToNextVersion(saveFile: UnmigratedSaveFile): UnmigratedSaveFile {
+  switch (saveFile.v) {
+    case 3:
+      return saveFile
+    case 2:
+      return v3.migrate(saveFile)
+    case 1:
+      return v2.migrate(saveFile)
+  }
 }
 
 const UnmigratedSaveFile = type.or(
+  v3.SaveFile,
   v2.SaveFile,
   v1.SaveFile,
 )

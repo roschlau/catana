@@ -50,7 +50,6 @@ export function flatten(tree: TreeTextNode): { nodes: NodeGraphFlattened, rootId
       id: nodeId,
       ownerId,
       content: childRefs,
-      checkbox: rest.checkbox === undefined ? undefined : { type: 'intrinsic', state: rest.checkbox },
       history: {
         createdTime: new Date().getTime(),
         lastModifiedTime: new Date().getTime(),
@@ -128,11 +127,10 @@ export function buildTree(nodes: NodeGraphFlattened): NodeTree | null {
     }
     switch (node.type) {
       case 'node': {
-        const { ownerId, content, checkbox, ...rest } = node
+        const { ownerId, content, ...rest } = node
         const result: TreeTextNode = {
           ...rest,
           type: 'node',
-          checkbox: checkbox?.state,
           id: node.id,
         }
         // Recursively build children

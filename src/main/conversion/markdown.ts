@@ -20,18 +20,18 @@ export function toMarkdown(node: TextNode, flavor: MarkdownFlavor = 'logseq'): s
 
 function checkboxToObsidian(checkbox: NonNullable<TextNode['checkbox']>): string {
   let result = '['
-  if (checkbox.state === true) result += 'x'
-  else if (checkbox.state === false) result += ' '
-  else if (checkbox.state === 'indeterminate') result += '/'
+  if (checkbox === true) result += 'x'
+  else if (checkbox === false) result += ' '
+  else if (checkbox === 'indeterminate') result += '/'
   result += '] '
   return result
 }
 
 function checkboxToLogseq(checkbox: NonNullable<TextNode['checkbox']>): string {
   let result = ''
-  if (checkbox.state === true) result += 'DONE'
-  else if (checkbox.state === false) result += 'TODO'
-  else if (checkbox.state === 'indeterminate') result += 'DOING'
+  if (checkbox === true) result += 'DONE'
+  else if (checkbox === false) result += 'TODO'
+  else if (checkbox === 'indeterminate') result += 'DOING'
   result += ' '
   return result
 }

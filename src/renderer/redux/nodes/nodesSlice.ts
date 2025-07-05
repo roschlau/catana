@@ -8,7 +8,7 @@ import {
   moveNode,
   removeChildReference,
 } from './stateMutations'
-import {CheckboxConfig, CheckboxState} from '@/common/checkboxes'
+import {CheckboxState} from '@/common/checkboxes'
 import {CheckboxHistoryEntry, Id, Node, NodeGraphFlattened, ParentNode, TextNode} from '@/common/nodes'
 import {NodeViewWithParent} from '@/common/node-views'
 import {AppState} from '@/renderer/redux/store'
@@ -22,7 +22,7 @@ export const nodesSlice = createSlice({
       title: string,
       ownerId: ParentNode['id'],
       indexInOwner: number
-      checkbox?: CheckboxConfig,
+      checkbox?: CheckboxState,
     }>) => {
       const nodeData = action.payload
       const now = new Date().getTime()
@@ -98,7 +98,7 @@ export const nodesSlice = createSlice({
       if (action.payload.state === null) {
         delete node.checkbox
       } else {
-        node.checkbox = { type: 'intrinsic', state: action.payload.state }
+        node.checkbox = action.payload.state
       }
       const historyEntry: CheckboxHistoryEntry = [new Date().getTime(), action.payload.state]
       const lastEntryTime = node.history.checkbox?.[0]?.[0]
