@@ -72,6 +72,25 @@ test('Done Task with logbook entry', () => {
   expect(tryParseLogseq(input)).toEqual(expected)
 })
 
+test.only(`Doesn't get confused on windows-style line endings`, () => {
+  const input = `\r
+- Windows Node1\r
+- Windows Node2`
+  const expected: TreeTextNode[] = [
+    {
+      type: 'node',
+      title: 'Windows Node1',
+      expanded: true,
+    },
+    {
+      type: 'node',
+      title: 'Windows Node2',
+      expanded: true,
+    },
+  ]
+  expect(tryParseLogseq(input)).toEqual(expected)
+})
+
 test('Open Task with logbook entry', () => {
   const input = `
 - TODO Task

@@ -13,8 +13,8 @@ const PROPERTY_LOGBOOK_START = ':LOGBOOK:'
 const PROPERTY_LOGBOOK_END = ':END:'
 
 // Constants for regex patterns
-const BULLET_POINT_PATTERN = /^(\s*)-\s*(.*)$/
-const CLOCK_ENTRY_PATTERN = /CLOCK: \[(.*?)\]--\[(.*?)\]/
+const BULLET_POINT_PATTERN = /^(\s*)-\s+(.*)/
+const CLOCK_ENTRY_PATTERN = /CLOCK: \[(.*?)]--\[(.*?)]/
 const LOGSEQ_DATE_PATTERN = /(\d{4}-\d{2}-\d{2}) \w+ (\d{2}:\d{2}:\d{2})/
 
 // Type definitions
