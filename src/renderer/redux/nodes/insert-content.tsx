@@ -58,7 +58,6 @@ export const insertTrees = (
     // Insert after current (if it has a view parent) or inside current (if it is view root)
     const parentId = viewContext?.parent.id ?? currentNode.nodeId
     const index = parentId === node.id ? 0 : (viewContext!.childIndex + 1)
-    console.log('Inserting at index' + index)
     for (const { nodes, rootId } of graphs.toReversed()) {
       dispatch(nodeTreeAdded({ graph: nodes, root: rootId, parent: parentId, index }))
     }
