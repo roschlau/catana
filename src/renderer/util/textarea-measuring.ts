@@ -1,4 +1,3 @@
-
 const measuringDiv = document.createElement('div')
 measuringDiv.style.whiteSpace = 'pre-wrap'
 measuringDiv.style.wordWrap = 'break-word'
@@ -17,19 +16,23 @@ function copyStylesToMeasuringDiv(textarea: HTMLTextAreaElement) {
 
 export function calculateCursorPosition(
   textarea: HTMLTextAreaElement,
-): { firstLine: boolean, lastLine: boolean } {
+): { firstLine: boolean, lastLine: boolean  } {
   copyStylesToMeasuringDiv(textarea)
   document.body.appendChild(measuringDiv)
-  const cursorPosition = textarea.selectionStart;
-  const textBeforeCursor = textarea.value.substring(0, cursorPosition);
-  const textAfterCursor = textarea.value.substring(cursorPosition);
-  measuringDiv.innerHTML = textBeforeCursor + '<span id="cursor"></span>' + textAfterCursor;
-  const cursorSpan = measuringDiv.querySelector('#cursor');
-  if (!cursorSpan) {
+  const cursorPosition = textarea.selectionStart
+  const textBeforeCursor = textarea.value.substring(0, cursorPosition)
+  const characterAtCursor = textarea.value[cursorPosition]
+  const textAfterCursor = textarea.value.substring(cursorPosition + 1)
+  measuringDiv.innerHTML = textBeforeCursor + '<span id="cursor"></span>'
+    + characterAtCursor + '<span id="afterCursor"></span>' + textAfterCursor
+  const cursorSpan = measuringDiv.querySelector('#cursor')
+  const afterCursorSpan = measuringDiv.querySelector('#afterCursor')
+  if (!cursorSpan || !afterCursorSpan) {
     console.error('Cursor span not found')
     return { firstLine: false, lastLine: false }
   }
   const cursorRect = cursorSpan.getBoundingClientRect()
+  const afterCursorRect = afterCursorSpan.getBoundingClientRect()
   const styles = window.getComputedStyle(textarea)
   const lineHeight = parseFloat(styles.lineHeight)
   if (Number.isNaN(lineHeight)) {
@@ -40,6 +43,6 @@ export function calculateCursorPosition(
   document.body.removeChild(measuringDiv)
   return {
     firstLine: Math.abs(textBoxRect.top - cursorRect.top) < lineHeight,
-    lastLine: Math.abs(textBoxRect.bottom - cursorRect.bottom) < lineHeight,
-  };
+    lastLine: Math.abs(textBoxRect.bottom - afterCursorRect.bottom) < lineHeight,
+  }
 }

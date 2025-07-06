@@ -23,8 +23,9 @@ export function NodeEditorPage({ nodeId }: {
   const titleEditorRef = useRef<NodeTitleEditorTextFieldRef | null>(null)
   const nodeView = { nodeId }
 
-  const focus = useCallback(() => {
-    titleEditorRef.current?.focus()
+  const focusEnd = useCallback(() => {
+    if (!node) return false
+    titleEditorRef.current?.focus({ start: node.title.length, end: node.title.length })
     return true
   }, [titleEditorRef])
 
@@ -92,7 +93,7 @@ export function NodeEditorPage({ nodeId }: {
           ref={contentNodesList}
           nodes={node.content}
           parentView={nodeView}
-          moveFocusBefore={focus}
+          moveFocusBefore={focusEnd}
         />
       </div>
     </div>)

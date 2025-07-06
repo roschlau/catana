@@ -91,13 +91,17 @@ export function TextNodeBlock({
       if (mode === 'last' && isExpanded && childRefs.length > 0) {
         contentNodesList.current?.focus(mode)
       } else {
-        titleEditorRef.current?.focus()
+        titleEditorRef.current?.focus(
+          mode === 'last'
+            ? { start: node.title.length, end: node.title.length }
+            : { start: 0, end: 0 }
+        )
       }
     },
   }))
 
-  const focus = useCallback(() => {
-    titleEditorRef.current?.focus()
+  const focusEnd = useCallback(() => {
+    titleEditorRef.current?.focus({ start: node.title.length, end: node.title.length })
     return true
   }, [titleEditorRef])
 
@@ -250,7 +254,7 @@ export function TextNodeBlock({
             ref={contentNodesList}
             nodes={childRefs}
             parentView={nodeView}
-            moveFocusBefore={focus}
+            moveFocusBefore={focusEnd}
             moveFocusAfter={moveFocusAfter}
           />
         </ListItem>)
