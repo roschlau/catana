@@ -1,6 +1,13 @@
 import {expect, test} from 'vitest'
 import {tryParseLogseq} from '@/main/conversion/logseq-parser'
 import {TreeTextNode} from '@/common/node-tree'
+import {LocalDateTime, ZonedDateTime, ZoneId} from '@js-joda/core'
+
+function epochMillis(input: string, zoneId: ZoneId = ZoneId.systemDefault()): number {
+  return ZonedDateTime.of(LocalDateTime.parse(input), zoneId)
+    .toInstant()
+    .toEpochMilli()
+}
 
 test('Simple Node', () => {
   const input = '- Node Title'
@@ -64,8 +71,8 @@ test('Done Task with logbook entry', () => {
     checkbox: true,
     history: {
       checkbox: [
-        [1748525202000, true],
-        [1748287912000, 'indeterminate'],
+        [epochMillis("2025-05-29T15:26:42"), true],
+        [epochMillis("2025-05-26T21:31:52"), 'indeterminate'],
       ],
     },
   }]
@@ -105,8 +112,8 @@ test('Open Task with logbook entry', () => {
     checkbox: false,
     history: {
       checkbox: [
-        [1748523881000, false],
-        [1748287912000, 'indeterminate'],
+        [epochMillis('2025-05-29T15:04:41'), false],
+        [epochMillis('2025-05-26T21:31:52'), 'indeterminate'],
       ],
     },
   }]
@@ -127,8 +134,8 @@ test('Tolerate lowercase logbook markers', () => {
     checkbox: false,
     history: {
       checkbox: [
-        [1748523881000, false],
-        [1748287912000, 'indeterminate'],
+        [epochMillis('2025-05-29T15:04:41'), false],
+        [epochMillis('2025-05-26T21:31:52'), 'indeterminate'],
       ],
     },
   }, {
@@ -154,10 +161,10 @@ test('Task with multiple logbook entries', () => {
     checkbox: true,
     history: {
       checkbox: [
-        [1748525202000, true],
-        [1748523883000, 'indeterminate'],
-        [1748523881000, false],
-        [1748287912000, 'indeterminate'],
+        [epochMillis('2025-05-29T15:26:42'), true],
+        [epochMillis('2025-05-26T21:31:52'), 'indeterminate'],
+        [epochMillis('2025-05-29T15:04:41'), false],
+        [epochMillis('2025-05-26T21:31:52'), 'indeterminate'],
       ],
     },
   }]
