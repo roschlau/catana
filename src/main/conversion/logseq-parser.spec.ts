@@ -3,7 +3,7 @@ import {tryParseLogseq} from '@/main/conversion/logseq-parser'
 import {TreeTextNode} from '@/common/node-tree'
 import {LocalDateTime, ZonedDateTime, ZoneId} from '@js-joda/core'
 
-function epochMillis(input: string, zoneId: ZoneId = ZoneId.systemDefault()): number {
+export function epochMillis(input: string, zoneId: ZoneId = ZoneId.systemDefault()): number {
   return ZonedDateTime.of(LocalDateTime.parse(input), zoneId)
     .toInstant()
     .toEpochMilli()
@@ -162,7 +162,7 @@ test('Task with multiple logbook entries', () => {
     history: {
       checkbox: [
         [epochMillis('2025-05-29T15:26:42'), true],
-        [epochMillis('2025-05-26T21:31:52'), 'indeterminate'],
+        [epochMillis('2025-05-29T15:04:43'), 'indeterminate'],
         [epochMillis('2025-05-29T15:04:41'), false],
         [epochMillis('2025-05-26T21:31:52'), 'indeterminate'],
       ],

@@ -2,6 +2,7 @@ import {expect, test} from 'vitest'
 import {toMarkdown} from '@/main/conversion/markdown'
 import {TextNode} from '@/common/nodes'
 import {testNode} from '@/common/nodes.spec'
+import {epochMillis} from '@/main/conversion/logseq-parser.spec'
 
 test('Done Task with checkbox history entries', () => {
   const input: TextNode = {
@@ -12,10 +13,10 @@ test('Done Task with checkbox history entries', () => {
       createdTime: 1748286912000,
       lastModifiedTime: 1748525302000,
       checkbox: [
-        [1748525202000, true],
-        [1748523883000, 'indeterminate'],
-        [1748523881000, false],
-        [1748287912000, 'indeterminate'],
+        [epochMillis('2025-05-29T15:26:42'), true],
+        [epochMillis('2025-05-29T15:04:43'), 'indeterminate'],
+        [epochMillis('2025-05-29T15:04:41'), false],
+        [epochMillis('2025-05-26T21:31:52'), 'indeterminate'],
       ],
     },
   }
@@ -27,7 +28,7 @@ test('Done Task with checkbox history entries', () => {
   expect(toMarkdown(input, 'logseq')).toEqual(expected)
 })
 
-test('Done Task with checkbox history entries', () => {
+test('Open Task with incomplete checkbox history entry', () => {
   const input: TextNode = {
     ...testNode,
     title: 'Task',
@@ -36,7 +37,7 @@ test('Done Task with checkbox history entries', () => {
       createdTime: 1748286912000,
       lastModifiedTime: 1748525302000,
       checkbox: [
-        [1751666312000, 'indeterminate'],
+        [epochMillis('2025-07-04T23:58:32'), 'indeterminate'],
       ],
     },
   }
