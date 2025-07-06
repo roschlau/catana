@@ -2,7 +2,7 @@ import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 import {PartialBy} from '../../util/types'
 import {isSameView, NodeView} from '@/common/node-views'
 import {Selection} from '../../util/selection'
-import {useAppDispatch, useAppSelector} from '../hooks'
+import {useAppDispatch, useAppSelector} from '../../redux/hooks'
 import {useEffect} from 'react'
 import {Node, TextNode} from '@/common/nodes'
 

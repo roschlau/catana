@@ -1,6 +1,6 @@
 import {useAppDispatch} from '@/renderer/redux/hooks'
 import {useEffect} from 'react'
-import {workspaceLoaded} from '@/renderer/redux/workspace-persistence'
+import {workspaceLoaded} from '@/renderer/features/workspace/workspace-slice'
 import {AppCommand} from '@/renderer/commands/app-command'
 import {AppDispatch, AppState} from '@/renderer/redux/store'
 import {FolderOpen} from 'lucide-react'

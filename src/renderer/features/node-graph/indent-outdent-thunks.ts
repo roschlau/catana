@@ -4,7 +4,7 @@ import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
 import {AppDispatch, AppState} from '@/renderer/redux/store'
 import {resolveNodeView} from '@/renderer/features/node-graph/helpers'
 import {nodeExpandedChanged, nodeMoved} from '@/renderer/features/node-graph/nodesSlice'
-import {focusRestoreRequested} from '@/renderer/redux/ui/uiSlice'
+import {focusRestoreRequested} from '@/renderer/features/ui/uiSlice'
 import {Selection} from '@/renderer/util/selection'
 
 export function indentNode(

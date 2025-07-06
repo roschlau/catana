@@ -1,7 +1,7 @@
 import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
-import {selectWorkspaceDirty} from '@/renderer/redux/workspace-persistence'
+import {selectWorkspaceDirty} from '@/renderer/features/workspace/workspace-slice'
 import {useEffect} from 'react'
-import {saveWorkspacePromptShown, selectDebugMode, selectSaveWorkspacePromptShown} from '@/renderer/redux/ui/uiSlice'
+import {saveWorkspacePromptShown, selectDebugMode, selectSaveWorkspacePromptShown} from '@/renderer/features/ui/uiSlice'
 import {
   Dialog,
   DialogContent,

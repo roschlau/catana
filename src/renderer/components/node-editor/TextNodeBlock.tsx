@@ -9,7 +9,7 @@ import {
 import {KeyboardEvent, MouseEvent, Ref, useCallback, useImperativeHandle, useMemo, useRef, useState} from 'react'
 import classNames from 'classnames'
 import {calculateCursorPosition} from '@/renderer/util/textarea-measuring'
-import {focusRestoreRequested, useFocusRestore} from '@/renderer/redux/ui/uiSlice'
+import {focusRestoreRequested, useFocusRestore} from '@/renderer/features/ui/uiSlice'
 import {Selection} from '@/renderer/util/selection'
 import {isRecursive, NodeViewWithParent} from '@/common/node-views'
 import {

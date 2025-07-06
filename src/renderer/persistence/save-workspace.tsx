@@ -1,4 +1,4 @@
-import {markWorkspaceClean} from '@/renderer/redux/workspace-persistence'
+import {markWorkspaceClean} from '@/renderer/features/workspace/workspace-slice'
 import {AppDispatch, AppState} from '@/renderer/redux/store'
 import {SaveFile} from '@/main/persistence/schema/workspace-file-schema'
 import {Node} from '@/common/nodes'

@@ -6,14 +6,14 @@ import {
   titleUpdated,
 } from '@/renderer/features/node-graph/nodesSlice'
 import undoable from 'redux-undo'
-import {ephemeralUiSlice} from './ui/uiSlice'
+import {ephemeralUiSlice} from '@/renderer/features/ui/uiSlice'
 import {getUndoTransactionKey} from './undoTransactions'
 
 import {
   createWorkspaceRootReducer,
   trackWorkspaceDirtyState,
   workspaceSlice,
-} from '@/renderer/redux/workspace-persistence'
+} from '@/renderer/features/workspace/workspace-slice'
 import {navigationSlice, nodeOpened} from '@/renderer/features/navigation/navigation-slice'
 
 export const undoableReducers = combineReducers({

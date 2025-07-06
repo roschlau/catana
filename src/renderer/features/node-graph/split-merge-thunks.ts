@@ -5,7 +5,7 @@ import {AppDispatch, AppState} from '@/renderer/redux/store'
 import {getNode, NodeWithContext, resolveNodeView} from '@/renderer/features/node-graph/helpers'
 import {nodeCreated, nodeExpandedChanged, nodesMerged, titleUpdated} from '@/renderer/features/node-graph/nodesSlice'
 import {nanoid} from '@reduxjs/toolkit'
-import {focusRestoreRequested} from '@/renderer/redux/ui/uiSlice'
+import {focusRestoreRequested} from '@/renderer/features/ui/uiSlice'
 
 export function splitNode(nodeView: NodeView<TextNode>, selectionStart: number, selectionEnd: number) {
   return createUndoTransaction((dispatch: AppDispatch, getState: () => AppState) => {

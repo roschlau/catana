@@ -11,7 +11,7 @@ import {
 import {useState} from 'react'
 import {AppCommand, CommandContext} from '@/renderer/commands/app-command'
 import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
-import {focusRestoreRequested, selectCommandFocus, setCommandFocus} from '@/renderer/redux/ui/uiSlice'
+import {focusRestoreRequested, selectCommandFocus, setCommandFocus} from '@/renderer/features/ui/uiSlice'
 import {selectNodes} from '@/renderer/features/node-graph/nodesSlice'
 import {TextNode} from '@/common/nodes'
 import {ChevronRight, DotIcon} from 'lucide-react'
