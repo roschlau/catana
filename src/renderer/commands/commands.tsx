@@ -11,6 +11,7 @@ import {importFromTanaCommand} from '@/renderer/persistence/tana-import'
 import React from 'react'
 import {AppCommand, CommandContext} from '@/renderer/commands/app-command'
 import {mapIds} from '@/renderer/redux/nodes/mapIds'
+import {cycleCheckboxStateCommand} from '@/common/checkboxes'
 
 export const commands: AppCommand[] = [
   {
@@ -54,4 +55,5 @@ export const commands: AppCommand[] = [
   openWorkspaceCommand,
   saveWorkspaceCommand,
   importFromTanaCommand,
+  cycleCheckboxStateCommand,
 ]

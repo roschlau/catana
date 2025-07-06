@@ -14,6 +14,8 @@ export type CommandContext = {
 
 export type AppCommand = {
   name: string,
+  /** Additional terms that users might search for that are not already part of the name of this command.
+   * Doesn't actually do anything yet, to be implemented. */
   additionalSearchTerms?: string,
   shortcut?: string,
   icon?: React.ReactNode,
