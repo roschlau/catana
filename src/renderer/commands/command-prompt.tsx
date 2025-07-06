@@ -43,13 +43,13 @@ export function CommandPrompt({ open, onOpenChange }: {
   }
 
   const commandSelected = (command: AppCommand) => {
-    dispatch(command.thunkCreator(context))
     _onOpenChange(false)
+    dispatch(command.thunkCreator(context))
   }
 
   const nodeSelected = (nodeId: TextNode['id']) => {
-    dispatch(nodeOpened({ nodeId }))
     _onOpenChange(false)
+    dispatch(nodeOpened({ nodeId }))
   }
 
   const commandElements = commands
