@@ -104,8 +104,12 @@ export function NodeTitleEditorTextField({
     const { nodeIds, nodeTrees } = readClipboard(e.clipboardData)
     if (nodeIds) {
       e.preventDefault()
-      dispatch(insertNodeLinks(nodeView, nodeIds))
-      return
+      try {
+        dispatch(insertNodeLinks(nodeView, nodeIds))
+        return
+      } catch {
+        console.warn(`Failed to insert node links from clipboard: ${nodeIds.join(', ')}. Falling back to plain content.`)
+      }
     }
     if (nodeTrees && nodeTrees.length > 0) {
       e.preventDefault()

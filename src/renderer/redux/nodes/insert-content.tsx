@@ -13,6 +13,11 @@ export const insertNodeLinks = (
   dispatch: AppDispatch,
   getState: () => AppState,
 ) => {
+  for (const nodeId of nodeIds) {
+    if (!getState().undoable.present.nodes[nodeId]) {
+      throw Error(`Node ${nodeId} not found`)
+    }
+  }
   const { node, viewContext } = resolveNodeView(getState().undoable.present.nodes, currentNode)
   if (node.title === '' && node.content.length === 0 && viewContext) {
     // Current Node is empty, replace it
