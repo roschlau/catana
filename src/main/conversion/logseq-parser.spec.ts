@@ -1,5 +1,5 @@
 import {expect, test} from 'vitest'
-import {tryParseLogseq} from '@/main/conversion/logseq'
+import {tryParseLogseq} from '@/main/conversion/logseq-parser'
 import {TreeTextNode} from '@/common/node-tree'
 
 test('Simple Node', () => {

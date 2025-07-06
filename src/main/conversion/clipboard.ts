@@ -1,7 +1,7 @@
 import {type} from 'arktype'
 import {TextNode} from '@/common/nodes'
 import {toMarkdown} from '@/main/conversion/markdown'
-import {tryParseLogseq} from '@/main/conversion/logseq'
+import {tryParseLogseq} from '@/main/conversion/logseq-parser'
 import {TreeTextNode} from '@/common/node-tree'
 
 const catanaNodeIdsMimeType = 'x-catana/nodeIds'
