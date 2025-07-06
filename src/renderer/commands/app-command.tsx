@@ -8,7 +8,7 @@ export type CommandContext = {
   openedNode?: Id<'node'>
   focus?: {
     nodeView: NodeView<TextNode>,
-    selection?: Selection,
+    selection: Selection,
   }
 }
 

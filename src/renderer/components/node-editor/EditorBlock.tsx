@@ -1,5 +1,4 @@
 import {NodeViewWithParent} from '@/common/node-views'
-import {Selection} from '@/renderer/util/selection'
 import {Ref} from 'react'
 import {NodeEditorRef, TextNodeBlock} from '@/renderer/components/node-editor/TextNodeBlock'
 import {useAppSelector} from '@/renderer/redux/hooks'
@@ -17,9 +16,6 @@ export function EditorBlock({
   expanded,
   moveFocusBefore,
   moveFocusAfter,
-  indent,
-  outdent,
-  outdentChild,
   ref,
 }: {
   className?: string,
@@ -32,12 +28,6 @@ export function EditorBlock({
   /** Called when the user attempts to move focus out of and after this node.
    Should return false if there is no next node to move focus to, true otherwise. */
   moveFocusAfter?: () => boolean,
-  /** Called when the user triggers the indent action on this node. */
-  indent?: (selection: Selection) => void,
-  /** Called when the user triggers the outdent action on this node. */
-  outdent?: (selection: Selection) => void,
-  /** Called when the user triggers the outdent action on a child node of this node. */
-  outdentChild?: (nodeView: NodeViewWithParent<Node>, selection: Selection) => void,
   ref?: Ref<NodeEditorRef>,
 }) {
   const node = useAppSelector(state => getOptionalNode(state.undoable.present.nodes, nodeView.nodeId))
@@ -59,9 +49,6 @@ export function EditorBlock({
         expanded={expanded}
         moveFocusBefore={moveFocusBefore}
         moveFocusAfter={moveFocusAfter}
-        indent={indent}
-        outdent={outdent}
-        outdentChild={outdentChild}
         ref={ref}
       />
     case 'property':

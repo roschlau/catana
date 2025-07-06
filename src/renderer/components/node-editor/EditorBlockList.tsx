@@ -1,24 +1,19 @@
 import {NodeViewWithParent, ParentNodeView} from '@/common/node-views'
-import {Selection} from '@/renderer/util/selection'
 import {Ref, useImperativeHandle, useRef} from 'react'
-import {useAppDispatch} from '@/renderer/redux/hooks'
 import {twMerge} from 'tailwind-merge'
 import {EditorBlock} from '@/renderer/components/node-editor/EditorBlock'
 import {Node, TextNode} from '@/common/nodes'
-import {indentNode, outdentNode} from '@/renderer/features/node-graph/indent-outdent-thunks'
 
 export interface EditorBlockListRef {
   focus: (mode: 'first' | 'last') => void
 }
 
-export function EditorBlockList({ className, nodes, parentView, moveFocusBefore, moveFocusAfter, outdentChild, ref }: {
+export function EditorBlockList({ className, nodes, parentView, moveFocusBefore, moveFocusAfter, ref }: {
   className?: string,
   nodes: TextNode['content'],
   parentView: ParentNodeView,
   moveFocusBefore?: () => boolean,
   moveFocusAfter?: () => boolean,
-  /** Called when the user triggers the outdent action on a node within this list. */
-  outdentChild?: (nodeView: NodeViewWithParent<Node>, selection: Selection) => void,
   ref?: Ref<EditorBlockListRef>,
 }) {
   useImperativeHandle(ref, () => ({
@@ -30,7 +25,6 @@ export function EditorBlockList({ className, nodes, parentView, moveFocusBefore,
       }
     },
   }))
-  const dispatch = useAppDispatch()
   const parentId = parentView.nodeId
   if (!parentId) {
     throw new Error('NodeEditorList must have a parent node ID')
@@ -54,24 +48,6 @@ export function EditorBlockList({ className, nodes, parentView, moveFocusBefore,
     return true
   }
 
-  const indent = (index: number, childView: NodeViewWithParent<Node>, selection: Selection) => {
-    if (index === 0) {
-      // Can't indent a node that's already the first within its siblings
-      return
-    }
-    // Indent node into previous preceding sibling
-    dispatch(indentNode(
-      childView,
-      { nodeId: nodes[index - 1].nodeId, parent: parentView },
-      selection,
-    ))
-  }
-
-  // Handles outdenting a child node of one of this list's nodes into this list
-  const outdentChildOfChild = (index: number, nodeView: NodeViewWithParent<Node>, selection: Selection) => {
-    dispatch(outdentNode(nodeView, parentView, index + 1, selection))
-  }
-
   return (
     <div className={twMerge('grid p-0', className)} style={{ gridTemplateColumns: 'minmax(auto, 200px) 1fr' }}>
       {nodes.map((contentNode, i) => {
@@ -84,9 +60,6 @@ export function EditorBlockList({ className, nodes, parentView, moveFocusBefore,
             expanded={contentNode.expanded ?? false}
             moveFocusBefore={() => focusIndex(i - 1, 'last')}
             moveFocusAfter={() => focusIndex(i + 1, 'first')}
-            indent={(selection) => indent(i, childView, selection)}
-            outdent={outdentChild ? (selection) => outdentChild(childView, selection) : undefined}
-            outdentChild={(nodeView, selection) => outdentChildOfChild(i, nodeView, selection)}
             ref={el => {
               childNodeRefs.current[i] = el
             }}

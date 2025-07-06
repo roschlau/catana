@@ -21,11 +21,12 @@ import {ChevronRight} from 'lucide-react'
 import {selectResolvedNodeView} from '@/renderer/features/node-graph/helpers'
 import {ListItem} from '@/renderer/components/ui/list-item'
 import {twMerge} from 'tailwind-merge'
-import {Node, TextNode} from '@/common/nodes'
+import {TextNode} from '@/common/nodes'
 import {mergeNodeBackward, mergeNodeForward, splitNode} from '@/renderer/features/node-graph/split-merge-thunks'
-import {deleteNodeTree} from '@/renderer/features/node-graph/delete-node-tree-thunk'
+import {deleteNodeTree} from '@/renderer/features/node-graph/delete-node-tree'
 import {modKey} from '@/renderer/util/keyboard'
 import {nodeOpened} from '@/renderer/features/navigation/navigation-slice'
+import {indentNode, outdentNode} from '@/renderer/features/node-graph/indent-outdent'
 
 export interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void
@@ -37,9 +38,6 @@ export function TextNodeBlock({
   expanded,
   moveFocusBefore,
   moveFocusAfter,
-  indent,
-  outdent,
-  outdentChild,
   ref,
 }: {
   className?: string,
@@ -52,12 +50,6 @@ export function TextNodeBlock({
   /** Called when the user attempts to move focus out of and after this node.
    Should return false if there is no next node to move focus to, true otherwise. */
   moveFocusAfter?: () => boolean,
-  /** Called when the user triggers the indent action on this node. */
-  indent?: (selection: Selection) => void,
-  /** Called when the user triggers the outdent action on this node. */
-  outdent?: (selection: Selection) => void,
-  /** Called when the user triggers the outdent action on a child node of this node. */
-  outdentChild?: (nodeView: NodeViewWithParent<Node>, selection: Selection) => void,
   ref?: Ref<NodeEditorRef>,
 }) {
   const dispatch = useAppDispatch()
@@ -169,18 +161,18 @@ export function TextNodeBlock({
     if (e.key === 'Tab') {
       e.preventDefault()
       if (e.shiftKey) {
-        outdent?.(selection)
+        dispatch(outdentNode(nodeView, selection))
       } else {
-        indent?.(selection)
+        dispatch(indentNode(nodeView, selection))
       }
       return
     }
     if (e.key === 'Enter') {
       // Not allowing any line breaks for now to simplify things. Might change my mind on that later.
       e.preventDefault()
-      if (node.title === '' && viewContext.childIndex === parent.content.length - 1 && outdent) {
+      if (node.title === '' && viewContext.childIndex === parent.content.length - 1) {
         // Outdent node instead of adding additional empty nodes
-        outdent(selection)
+        dispatch(outdentNode(nodeView, selection))
       } else {
         dispatch(splitNode(
           nodeView,
@@ -260,7 +252,6 @@ export function TextNodeBlock({
             parentView={nodeView}
             moveFocusBefore={focus}
             moveFocusAfter={moveFocusAfter}
-            outdentChild={outdentChild}
           />
         </ListItem>)
       }
