@@ -1,5 +1,5 @@
 import {expect, test} from 'vitest'
-import {tryParseLogseq} from '@/main/conversion/logseq-parser'
+import {tryParseLogseq} from '@/common/conversion/logseq-parser'
 import {TreeTextNode} from '@/common/node-tree'
 import {LocalDateTime, ZonedDateTime, ZoneId} from '@js-joda/core'
 

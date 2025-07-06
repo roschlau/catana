@@ -13,7 +13,7 @@ import {setCommandFocus} from '@/renderer/redux/ui/uiSlice'
 import {getNode} from '@/renderer/features/node-graph/helpers'
 import {modKey} from '@/renderer/util/keyboard'
 import {insertNodeLinks, insertTrees} from '@/renderer/features/node-graph/insert-content'
-import {copyNode, readClipboard} from '@/main/conversion/clipboard'
+import {copyNode, readClipboard} from '@/common/conversion/clipboard'
 import {flatten} from '@/common/node-tree'
 
 export interface NodeTitleEditorTextFieldRef {

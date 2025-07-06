@@ -1,8 +1,8 @@
 import {expect, test} from 'vitest'
-import {toMarkdown} from '@/main/conversion/markdown'
+import {toMarkdown} from '@/common/conversion/markdown'
 import {TextNode} from '@/common/nodes'
 import {testNode} from '@/common/nodes.spec'
-import {epochMillis} from '@/main/conversion/logseq-parser.spec'
+import {epochMillis} from '@/common/conversion/logseq-parser.spec'
 
 test('Done Task with checkbox history entries', () => {
   const input: TextNode = {
