@@ -19,4 +19,4 @@ jobs:
       - name: Run Type Check
         run: tsc --noEmit
       - name: Run Tests
-        run: npm run check
+        run: npm run test
