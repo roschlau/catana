@@ -11,11 +11,12 @@ import {
 import {useState} from 'react'
 import {AppCommand, CommandContext} from '@/renderer/commands/app-command'
 import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
-import {focusRestoreRequested, nodeOpened, selectCommandFocus, setCommandFocus} from '@/renderer/redux/ui/uiSlice'
-import {selectNodes} from '@/renderer/redux/nodes/nodesSlice'
+import {focusRestoreRequested, selectCommandFocus, setCommandFocus} from '@/renderer/redux/ui/uiSlice'
+import {selectNodes} from '@/renderer/features/node-graph/nodesSlice'
 import {TextNode} from '@/common/nodes'
 import {ChevronRight, DotIcon} from 'lucide-react'
 import {commands} from '@/renderer/commands/commands'
+import {nodeOpened} from '@/renderer/features/navigation/navigation-slice'
 
 export function CommandPrompt({ open, onOpenChange }: {
   open: boolean,
@@ -24,7 +25,7 @@ export function CommandPrompt({ open, onOpenChange }: {
   const [searchQuery, setSearchQuery] = useState('')
   const dispatch = useAppDispatch()
   const filteredNodes = useAppSelector(state => open && searchQuery !== '' ? selectNodes(state, searchQuery) : [])
-  const openedNode = useAppSelector(state => state.undoable.present.ui.openedNode)
+  const openedNode = useAppSelector(state => state.undoable.present.navigation.openedNode)
   const lastFocus = useAppSelector(selectCommandFocus)
   const context: CommandContext = {
     openedNode: openedNode ?? undefined,

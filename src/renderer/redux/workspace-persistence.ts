@@ -28,10 +28,12 @@ export const createWorkspaceRootReducer = (reducer: Reducer) => {
           present: {
             ui: {
               workspacePath: saveFile.path,
+              workspaceDirty: false,
+            },
+            navigation: {
               openedNode: saveFile.content.openedNode,
               backStack: [],
               forwardStack: [],
-              workspaceDirty: false,
             },
             nodes: nodesById,
           },

@@ -1,6 +1,6 @@
 import {createSelector} from '@reduxjs/toolkit'
 import {AppState} from '@/renderer/redux/store'
-import {getNode} from '@/renderer/redux/nodes/helpers'
+import {getNode} from '@/renderer/features/node-graph/helpers'
 import {Node, ParentNode} from '@/common/nodes'
 
 /**

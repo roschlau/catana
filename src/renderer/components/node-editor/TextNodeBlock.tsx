@@ -5,11 +5,11 @@ import {
   nodeIndexChanged,
   nodeLinkRemoved,
   nodeTreeDeleted,
-} from '@/renderer/redux/nodes/nodesSlice'
+} from '@/renderer/features/node-graph/nodesSlice'
 import {KeyboardEvent, MouseEvent, Ref, useCallback, useImperativeHandle, useMemo, useRef, useState} from 'react'
 import classNames from 'classnames'
 import {calculateCursorPosition} from '@/renderer/util/textarea-measuring'
-import {focusRestoreRequested, nodeOpened, useFocusRestore} from '@/renderer/redux/ui/uiSlice'
+import {focusRestoreRequested, useFocusRestore} from '@/renderer/redux/ui/uiSlice'
 import {Selection} from '@/renderer/util/selection'
 import {isRecursive, NodeViewWithParent} from '@/common/node-views'
 import {
@@ -18,13 +18,14 @@ import {
 } from '@/renderer/components/node-editor/NodeTitleEditorTextField'
 import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-editor/EditorBlockList'
 import {ChevronRight} from 'lucide-react'
-import {selectResolvedNodeView} from '@/renderer/redux/nodes/helpers'
+import {selectResolvedNodeView} from '@/renderer/features/node-graph/helpers'
 import {ListItem} from '@/renderer/components/ui/list-item'
 import {twMerge} from 'tailwind-merge'
 import {Node, TextNode} from '@/common/nodes'
-import {mergeNodeBackward, mergeNodeForward, splitNode} from '@/renderer/redux/nodes/split-merge-thunks'
-import {deleteNodeTree} from '@/renderer/redux/nodes/delete-node-tree-thunk'
+import {mergeNodeBackward, mergeNodeForward, splitNode} from '@/renderer/features/node-graph/split-merge-thunks'
+import {deleteNodeTree} from '@/renderer/features/node-graph/delete-node-tree-thunk'
 import {modKey} from '@/renderer/util/keyboard'
+import {nodeOpened} from '@/renderer/features/navigation/navigation-slice'
 
 export interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void

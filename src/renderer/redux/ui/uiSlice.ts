@@ -4,14 +4,10 @@ import {isSameView, NodeView} from '@/common/node-views'
 import {Selection} from '../../util/selection'
 import {useAppDispatch, useAppSelector} from '../hooks'
 import {useEffect} from 'react'
-import {ROOT_NODE} from '@/common/demoGraph'
-import {Id, Node, TextNode} from '@/common/nodes'
+import {Node, TextNode} from '@/common/nodes'
 
 export interface UndoableUiState {
   workspacePath: string | null
-  openedNode: Id<'node'> | null
-  backStack: Id<'node'>[]
-  forwardStack: Id<'node'>[]
   workspaceDirty: boolean,
 }
 
@@ -32,36 +28,9 @@ export const undoableUiSlice = createSlice({
   name: 'ui',
   initialState: {
     workspacePath: null,
-    openedNode: ROOT_NODE,
-    backStack: [],
-    forwardStack: [],
     workspaceDirty: false,
   } satisfies UndoableUiState as UndoableUiState,
-  reducers: {
-    nodeOpened: (state, action: PayloadAction<{ nodeId: Id<'node'> | null }>) => {
-      if (state.openedNode) {
-        state.backStack.push(state.openedNode)
-      }
-      state.forwardStack = []
-      state.openedNode = action.payload.nodeId
-    },
-    navigatedBack: (state) => {
-      if (state.backStack.length > 0) {
-        if (state.openedNode) {
-          state.forwardStack.push(state.openedNode)
-        }
-        state.openedNode = state.backStack.pop()!
-      }
-    },
-    navigatedForward: (state) => {
-      if (state.forwardStack.length > 0) {
-        if (state.openedNode) {
-          state.backStack.push(state.openedNode)
-        }
-        state.openedNode = state.forwardStack.pop()!
-      }
-    },
-  },
+  reducers: {},
 })
 
 interface FocusRestoreRequest {
@@ -106,11 +75,6 @@ export const ephemeralUiSlice = createSlice({
   },
 })
 
-export const {
-  nodeOpened,
-  navigatedBack,
-  navigatedForward,
-} = undoableUiSlice.actions
 export const {
   focusRestoreRequested,
   focusRestored,

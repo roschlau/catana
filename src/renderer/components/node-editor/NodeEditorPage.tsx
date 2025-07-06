@@ -8,10 +8,10 @@ import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-ed
 import {calculateCursorPosition} from '@/renderer/util/textarea-measuring'
 import {selectDebugMode, useFocusRestore} from '@/renderer/redux/ui/uiSlice'
 import {EditorPageBreadcrumbs} from '@/renderer/components/node-editor/EditorPageBreadcrumbs'
-import {getOptionalNode} from '@/renderer/redux/nodes/helpers'
+import {getOptionalNode} from '@/renderer/features/node-graph/helpers'
 import {Id, Node} from '@/common/nodes'
 import {DateTimeFormatter, Instant, LocalDate, ZonedDateTime, ZoneId} from '@js-joda/core'
-import {mergeNodeForward, splitNode} from '@/renderer/redux/nodes/split-merge-thunks'
+import {mergeNodeForward, splitNode} from '@/renderer/features/node-graph/split-merge-thunks'
 
 export function NodeEditorPage({ nodeId }: {
   nodeId: Id<'node'>,

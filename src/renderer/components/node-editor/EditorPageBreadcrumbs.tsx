@@ -7,7 +7,7 @@ import {
   BreadcrumbSeparator,
 } from '@/renderer/components/ui/breadcrumb'
 import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
-import {nodeOpened} from '@/renderer/redux/ui/uiSlice'
+import {nodeOpened} from '@/renderer/features/navigation/navigation-slice'
 import {Fragment} from 'react'
 import {
   DropdownMenu,
@@ -15,7 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/renderer/components/ui/dropdown-menu'
-import {selectAncestry} from '@/renderer/redux/nodes/selectors'
+import {selectAncestry} from '@/renderer/features/node-graph/selectors'
 import {Field, TextNode} from '@/common/nodes'
 
 /**

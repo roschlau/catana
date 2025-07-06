@@ -1,6 +1,37 @@
-import {TreeTextNode} from '@/common/node-tree'
+import {flatten, TreeTextNode} from '@/common/node-tree'
 import {systemFields} from '@/common/system-fields'
 import {Id} from '@/common/nodes'
+import {AppCommand, CommandContext} from '@/renderer/commands/app-command'
+import {FileQuestionIcon} from 'lucide-react'
+import {AppDispatch} from '@/renderer/redux/store'
+import {mapIds} from '@/renderer/features/node-graph/mapIds'
+import {nanoid} from '@reduxjs/toolkit'
+import {insertTrees} from '@/renderer/features/node-graph/insert-content'
+
+export const insertDemoContentCommand: AppCommand =   {
+  name: 'Insert Demo Content',
+  icon: <FileQuestionIcon/>,
+  canActivate: (context) => !!context.focus || !!context.openedNode,
+  thunkCreator: (context: CommandContext) => (dispatch: AppDispatch) => {
+    const nodeView = context.focus?.nodeView ?? { nodeId: context.openedNode! }
+    if (!nodeView) {
+      console.warn('Insert Demo Content command triggered without node in context')
+      return
+    }
+    const flattenedDemoGraph = mapIds(flatten(demoGraph).nodes, () => nanoid())
+    const roots = Object.values(flattenedDemoGraph).filter(node => !node!.ownerId)
+    if (roots.length !== 1) {
+      console.warn('Demo graph contains the following roots: ', roots.map(node => node!.id).join(','))
+      throw new Error('Demo graph must contain exactly one root node')
+    }
+    const root = roots[0]!
+    if (root.type !== 'node') {
+      console.warn(`Demo graph root node ${root.id} was ${root.type}`)
+      throw new Error('Demo graph root node must be a text node')
+    }
+    dispatch(insertTrees(nodeView, [{ nodes: flattenedDemoGraph, rootId: root.id }]))
+  },
+}
 
 export const ROOT_NODE = '_root' as Id<'node'>
 

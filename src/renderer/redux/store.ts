@@ -1,14 +1,21 @@
 import {combineReducers, configureStore} from '@reduxjs/toolkit'
-import {nodeExpandedChanged, nodeIndexChanged, nodesSlice, titleUpdated} from './nodes/nodesSlice'
+import {
+  nodeExpandedChanged,
+  nodeIndexChanged,
+  nodesSlice,
+  titleUpdated,
+} from '@/renderer/features/node-graph/nodesSlice'
 import undoable from 'redux-undo'
-import {ephemeralUiSlice, nodeOpened, undoableUiSlice} from './ui/uiSlice'
+import {ephemeralUiSlice, undoableUiSlice} from './ui/uiSlice'
 import {getUndoTransactionKey} from './undoTransactions'
 
 import {createWorkspaceRootReducer, trackWorkspaceDirtyState} from '@/renderer/redux/workspace-persistence'
+import {navigationSlice, nodeOpened} from '@/renderer/features/navigation/navigation-slice'
 
 export const undoableReducers = combineReducers({
   nodes: nodesSlice.reducer,
   ui: undoableUiSlice.reducer,
+  navigation: navigationSlice.reducer,
 })
 
 export type UndoableState = ReturnType<typeof undoableReducers>

@@ -5,7 +5,7 @@ import {useAppDispatch} from '@/renderer/redux/hooks'
 import {twMerge} from 'tailwind-merge'
 import {EditorBlock} from '@/renderer/components/node-editor/EditorBlock'
 import {Node, TextNode} from '@/common/nodes'
-import {indentNode, outdentNode} from '@/renderer/redux/nodes/indent-outdent-thunks'
+import {indentNode, outdentNode} from '@/renderer/features/node-graph/indent-outdent-thunks'
 
 export interface EditorBlockListRef {
   focus: (mode: 'first' | 'last') => void

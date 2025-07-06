@@ -1,15 +1,15 @@
 import {Node} from '@/common/nodes'
 import {AppDispatch, AppState} from '@/renderer/redux/store'
-import {getNode} from '@/renderer/redux/nodes/helpers'
-import {nodeTreeDeleted} from '@/renderer/redux/nodes/nodesSlice'
-import {nodeOpened} from '@/renderer/redux/ui/uiSlice'
+import {getNode} from '@/renderer/features/node-graph/helpers'
+import {nodeTreeDeleted} from '@/renderer/features/node-graph/nodesSlice'
+import {nodeOpened} from '@/renderer/features/navigation/navigation-slice'
 
 export function deleteNodeTree(nodeId: Node['id']) {
   return (dispatch: AppDispatch, getState: () => AppState) => {
     const node = getNode(getState().undoable.present.nodes, nodeId)
     if (!node) return
     dispatch(nodeTreeDeleted({ nodeId }))
-    const openedNode = getState().undoable.present.ui.openedNode
+    const openedNode = getState().undoable.present.navigation.openedNode
     if (openedNode !== nodeId) {
       return
     }

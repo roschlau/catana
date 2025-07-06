@@ -2,8 +2,8 @@ import {AppCommand, CommandContext} from '@/renderer/commands/app-command'
 import {ImportIcon} from 'lucide-react'
 import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
 import {AppDispatch} from '@/renderer/redux/store'
-import {insertTrees} from '@/renderer/redux/nodes/insert-content'
-import {mapIds} from '@/renderer/redux/nodes/mapIds'
+import {insertTrees} from '@/renderer/features/node-graph/insert-content'
+import {mapIds} from '@/renderer/features/node-graph/mapIds'
 
 export const importFromTanaCommand: AppCommand = {
   name: 'Import from Tana',

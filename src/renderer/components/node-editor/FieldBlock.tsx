@@ -1,6 +1,6 @@
 import {NodeViewWithParent} from '@/common/node-views'
 import {useAppSelector} from '@/renderer/redux/hooks'
-import {getNode} from '@/renderer/redux/nodes/helpers'
+import {getNode} from '@/renderer/features/node-graph/helpers'
 import {ListItem} from '@/renderer/components/ui/list-item'
 import {RectangleEllipsis} from 'lucide-react'
 import {twMerge} from 'tailwind-merge'

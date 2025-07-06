@@ -6,7 +6,7 @@ import {store} from '@/renderer/redux/store'
 import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
 import {ActionCreators} from 'redux-undo'
 import {NodeEditorPage} from '@/renderer/components/node-editor/NodeEditorPage'
-import {debugModeSet, navigatedBack, navigatedForward, selectDebugMode} from '@/renderer/redux/ui/uiSlice'
+import {debugModeSet, selectDebugMode} from '@/renderer/redux/ui/uiSlice'
 import {SearchIcon, SunMoon} from 'lucide-react'
 import {Button} from '@/renderer/components/ui/button'
 import {Switch} from '@/renderer/components/ui/switch'
@@ -17,6 +17,7 @@ import {CommandShortcut} from '@/renderer/components/ui/command'
 import {SaveWorkspacePrompt} from '@/renderer/persistence/save-workspace-prompt'
 import {OpenWorkspaceOnStartup} from '@/renderer/persistence/open-workspace'
 import {modKey} from '@/renderer/util/keyboard'
+import {navigatedBack, navigatedForward} from '@/renderer/features/navigation/navigation-slice'
 
 const root = createRoot(document.body)
 root.render(
@@ -31,7 +32,7 @@ root.render(
 
 function App() {
   const dispatch = useAppDispatch()
-  const nodeId = useAppSelector((state) => state.undoable.present.ui.openedNode)
+  const nodeId = useAppSelector((state) => state.undoable.present.navigation.openedNode)
   const [commandPromptOpen, setCommandPromptOpen] = useState(false)
 
   const globalKeydown = useCallback(async (e: KeyboardEvent) => {

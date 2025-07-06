@@ -1,8 +1,8 @@
 import {NodeView} from '@/common/node-views'
 import {Id, NodeGraphFlattened, TextNode} from '@/common/nodes'
 import {AppDispatch, AppState} from '@/renderer/redux/store'
-import {resolveNodeView} from '@/renderer/redux/nodes/helpers'
-import {nodeLinksAdded, nodeTreeAdded, nodeTreeDeleted} from '@/renderer/redux/nodes/nodesSlice'
+import {resolveNodeView} from '@/renderer/features/node-graph/helpers'
+import {nodeLinksAdded, nodeTreeAdded, nodeTreeDeleted} from '@/renderer/features/node-graph/nodesSlice'
 import {focusRestoreRequested} from '@/renderer/redux/ui/uiSlice'
 import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
 

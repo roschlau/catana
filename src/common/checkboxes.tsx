@@ -2,8 +2,8 @@
 import {CheckedState} from '@radix-ui/react-checkbox'
 import {AppCommand} from '@/renderer/commands/app-command'
 import {CopyCheckIcon} from 'lucide-react'
-import {checkboxUpdated} from '@/renderer/redux/nodes/nodesSlice'
-import {getNode} from '@/renderer/redux/nodes/helpers'
+import {checkboxUpdated} from '@/renderer/features/node-graph/nodesSlice'
+import {getNode} from '@/renderer/features/node-graph/helpers'
 
 export type CheckboxState = CheckedState
 
