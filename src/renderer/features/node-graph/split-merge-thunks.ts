@@ -75,7 +75,7 @@ export function splitIntoSibling(
   const title2 = node.title.slice(splitAt)
   const newNodeId = nanoid() as Id<'node'>
   // If the split node has a checkbox, the new node should also have one, but unchecked
-  const checkbox = node.checkbox ? { checkbox: false } : {}
+  const checkbox = node.checkbox !== undefined ? { checkbox: false } : {}
   dispatch(nodeCreated({
     nodeId: newNodeId,
     title: newNodePosition === 'before' ? title1 : title2,
