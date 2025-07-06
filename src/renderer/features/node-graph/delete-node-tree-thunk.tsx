@@ -3,6 +3,16 @@ import {AppDispatch, AppState} from '@/renderer/redux/store'
 import {getNode} from '@/renderer/features/node-graph/helpers'
 import {nodeTreeDeleted} from '@/renderer/features/node-graph/nodesSlice'
 import {nodeOpened} from '@/renderer/features/navigation/navigation-slice'
+import {AppCommand} from '@/renderer/commands/app-command'
+import {ArrowBigUp, DeleteIcon, TrashIcon} from 'lucide-react'
+
+export const deleteNodeCommand: AppCommand = {
+  name: 'Delete Node',
+  icon: <TrashIcon/>,
+  shortcut: <>Ctrl <ArrowBigUp size={16}/> <DeleteIcon/></>,
+  canActivate: ({focus}) => !!focus,
+  thunkCreator: ({focus}) => deleteNodeTree(focus!.nodeView.nodeId)
+}
 
 export function deleteNodeTree(nodeId: Node['id']) {
   return (dispatch: AppDispatch, getState: () => AppState) => {

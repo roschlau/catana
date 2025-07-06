@@ -17,7 +17,7 @@ export type AppCommand = {
   /** Additional terms that users might search for that are not already part of the name of this command.
    * Doesn't actually do anything yet, to be implemented. */
   additionalSearchTerms?: string,
-  shortcut?: string,
+  shortcut?: string | React.ReactNode,
   icon?: React.ReactNode,
   canActivate: (context: CommandContext) => boolean,
   thunkCreator: (context: CommandContext) => (dispatch: AppDispatch, getState: () => AppState) => void,
