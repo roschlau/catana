@@ -10,11 +10,11 @@ import {deleteNodeCommand} from '@/renderer/features/node-graph/delete-node-tree
 export const commands: AppCommand[] = [
   zoomInCommand,
   deleteNodeCommand,
+  cycleCheckboxStateCommand,
   insertDemoContentCommand,
   openWorkspaceCommand,
   saveWorkspaceCommand,
   importFromTanaCommand,
-  cycleCheckboxStateCommand,
   backCommand,
   forwardCommand,
 ]

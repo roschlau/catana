@@ -8,7 +8,7 @@ import {SaveIcon} from 'lucide-react'
 export const saveWorkspaceCommand: AppCommand = {
   name: "Save Workspace",
   icon: <SaveIcon/>,
-  shortcut: 'Ctrl + S',
+  shortcut: ['Ctrl', 'S'],
   additionalSearchTerms: 'workspace commit store',
   canActivate: () => true,
   thunkCreator: () => saveWorkspace,

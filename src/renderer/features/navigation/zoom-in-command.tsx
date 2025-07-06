@@ -7,7 +7,7 @@ export const zoomInCommand: AppCommand = {
   name: 'Zoom in on node',
   additionalSearchTerms: 'open focus',
   icon: <FullscreenIcon/>,
-  shortcut: 'Alt →',
+  shortcut: ['Alt', '→'],
   canActivate: (context) => !!context.focus?.nodeView?.parent,
   thunkCreator: (context: CommandContext) => (dispatch: AppDispatch, _getState: () => AppState) => {
     if (!context.focus) {
@@ -21,7 +21,7 @@ export const zoomInCommand: AppCommand = {
 export const backCommand: AppCommand = {
   name: 'Back',
   icon: <ArrowLeft/>,
-  shortcut: 'Ctrl + Alt + ←',
+  shortcut: ['Ctrl', 'Alt', '←'],
   canActivate: () => true,
   thunkCreator: () => (dispatch) => {
     dispatch(navigatedBack())
@@ -31,7 +31,7 @@ export const backCommand: AppCommand = {
 export const forwardCommand: AppCommand = {
   name: 'Forward',
   icon: <ArrowRight/>,
-  shortcut: 'Ctrl + Alt + →',
+  shortcut: ['Ctrl', 'Alt', '→'],
   canActivate: () => true,
   thunkCreator: () => (dispatch) => {
     dispatch(navigatedForward())

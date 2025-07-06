@@ -25,7 +25,7 @@ export const cycleCheckboxStateCommand: AppCommand = {
   name: 'Cycle Checkbox State',
   icon: <CopyCheckIcon/>,
   additionalSearchTerms: 'task doing done',
-  shortcut: 'Ctrl + Enter',
+  shortcut: ['Ctrl', 'Enter'],
   canActivate: ({focus}) => !!focus,
   thunkCreator: ({focus}) => (dispatch, getState) => {
     if (!focus) {

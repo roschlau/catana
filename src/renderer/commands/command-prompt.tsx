@@ -61,7 +61,7 @@ export function CommandPrompt({ open, onOpenChange }: {
       >
         {command.icon}
         {command.name}
-        {command.shortcut && <CommandShortcut>{command.shortcut}</CommandShortcut>}
+        {command.shortcut && <CommandShortcut>{command.shortcut.map(it => typeof it === 'string' ? <span>{it}</span> : it)}</CommandShortcut>}
       </CommandItem>
     ))
 

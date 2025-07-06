@@ -9,7 +9,7 @@ import {ArrowBigUp, DeleteIcon, TrashIcon} from 'lucide-react'
 export const deleteNodeCommand: AppCommand = {
   name: 'Delete Node',
   icon: <TrashIcon/>,
-  shortcut: <>Ctrl <ArrowBigUp size={16}/> <DeleteIcon/></>,
+  shortcut: ['Ctrl', <ArrowBigUp size={16}/>, <DeleteIcon/>],
   canActivate: ({focus}) => !!focus,
   thunkCreator: ({focus}) => deleteNodeTree(focus!.nodeView.nodeId)
 }
