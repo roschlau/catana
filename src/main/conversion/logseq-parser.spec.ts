@@ -72,7 +72,7 @@ test('Done Task with logbook entry', () => {
   expect(tryParseLogseq(input)).toEqual(expected)
 })
 
-test.only(`Doesn't get confused on windows-style line endings`, () => {
+test(`Doesn't get confused on windows-style line endings`, () => {
   const input = `\r
 - Windows Node1\r
 - Windows Node2`
