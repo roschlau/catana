@@ -6,11 +6,6 @@ import {useAppDispatch, useAppSelector} from '../hooks'
 import {useEffect} from 'react'
 import {Node, TextNode} from '@/common/nodes'
 
-export interface UndoableUiState {
-  workspacePath: string | null
-  workspaceDirty: boolean,
-}
-
 export interface EphemeralUiState {
   debugMode: boolean
   commandFocus?: {
@@ -20,18 +15,6 @@ export interface EphemeralUiState {
   focusRestoreRequest?: FocusRestoreRequest
   saveWorkspacePromptShown?: boolean
 }
-
-/**
- * All parts of UI state that should be captured in global undo history
- */
-export const undoableUiSlice = createSlice({
-  name: 'ui',
-  initialState: {
-    workspacePath: null,
-    workspaceDirty: false,
-  } satisfies UndoableUiState as UndoableUiState,
-  reducers: {},
-})
 
 interface FocusRestoreRequest {
   nodeView: NodeView<Node>

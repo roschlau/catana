@@ -33,7 +33,7 @@ export async function promptToSaveWorkspaceIfNecessary(
 ): Promise<boolean> {
   return new Promise((resolve) => {
     const state = getState()
-    if (!state.undoable.present.ui.workspaceDirty) {
+    if (!state.undoable.present.workspace.workspaceDirty) {
       resolve(false)
       return
     }

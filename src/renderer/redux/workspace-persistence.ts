@@ -1,8 +1,25 @@
 import {AppState, UndoableState} from '@/renderer/redux/store'
 import {SaveFile} from '@/main/persistence/schema/workspace-file-schema'
 import {Node} from '@/common/nodes'
-import {createAction, PayloadAction, Reducer, UnknownAction} from '@reduxjs/toolkit'
+import {createAction, createSlice, PayloadAction, Reducer, UnknownAction} from '@reduxjs/toolkit'
 import {OpenWorkspaceResult} from '@/preload/catana-api'
+
+export interface WorkspaceState {
+  workspacePath: string | null
+  workspaceDirty: boolean,
+}
+
+/**
+ * All parts of UI state that should be captured in global undo history
+ */
+export const workspaceSlice = createSlice({
+  name: 'workspace',
+  initialState: {
+    workspacePath: null,
+    workspaceDirty: false,
+  } satisfies WorkspaceState as WorkspaceState,
+  reducers: {},
+})
 
 export const workspaceLoaded = createAction<OpenWorkspaceResult>('root/workspaceLoaded')
 
@@ -26,7 +43,7 @@ export const createWorkspaceRootReducer = (reducer: Reducer) => {
         undoable: {
           past: [],
           present: {
-            ui: {
+            workspace: {
               workspacePath: saveFile.path,
               workspaceDirty: false,
             },
@@ -48,30 +65,28 @@ export const createWorkspaceRootReducer = (reducer: Reducer) => {
 export const markWorkspaceClean = createAction('root/markWorkspaceClean')
 
 export const trackWorkspaceDirtyState = (reducer: Reducer) => {
-  // TODO I feel like this reducer could probably be implemented more elegantly. It mostly bugs me that `workspaceDirty`
-  //  lives in the nested ui state, rather than being its own top-level (relative to this reducer) field.
   return (state: UndoableState | undefined, action: UnknownAction): UndoableState => {
     const newState = reducer(state, action) as UndoableState
     if (action.type === markWorkspaceClean.type) {
       return {
         ...newState,
-        ui: {
-          ...newState.ui,
+        workspace: {
+          ...newState.workspace,
           workspaceDirty: false,
         },
       }
     }
-    if (newState.ui.workspaceDirty || !newState.ui.workspacePath || newState === state) {
+    if (newState.workspace.workspaceDirty || !newState.workspace.workspacePath || newState === state) {
       return newState
     }
     return {
       ...newState,
-      ui: {
-        ...newState.ui,
+      workspace: {
+        ...newState.workspace,
         workspaceDirty: true,
       },
     }
   }
 }
 
-export const selectWorkspaceDirty = (state: AppState) => state.undoable.present.ui.workspaceDirty
+export const selectWorkspaceDirty = (state: AppState) => state.undoable.present.workspace.workspaceDirty
