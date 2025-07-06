@@ -4,7 +4,7 @@ import {saveWorkspaceCommand} from '@/renderer/persistence/save-workspace'
 import {importFromTanaCommand} from '@/renderer/persistence/tana-import'
 import {AppCommand} from '@/renderer/commands/app-command'
 import {cycleCheckboxStateCommand} from '@/common/checkboxes'
-import {zoomInCommand} from '@/renderer/features/navigation/zoom-in-command'
+import {backCommand, forwardCommand, zoomInCommand} from '@/renderer/features/navigation/zoom-in-command'
 
 export const commands: AppCommand[] = [
   zoomInCommand,
@@ -13,4 +13,6 @@ export const commands: AppCommand[] = [
   saveWorkspaceCommand,
   importFromTanaCommand,
   cycleCheckboxStateCommand,
+  backCommand,
+  forwardCommand,
 ]

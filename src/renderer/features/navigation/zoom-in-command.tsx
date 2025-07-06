@@ -1,7 +1,7 @@
-import {FullscreenIcon} from 'lucide-react'
+import {ArrowLeft, ArrowRight, FullscreenIcon} from 'lucide-react'
 import {AppCommand, CommandContext} from '@/renderer/commands/app-command'
 import {AppDispatch, AppState} from '@/renderer/redux/store'
-import {nodeOpened} from '@/renderer/features/navigation/navigation-slice'
+import {navigatedBack, navigatedForward, nodeOpened} from '@/renderer/features/navigation/navigation-slice'
 
 export const zoomInCommand: AppCommand = {
   name: 'Zoom in on node',
@@ -16,4 +16,24 @@ export const zoomInCommand: AppCommand = {
     }
     dispatch(nodeOpened({ nodeId: context.focus.nodeView.nodeId }))
   },
+}
+
+export const backCommand: AppCommand = {
+  name: 'Back',
+  icon: <ArrowLeft/>,
+  shortcut: 'Ctrl + Alt + ←',
+  canActivate: () => true,
+  thunkCreator: () => (dispatch) => {
+    dispatch(navigatedBack())
+  }
+}
+
+export const forwardCommand: AppCommand = {
+  name: 'Forward',
+  icon: <ArrowRight/>,
+  shortcut: 'Ctrl + Alt + →',
+  canActivate: () => true,
+  thunkCreator: () => (dispatch) => {
+    dispatch(navigatedForward())
+  }
 }
