@@ -7,7 +7,7 @@ import {FusesPlugin} from '@electron-forge/plugin-fuses'
 import {FuseV1Options, FuseVersion} from '@electron/fuses'
 import {PublisherGithub} from '@electron-forge/publisher-github'
 import {MakerDMG} from '@electron-forge/maker-dmg'
-import MakerZIP from '@electron-forge/maker-zip'
+import {MakerZIP} from '@electron-forge/maker-zip'
 
 const icon_base = process.env.CATANA_ENV === 'dev' ? 'dev_catana' : 'catana'
 console.log('Environment: ', process.env.ENVIRONMENT, icon_base)
