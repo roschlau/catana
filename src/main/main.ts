@@ -72,7 +72,7 @@ async function createWindow() {
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     await mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL + `?os=${platform}`)
   } else {
-    await mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html?os=${platform}`))
+    await mainWindow.loadURL('file://' + path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`) + `?os=${platform}`)
   }
 
   registerStorageApi(ipcMain)
