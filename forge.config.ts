@@ -6,7 +6,8 @@ import {VitePlugin} from '@electron-forge/plugin-vite'
 import {FusesPlugin} from '@electron-forge/plugin-fuses'
 import {FuseV1Options, FuseVersion} from '@electron/fuses'
 import {PublisherGithub} from '@electron-forge/publisher-github'
-import {MakerDMG} from "@electron-forge/maker-dmg";
+import {MakerDMG} from '@electron-forge/maker-dmg'
+import MakerZIP from '@electron-forge/maker-zip'
 
 const icon_base = process.env.CATANA_ENV === 'dev' ? 'dev_catana' : 'catana'
 console.log('Environment: ', process.env.ENVIRONMENT, icon_base)
@@ -26,6 +27,7 @@ const config: ForgeConfig = {
     new MakerDMG({
       icon: 'src/renderer/assets/app-icon/' + icon_base + '.icns',
     }),
+    new MakerZIP({}, ['darwin']),
     new MakerRpm({
       options: {
         icon: 'src/renderer/assets/app-icon/' + icon_base + '.png',
@@ -48,7 +50,7 @@ const config: ForgeConfig = {
         owner: 'roschlau',
         name: 'catana',
       },
-      prerelease: true,
+      prerelease: false,
       generateReleaseNotes: true,
       authToken: process.env.GITHUB_TOKEN,
     }),

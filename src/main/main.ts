@@ -8,6 +8,7 @@ import {CatanaAPI} from '@/preload/catana-api'
 import {registerStorageApi} from '@/main/persistence/storage-api'
 import * as os from 'node:os'
 import {applyWindowPosition, getLastWindowPosition, startStoringWindowPosition} from '@/main/window-management'
+import {updateElectronApp} from 'update-electron-app'
 
 export const environment = MAIN_WINDOW_VITE_DEV_SERVER_URL ? 'dev' : 'prod'
 
@@ -15,6 +16,7 @@ export const environment = MAIN_WINDOW_VITE_DEV_SERVER_URL ? 'dev' : 'prod'
 if (started) {
   app.quit()
 } else {
+  updateElectronApp()
   if (environment === 'dev') {
     app.whenReady().then(() => {
       installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS])
