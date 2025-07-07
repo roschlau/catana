@@ -2,10 +2,11 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "target": "ESNext",
-    "module": "NodeNext",
-    "moduleResolution": "nodenext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "allowJs": true,
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     "strict": true,
     "skipLibCheck": true,
     "noFallthroughCasesInSwitch": true,

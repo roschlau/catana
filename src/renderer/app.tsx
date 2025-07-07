@@ -18,6 +18,7 @@ import {SaveWorkspacePrompt} from '@/renderer/persistence/save-workspace-prompt'
 import {OpenWorkspaceOnStartup} from '@/renderer/persistence/open-workspace'
 import {modKey} from '@/renderer/util/keyboard'
 import {navigatedBack, navigatedForward} from '@/renderer/features/navigation/navigation-slice'
+import packageJson from '../../package.json' with {type: 'json'}
 
 const root = createRoot(document.body)
 root.render(
@@ -125,6 +126,10 @@ function Sidebar({ searchClicked }: {
       <div className="flex items-center justify-center gap-2 p-2">
         <Switch id="debug-mode" checked={debugMode} onCheckedChange={checked => dispatch(debugModeSet(checked))}/>
         <Label htmlFor="debug-mode">Debug Mode</Label>
+      </div>
+      <div className={'grow'}/>
+      <div className={'grid place-content-center text-xs text-muted-foreground'}>
+        v{packageJson.version}
       </div>
     </div>
   )
