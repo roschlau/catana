@@ -17,7 +17,7 @@ import {
   NodeTitleEditorTextFieldRef,
 } from '@/renderer/components/node-editor/NodeTitleEditorTextField'
 import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-editor/EditorBlockList'
-import {ChevronRight} from 'lucide-react'
+import {ChevronRight, FullscreenIcon} from 'lucide-react'
 import {selectResolvedNodeView} from '@/renderer/features/node-graph/helpers'
 import {ListItem} from '@/renderer/components/ui/list-item'
 import {twMerge} from 'tailwind-merge'
@@ -27,19 +27,20 @@ import {deleteNodeTree} from '@/renderer/features/node-graph/delete-node-tree'
 import {modKey} from '@/renderer/util/keyboard'
 import {nodeOpened} from '@/renderer/features/navigation/navigation-slice'
 import {indentNode, outdentNode} from '@/renderer/features/node-graph/indent-outdent'
+import {useEventListener} from '@/renderer/hooks/use-event-listener'
 
 export interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void
 }
 
 export function TextNodeBlock({
-  className,
-  nodeView,
-  expanded,
-  moveFocusBefore,
-  moveFocusAfter,
-  ref,
-}: {
+                                className,
+                                nodeView,
+                                expanded,
+                                moveFocusBefore,
+                                moveFocusAfter,
+                                ref,
+                              }: {
   className?: string,
   /** The node view to render */
   nodeView: NodeViewWithParent<TextNode>,
@@ -94,7 +95,7 @@ export function TextNodeBlock({
         titleEditorRef.current?.focus(
           mode === 'last'
             ? { start: node.title.length, end: node.title.length }
-            : { start: 0, end: 0 }
+            : { start: 0, end: 0 },
         )
       }
     },
@@ -112,7 +113,7 @@ export function TextNodeBlock({
   const keyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     const textarea = e.currentTarget
     const { selectionStart, selectionEnd } = e.currentTarget
-    const selection: Selection = { start: selectionStart, end: selectionEnd  }
+    const selection: Selection = { start: selectionStart, end: selectionEnd }
     if (e.key === 'ArrowUp' && modKey(e)) {
       e.preventDefault()
       setExpanded(false)
@@ -270,6 +271,32 @@ export function TextNodeBulletButton({ isLink, hasContent, isExpanded, disabled,
   disabled?: boolean,
   bulletClicked: (e: MouseEvent<HTMLButtonElement>) => void,
 }) {
+  const documentRef = useRef(document)
+  const [isHovering, setIsHovering] = useState(false)
+  const [isModKeyPressed, setIsModKeyPressed] = useState(false)
+
+  const handleKeyDown = (e: globalThis.KeyboardEvent) => {
+    const isModKey = modKey(e)
+    setIsModKeyPressed(isModKey)
+  }
+
+  const handleKeyUp = (e: globalThis.KeyboardEvent) => {
+    if (!modKey(e)) {
+      setIsModKeyPressed(false)
+    }
+  }
+
+  useEventListener('keydown', handleKeyDown, documentRef)
+  useEventListener('keyup', handleKeyUp, documentRef)
+
+  const handleMouseEnter = () => {
+    setIsHovering(true)
+  }
+
+  const handleMouseLeave = () => {
+    setIsHovering(false)
+  }
+
   const toggleButtonClasses = classNames(
     'mt-1 size-4 shrink-0 grid place-content-center rounded-full cursor-pointer text-foreground/50',
     'hover:bg-accent hover:text-foreground',
@@ -280,15 +307,21 @@ export function TextNodeBulletButton({ isLink, hasContent, isExpanded, disabled,
     'transition-all',
     isExpanded ? 'rotate-90' : 'rotate-0',
   )
+
   return (
     <button
       className={toggleButtonClasses}
-      disabled={disabled || !hasContent}
+      disabled={disabled}
       onClick={bulletClicked}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
-      {hasContent
-        ? <ChevronRight size={16} className={chevronIconClasses}/>
-        : <div className={'size-1.25 rounded-full bg-current'}/>}
+      {isHovering && isModKeyPressed
+        ? <FullscreenIcon size={16}/>
+        : (hasContent
+          ? <ChevronRight size={16} className={chevronIconClasses}/>
+          : <div className={'size-1.25 rounded-full bg-current'}/>)
+      }
     </button>
   )
 }
