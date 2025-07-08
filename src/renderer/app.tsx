@@ -21,6 +21,7 @@ import packageJson from '../../package.json' with {type: 'json'}
 import {selectIsWorkspaceLoaded} from '@/renderer/features/workspace/workspace-slice'
 import {OpenWorkspaceScreen} from '@/renderer/features/workspace/open-workspace-screen'
 import {OpenWorkspaceOnStartup} from '@/renderer/features/workspace/open-workspace'
+import {Toaster} from '@/renderer/components/ui/sonner'
 
 const root = createRoot(document.body)
 root.render(
@@ -29,6 +30,7 @@ root.render(
     <SaveWorkspacePrompt/>
     <ThemeProvider attribute={'class'}>
       <App/>
+      <Toaster richColors/>
     </ThemeProvider>
   </ReduxProvider>,
 )
