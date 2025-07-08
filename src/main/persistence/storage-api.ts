@@ -80,7 +80,7 @@ export async function promptForWorkspaceDirectory(): Promise<string | null> {
     title: 'Select Workspace Folder',
     defaultPath: settings.get('last-workspace-location') ?? undefined,
     buttonLabel: 'Open Folder',
-    properties: ['openDirectory'],
+    properties: ['openDirectory', 'createDirectory'],
   })
   if (pickFileResult.canceled || pickFileResult.filePaths.length === 0) {
     return null
