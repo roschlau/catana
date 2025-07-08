@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from '@/renderer/components/ui/dialog'
 import {Button} from '@/renderer/components/ui/button'
-import {saveWorkspace} from '@/renderer/persistence/save-workspace'
+import {saveWorkspace} from '@/renderer/features/workspace/save-workspace'
 import {AppDispatch, AppState} from '@/renderer/redux/store'
 
 /**
@@ -33,7 +33,7 @@ export async function promptToSaveWorkspaceIfNecessary(
 ): Promise<boolean> {
   return new Promise((resolve) => {
     const state = getState()
-    if (!state.undoable.present.workspace.workspaceDirty) {
+    if (!state.undoable.present.workspace?.workspaceDirty) {
       resolve(false)
       return
     }

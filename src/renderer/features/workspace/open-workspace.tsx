@@ -4,7 +4,7 @@ import {workspaceLoaded} from '@/renderer/features/workspace/workspace-slice'
 import {AppCommand} from '@/renderer/commands/app-command'
 import {AppDispatch, AppState} from '@/renderer/redux/store'
 import {FolderOpen} from 'lucide-react'
-import {promptToSaveWorkspaceIfNecessary} from '@/renderer/persistence/save-workspace-prompt'
+import {promptToSaveWorkspaceIfNecessary} from '@/renderer/features/workspace/save-workspace-prompt'
 
 export const openWorkspace = (mode: 'last' | 'pick') => async (dispatch: AppDispatch, getState: () => AppState) => {
   const canceled = await promptToSaveWorkspaceIfNecessary(dispatch, getState)

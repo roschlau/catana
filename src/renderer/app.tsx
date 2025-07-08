@@ -1,5 +1,5 @@
 import {createRoot} from 'react-dom/client'
-import {useCallback, useEffect, useState} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import {ThemeProvider, useTheme} from 'next-themes'
 import {Provider as ReduxProvider} from 'react-redux'
 import {store} from '@/renderer/redux/store'
@@ -11,14 +11,16 @@ import {SearchIcon, SunMoon} from 'lucide-react'
 import {Button} from '@/renderer/components/ui/button'
 import {Switch} from '@/renderer/components/ui/switch'
 import {Label} from '@/renderer/components/ui/label'
-import {saveWorkspace} from '@/renderer/persistence/save-workspace'
+import {saveWorkspace} from '@/renderer/features/workspace/save-workspace'
 import {CommandPrompt} from '@/renderer/commands/command-prompt'
 import {CommandShortcut} from '@/renderer/components/ui/command'
-import {SaveWorkspacePrompt} from '@/renderer/persistence/save-workspace-prompt'
-import {OpenWorkspaceOnStartup} from '@/renderer/persistence/open-workspace'
+import {SaveWorkspacePrompt} from '@/renderer/features/workspace/save-workspace-prompt'
 import {modKey} from '@/renderer/util/keyboard'
 import {navigatedBack, navigatedForward} from '@/renderer/features/navigation/navigation-slice'
 import packageJson from '../../package.json' with {type: 'json'}
+import {selectIsWorkspaceLoaded} from '@/renderer/features/workspace/workspace-slice'
+import {OpenWorkspaceScreen} from '@/renderer/features/workspace/open-workspace-screen'
+import {OpenWorkspaceOnStartup} from '@/renderer/features/workspace/open-workspace'
 
 const root = createRoot(document.body)
 root.render(
@@ -97,7 +99,7 @@ function App() {
     <div className={'h-full flex flex-row p-2 gap-2 items-stretch bg-sidebar overflow-hidden'}>
       <CommandPrompt open={commandPromptOpen} onOpenChange={setCommandPromptOpen}/>
       <Sidebar searchClicked={() => setCommandPromptOpen(true)}/>
-      {nodeId && <NodeEditorPage nodeId={nodeId}/>}
+      {nodeId && <NodeEditorPage nodeId={nodeId}/> || <OpenWorkspaceScreen/>}
     </div>
   )
 }
@@ -108,14 +110,15 @@ function Sidebar({ searchClicked }: {
   const { resolvedTheme, setTheme } = useTheme()
   const dispatch = useAppDispatch()
   const debugMode = useAppSelector(selectDebugMode)
+  const workspaceLoaded = useAppSelector(selectIsWorkspaceLoaded)
 
   return (
     <div className={'flex flex-col gap-2'}>
-      <Button onClick={searchClicked}>
+      {workspaceLoaded && <Button onClick={searchClicked}>
         <SearchIcon size={16}/>
         Search
         <CommandShortcut>Ctrl+K</CommandShortcut>
-      </Button>
+      </Button>}
       <Button
         variant={'ghost'}
         onClick={() => setTheme(() => resolvedTheme === 'dark' ? 'light' : 'dark')}

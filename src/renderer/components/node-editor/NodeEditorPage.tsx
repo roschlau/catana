@@ -13,6 +13,8 @@ import {Id, Node} from '@/common/nodes'
 import {DateTimeFormatter, Instant, LocalDate, ZonedDateTime, ZoneId} from '@js-joda/core'
 import {mergeNodeForward, splitNode} from '@/renderer/features/node-graph/split-merge-thunks'
 
+import {PageTitle} from '@/renderer/components/ui/page-title'
+
 export function NodeEditorPage({ nodeId }: {
   nodeId: Id<'node'>,
 }) {
@@ -81,13 +83,13 @@ export function NodeEditorPage({ nodeId }: {
         className={'self-start sticky top-0'}
       />
       <div className={'flex flex-col gap-4 w-full max-w-[600px]'}>
-        <h1 className={'font-medium text-3xl'}>
+        <PageTitle>
           <NodeTitleEditorTextField
             ref={titleEditorRef}
             nodeView={nodeView}
             onKeyDown={titleKeyDown}
           />
-        </h1>
+        </PageTitle>
         {debugMode && <NodeDebugInfo node={node}/>}
         <EditorBlockList
           ref={contentNodesList}

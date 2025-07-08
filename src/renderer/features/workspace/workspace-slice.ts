@@ -5,7 +5,7 @@ import {createAction, createSlice, PayloadAction, Reducer, UnknownAction} from '
 import {OpenWorkspaceResult} from '@/preload/catana-api'
 
 export interface WorkspaceState {
-  workspacePath: string | null
+  workspacePath: string
   workspaceDirty: boolean,
 }
 
@@ -14,10 +14,7 @@ export interface WorkspaceState {
  */
 export const workspaceSlice = createSlice({
   name: 'workspace',
-  initialState: {
-    workspacePath: null,
-    workspaceDirty: false,
-  } satisfies WorkspaceState as WorkspaceState,
+  initialState: null as WorkspaceState | null,
   reducers: {},
 })
 
@@ -70,13 +67,13 @@ export const trackWorkspaceDirtyState = (reducer: Reducer) => {
     if (action.type === markWorkspaceClean.type) {
       return {
         ...newState,
-        workspace: {
+        workspace: newState.workspace && {
           ...newState.workspace,
           workspaceDirty: false,
         },
       }
     }
-    if (newState.workspace.workspaceDirty || !newState.workspace.workspacePath || newState === state) {
+    if (!newState.workspace || newState.workspace.workspaceDirty || newState === state) {
       return newState
     }
     return {
@@ -89,4 +86,5 @@ export const trackWorkspaceDirtyState = (reducer: Reducer) => {
   }
 }
 
-export const selectWorkspaceDirty = (state: AppState) => state.undoable.present.workspace.workspaceDirty
+export const selectIsWorkspaceLoaded = (state: AppState) => state.undoable.present.workspace !== null
+export const selectWorkspaceDirty = (state: AppState) => state.undoable.present.workspace?.workspaceDirty ?? false
