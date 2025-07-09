@@ -1,4 +1,4 @@
-import {app, BrowserWindow, dialog, ipcMain, session} from 'electron'
+import {app, BrowserWindow, dialog, ipcMain, session, shell} from 'electron'
 import path from 'node:path'
 import started from 'electron-squirrel-startup'
 import installExtension, {REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS} from 'electron-devtools-installer'
@@ -76,6 +76,11 @@ async function createWindow() {
   }
 
   registerStorageApi(ipcMain)
+
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url)
+    return { action: 'deny' }
+  })
 
   ipcMain.handle('load-tana-export', async (): ReturnType<CatanaAPI['loadTanaExport']> => {
     const openNodeResult = await dialog.showOpenDialog({

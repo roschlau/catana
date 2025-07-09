@@ -22,6 +22,8 @@ import {selectIsWorkspaceLoaded} from '@/renderer/features/workspace/workspace-s
 import {OpenWorkspaceScreen} from '@/renderer/features/workspace/open-workspace-screen'
 import {OpenWorkspaceOnStartup} from '@/renderer/features/workspace/open-workspace'
 import {Toaster} from '@/renderer/components/ui/sonner'
+import {TooltipSimple} from '@/renderer/components/ui/tooltip'
+import {GitHubIcon} from '@/renderer/components/icons/github-icon'
 
 const root = createRoot(document.body)
 root.render(
@@ -133,9 +135,15 @@ function Sidebar({ searchClicked }: {
         <Label htmlFor="debug-mode">Debug Mode</Label>
       </div>
       <div className={'grow'}/>
-      <div className={'grid place-content-center text-xs text-muted-foreground'}>
-        v{packageJson.version}
-      </div>
+      <TooltipSimple content={'See Code and Issues on GitHub'}>
+        <a
+          href="https://github.com/roschlau/catana" target="_blank" rel="noreferrer"
+          className={'flex flex-row items-center justify-center gap-2 p-2 text-xs text-muted-foreground hover:text-foreground'}
+        >
+          <GitHubIcon className={'-translate-y-[1px]'}/>
+          v{packageJson.version}
+        </a>
+      </TooltipSimple>
     </div>
   )
 }
