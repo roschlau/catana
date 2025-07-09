@@ -39,18 +39,18 @@ I still want Catana to have a file system integration so that any kind of file, 
 
 ## Testing Catana
 If you want to test Catana in its current state, here are some things to keep in mind:
-- Download the latest version from the [Releases Page](https://github.com/roschlau/catana/releases). There is no auto-update for new versions yet, so for now, the best way to stay up to date is subscribing to release notifications on this repository. You can also follow me on [Bluesky](https://bsky.app/profile/das-robin.bsky.social) or [Mastodon](https://defcon.social/@das_robin) to follow development!
-- The UI is very barebones, most actions are available only via keyboard shortcut and/or the command prompt. If in doubt, press Ctrl+K and search for what you're looking for, but there's a high chance that it might not be implemented yet.
+- Download the latest version from the [Releases Page](https://github.com/roschlau/catana/releases). The Windows build will auto-update, but if you're on macOS or Linux, the best way to stay up to date is subscribing to release notifications on this repository. You can also follow me on [Bluesky](https://bsky.app/profile/das-robin.bsky.social) or [Mastodon](https://defcon.social/@das_robin) for dev updates!
+> [!IMPORTANT]  
+> **For Apple users:** macOS doesn't trust unsigned DMG files downloaded from the internet. After installing, if you get a message that Catana is damaged and should be moved to the trash, you need to locate the app in your Applications folder, and run this command on it:  
+> `xattr -c Catana.app`  
+> Afterwards, the app should start up normally. You likely need to repeat this after every update.
+- The UI is very barebones, most actions are available only via keyboard shortcut and/or the command prompt. If in doubt, press Ctrl/Cmd+K and search for what you're looking for, but there's a high chance that it might not be implemented yet.
 - No guarantees on backwards-compatibility. Your workspaces might need manual intervention to keep working with newer versions of the app.
 - Bugs might happen. Save early, save often, back up your data. Here's what you need to know about how Catana saves your data and tries to keep it safe:
   - To open a workspace, you chose a directory on your PC. Catana will create a `.catana` file in that directory. Currently, this file contains all content you create in Catana, although that might change in the future. It is using plain JSON, so manually editing it is possible if necessary. Refer to [workspace-file-schema.ts](src/main/persistence/schema/workspace-file-schema.ts) for the arktype schema.
-  - If something goes wrong, the first thing to try is Ctrl+Z. Almost all application state is captured in the undo history, so that's your first way out.
-  - There is currently no auto-save. Catana only saves when you explicitly request it via Ctrl+S. If something seems entirely messed up, you can close the window and chose "Discard and Close" when asked if you want to save, and you'll be back to the last time you saved.
+  - If something goes wrong, the first thing to try is Ctrl/Cmd+Z. Almost all application state is captured in the undo history, so that's your first way out.
+  - There is currently no auto-save. Catana only saves when you explicitly request it via Ctrl+S. If something seems entirely messed up, you can close the window, chose "Discard and Close" when asked if you want to save, and you'll be back to the last time you saved.
   - If you have git installed, Catana will automatically initialize a git repo in any workspace that you open, and add a commit whenever you save. This way you can access any previously saved state easily in case the `.catana` file becomes corrupted or stuff got accidentally deleted.
-
-### Installing on macOS
-macOS by default doesn't trust DMG files downloaded from the internet. After installing, if you get a message that Catana is damaged and should be moved to the trash, instead locate the app in your Applications folder, and run the following command on it:
-`xattr -c Catana.app`. Afterwards, the app should start up normally.
 
 ## Roadmap
 Here's a non-exhaustive list of the bigger things I have planned for the future, in no particular order:
