@@ -24,7 +24,7 @@ export function CommandPrompt({ open, onOpenChange }: {
 }) {
   const [searchQuery, setSearchQuery] = useState('')
   const dispatch = useAppDispatch()
-  const filteredNodes = useAppSelector(state => open && searchQuery !== '' ? selectNodes(state, searchQuery) : [])
+  const filteredNodes = useAppSelector(state => open && searchQuery !== '' ? selectNodes(state, searchQuery) : emptyArray)
   const openedNode = useAppSelector(state => state.undoable.present.navigation.openedNode)
   const lastFocus = useAppSelector(selectCommandFocus)
   const context: CommandContext = {
@@ -99,3 +99,5 @@ export function CommandPrompt({ open, onOpenChange }: {
     </CommandList>
   </CommandDialog>
 }
+
+const emptyArray = Object.freeze([])
