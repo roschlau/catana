@@ -29,7 +29,7 @@ export function NodeEditorPage({ nodeId }: {
     if (!node) return false
     titleEditorRef.current?.focus({ start: node.title.length, end: node.title.length })
     return true
-  }, [titleEditorRef])
+  }, [titleEditorRef, node])
 
   useFocusRestore({ nodeId }, (selection) => {
     titleEditorRef.current?.focus(selection)
