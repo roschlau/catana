@@ -247,7 +247,7 @@ export function TextNodeBlock({
       </ListItem>
       {isExpanded && childRefs.length > 0 && (
         <ListItem>
-          <div className={'w-4 self-stretch grid justify-center'}>
+          <div className={'w-4 shrink-0 self-stretch grid justify-center'}>
             <div className={'w-0.5 bg-border'}></div>
           </div>
           <EditorBlockList
