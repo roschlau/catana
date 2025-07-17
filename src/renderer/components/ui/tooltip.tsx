@@ -6,13 +6,14 @@ import {cn} from '@/renderer/util/tailwind'
 function TooltipSimple({
   content,
   children,
-}: { content: React.ReactNode, children: React.ReactNode }) {
+  ...props
+}: { content: React.ReactNode, children: React.ReactNode } & Pick<React.ComponentProps<typeof TooltipContent>, 'side'>) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         {children}
       </TooltipTrigger>
-      <TooltipContent>
+      <TooltipContent {...props}>
         {content}
       </TooltipContent>
     </Tooltip>
