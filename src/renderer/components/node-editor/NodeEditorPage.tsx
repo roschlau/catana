@@ -114,7 +114,7 @@ function NodeDebugInfo({ node }: { node: Node }) {
   }
   return (
     <div className={'text-xs text-muted-foreground'}>
-      Created: {format(created)} • Modified: {format(modified)}
+      Created: {format(created)} • Modified: {format(modified)} • Node ID: {node.id}
     </div>
   )
 }
