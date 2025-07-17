@@ -1,10 +1,17 @@
 import TextareaAutosize from 'react-textarea-autosize'
 import {checkboxUpdated, titleUpdated} from '@/renderer/features/node-graph/nodesSlice'
-import React, {ClipboardEvent, KeyboardEvent, Ref, useImperativeHandle, useRef} from 'react'
+import React, {
+  ClipboardEvent,
+  KeyboardEvent,
+  MouseEvent,
+  Ref,
+  useImperativeHandle,
+  useLayoutEffect,
+  useRef,
+} from 'react'
 import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
 import {Selection} from '@/renderer/util/selection'
 import {Checkbox} from '@/renderer/components/ui/checkbox'
-import classNames from 'classnames'
 import {CheckboxState, cycleCheckboxState} from '@/common/checkboxes'
 import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
 import {TextNode} from '@/common/nodes'
@@ -15,6 +22,12 @@ import {modKey} from '@/renderer/util/keyboard'
 import {insertNodeLinks, insertTrees} from '@/renderer/features/node-graph/insert-content'
 import {copyNode, readClipboard} from '@/common/conversion/clipboard'
 import {flatten} from '@/common/node-tree'
+import {cn} from '@/renderer/util/tailwind'
+import Markdown from 'react-markdown'
+import rehypeSanitize from 'rehype-sanitize'
+import {suppressUnsupportedMd} from '@/common/markdown-utils'
+import {encloseRangeThunk} from '@/renderer/features/node-graph/markup'
+import {nodeOpened} from '@/renderer/features/navigation/navigation-slice'
 
 export interface NodeTitleEditorTextFieldRef {
   focus: (selection?: Selection) => void
@@ -33,15 +46,34 @@ export function NodeTitleEditorTextField({
 }) {
   useImperativeHandle(ref, () => ({
     focus: (selection) => {
-      textAreaRef.current?.focus()
+      setIsEditing(true)
       if (selection) {
-        textAreaRef.current?.setSelectionRange(selection.start, selection.end)
+        setSelectionRange(selection)
       }
     },
   }))
   const dispatch = useAppDispatch()
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
   const node = useAppSelector(state => getNode(state.undoable.present.nodes, nodeView.nodeId))
+
+  const [isEditing, setIsEditing] = React.useState(false)
+  const [selectionRange, setSelectionRange] = React.useState(null as null | Selection)
+  useLayoutEffect(() => {
+    if (isEditing && textAreaRef.current) {
+      textAreaRef.current.focus()
+      if (selectionRange !== null) {
+        textAreaRef.current.setSelectionRange(selectionRange.start, selectionRange.end)
+        setSelectionRange(null)
+      }
+    }
+  }, [selectionRange, isEditing])
+  const handleDisplayClick = (e: MouseEvent) => {
+    if ((e.target as HTMLElement).closest('a')) return
+
+    const offset = window.getSelection()?.focusOffset ?? 0
+    setSelectionRange({ start: offset, end: offset })
+    setIsEditing(true)
+  }
 
   const checkboxChecked = node.checkbox
   const setCheckbox = (state: CheckboxState | null) => {
@@ -52,9 +84,33 @@ export function NodeTitleEditorTextField({
   }
 
   const _keyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    const currentSelection: Selection = {
+      start: e.currentTarget.selectionStart,
+      end: e.currentTarget.selectionEnd,
+    }
     if (['z', 'Z'].includes(e.key) && modKey(e)) {
       // Undo/Redo is handled globally, so prevent the browser's default behavior from interfering
       e.preventDefault()
+      return
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      setIsEditing(false)
+      return
+    }
+    if (e.key === 'b' && modKey(e)) {
+      e.preventDefault()
+      dispatch(encloseRangeThunk(node, nodeView, currentSelection, 'toggle', '**'))
+      return
+    }
+    if (e.key === '*' || (e.key === 'i' && modKey(e))) {
+      e.preventDefault()
+      dispatch(encloseRangeThunk(node, nodeView, currentSelection, e.key === '*' ? 'enclose' : 'toggle', '*'))
+      return
+    }
+    if (e.key === '`' || (e.key === 'e' && modKey(e))) {
+      e.preventDefault()
+      dispatch(encloseRangeThunk(node, nodeView, currentSelection, e.key === '`' ? 'enclose' : 'toggle', '`'))
       return
     }
     if (e.key === 'Enter' && modKey(e)) {
@@ -117,9 +173,16 @@ export function NodeTitleEditorTextField({
     }
   }
 
-  const textareaClasses = classNames(
-    'grow bg-none border-none resize-none text-foreground/80 focus:text-foreground outline-none',
+  const sharedClasses = cn('grow py-0.5')
+  const textareaClasses = cn(
+    sharedClasses,
+    'bg-none border-none resize-none focus:text-foreground outline-none',
+  )
+  const divClasses = cn(
+    sharedClasses,
+    'markdown-container bg-none border-none resize-none text-foreground/80 cursor-text',
     { 'line-through text-muted-foreground': checkboxChecked === true },
+    { 'text-muted-foreground': !node.title },
   )
 
   return (
@@ -131,16 +194,43 @@ export function NodeTitleEditorTextField({
           onCheckedChange={setCheckbox}
         />
       )}
-      <TextareaAutosize
-        ref={textAreaRef}
-        className={textareaClasses}
-        value={node.title}
-        placeholder={'Empty'}
-        onChange={e => dispatch(titleUpdated({ nodeId: node.id, title: e.target.value }))}
-        onKeyDown={_keyDown}
-        onCopy={onCopy}
-        onPaste={onPaste}
-      />
+      {isEditing && (
+        <TextareaAutosize
+          ref={textAreaRef}
+          className={textareaClasses}
+          value={node.title}
+          placeholder={'Empty'}
+          onChange={e => dispatch(titleUpdated({ nodeId: node.id, title: e.target.value }))}
+          onKeyDown={_keyDown}
+          onCopy={onCopy}
+          onPaste={onPaste}
+          onBlur={() => setIsEditing(false)}
+        />
+      ) || (
+        <div
+          className={divClasses}
+          onClick={handleDisplayClick}
+        >
+          <Markdown
+            rehypePlugins={[rehypeSanitize]}
+            components={{
+              a(props) {
+                if (props.href?.startsWith('catana://')) {
+                  // TODO this doesn't currently work because the href is already being sanitized before
+                  const nodeId = props.href.slice('catana://'.length) as TextNode['id']
+                  const { node, href, ...rest } = props
+                  return <a {...rest} onClick={() => dispatch(nodeOpened({ nodeId }))}/>
+                } else {
+                  const { node, ...rest } = props
+                  return <a {...rest} target={'_blank'} rel={'noreferrer'}/>
+                }
+              }
+            }}
+          >
+            {suppressUnsupportedMd(node.title) || 'Empty'}
+          </Markdown>
+        </div>
+      )}
     </div>
   )
 }

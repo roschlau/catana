@@ -26,8 +26,7 @@
         margin: 0;
     }
 
-    /* Set shorter line heights on headings and interactive elements */
-    h1, h2, h3, h4,
+    /* Set shorter line heights on interactive elements */
     button, input, label {
         line-height: 1.1;
     }
