@@ -144,6 +144,10 @@
         text-decoration-thickness: .1ex;
         text-underline-offset: .1ex;
     }
+    .markdown-container a:hover, .markdown-container a:focus {
+        color: var(--color-foreground);
+        text-decoration-thickness: .2ex;
+    }
     .markdown-container code {
         background: var(--color-muted);
         font-size: .875em;

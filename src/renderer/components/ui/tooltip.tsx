@@ -3,17 +3,22 @@ import * as TooltipPrimitive from '@radix-ui/react-tooltip'
 
 import {cn} from '@/renderer/util/tailwind'
 
+const delayDuration = 300
+
 function TooltipSimple({
-  content,
-  children,
-  ...props
-}: { content: React.ReactNode, children: React.ReactNode } & Pick<React.ComponentProps<typeof TooltipContent>, 'side'>) {
+    content,
+    children,
+    side,
+    delayed,
+  }: { content: React.ReactNode, children: React.ReactNode, delayed?: boolean }
+    & Pick<React.ComponentProps<typeof TooltipContent>, 'side'>,
+) {
   return (
-    <Tooltip>
+    <Tooltip delayDuration={delayed ? delayDuration : 0}>
       <TooltipTrigger asChild>
         {children}
       </TooltipTrigger>
-      <TooltipContent {...props}>
+      <TooltipContent side={side}>
         {content}
       </TooltipContent>
     </Tooltip>

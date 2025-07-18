@@ -28,6 +28,7 @@ import rehypeSanitize from 'rehype-sanitize'
 import {suppressUnsupportedMd} from '@/common/markdown-utils'
 import {encloseRangeThunk} from '@/renderer/features/node-graph/markup'
 import {nodeOpened} from '@/renderer/features/navigation/navigation-slice'
+import {TooltipSimple} from '@/renderer/components/ui/tooltip'
 
 export interface NodeTitleEditorTextFieldRef {
   focus: (selection?: Selection) => void
@@ -222,7 +223,14 @@ export function NodeTitleEditorTextField({
                   return <a {...rest} onClick={() => dispatch(nodeOpened({ nodeId }))}/>
                 } else {
                   const { node, ...rest } = props
-                  return <a {...rest} target={'_blank'} rel={'noreferrer'}/>
+                  return (
+                    <TooltipSimple content={props.href} side={'bottom'} delayed>
+                      <a
+                        {...rest}
+                        target={'_blank'} rel={'noreferrer'}
+                      />
+                    </TooltipSimple>
+                  )
                 }
               }
             }}
