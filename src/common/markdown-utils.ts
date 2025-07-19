@@ -64,3 +64,11 @@ export function suppressUnsupportedMd(markdown: string): string {
   return markdown
     .replace(/((^#)|[<>])/g, '\\$1')
 }
+
+export function closingChar(openingChar: '(' | '[' | '{'): ')' | ']' | '}' {
+  switch (openingChar) {
+    case '(': return ')'
+    case '[': return ']'
+    case '{': return '}'
+  }
+}

@@ -25,7 +25,7 @@ import {flatten} from '@/common/node-tree'
 import {cn} from '@/renderer/util/tailwind'
 import Markdown from 'react-markdown'
 import rehypeSanitize from 'rehype-sanitize'
-import {suppressUnsupportedMd} from '@/common/markdown-utils'
+import {closingChar, suppressUnsupportedMd} from '@/common/markdown-utils'
 import {encloseRangeThunk} from '@/renderer/features/node-graph/markup'
 import {nodeOpened} from '@/renderer/features/navigation/navigation-slice'
 import {TooltipSimple} from '@/renderer/components/ui/tooltip'
@@ -112,6 +112,11 @@ export function NodeTitleEditorTextField({
     if (e.key === '`' || (e.key === 'e' && modKey(e))) {
       e.preventDefault()
       dispatch(encloseRangeThunk(node, nodeView, currentSelection, e.key === '`' ? 'enclose' : 'toggle', '`'))
+      return
+    }
+    if (e.key === '(' || e.key === '[' || e.key === '{') {
+      e.preventDefault()
+      dispatch(encloseRangeThunk(node, nodeView, currentSelection, 'enclose', e.key, closingChar(e.key)))
       return
     }
     if (e.key === 'Enter' && modKey(e)) {
