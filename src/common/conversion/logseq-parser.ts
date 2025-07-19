@@ -95,6 +95,13 @@ function parseNodeFromLine(line: string): { indentation: number, node: TreeTextN
   // Process task state if present
   processTaskState(newNode)
 
+  // Process heading nodes (starting with # or ##, but not ###)
+  const headingMatch = newNode.title.match(/^(#+)\s+(.+)$/)
+  if (headingMatch) {
+    // Extract the text after the hashtags and make it bold
+    newNode.title = `**${headingMatch[2]}**`
+  }
+
   return { indentation, node: newNode }
 }
 

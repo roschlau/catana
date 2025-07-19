@@ -43,6 +43,35 @@ test('Collapsed Node with children', () => {
   expect(tryParseLogseq(input)).toEqual(expected)
 })
 
+test('Heading Nodes', () => {
+  const input = `
+    - # Parent 1
+      - Child 1
+      - Child 2
+    - ## Parent 2
+      - Child 3
+      - Child 4
+  `
+  const expected: TreeTextNode[] = [{
+    type: 'node',
+    title: '**Parent 1**',
+    content: [
+      { type: 'node', title: 'Child 1', expanded: true },
+      { type: 'node', title: 'Child 2', expanded: true },
+    ],
+    expanded: true,
+  }, {
+    type: 'node',
+    title: '**Parent 2**',
+    content: [
+      { type: 'node', title: 'Child 3', expanded: true },
+      { type: 'node', title: 'Child 4', expanded: true },
+    ],
+    expanded: true,
+  }]
+  expect(tryParseLogseq(input)).toEqual(expected)
+})
+
 test('Task List', () => {
   const input = `
     - TODO To Do
@@ -190,7 +219,7 @@ test('Keeps links, inline-formatting, etc.', () => {
 `
   const expected: TreeTextNode[] = [{
     type: 'node',
-    title: '### Vision',
+    title: '**Vision**',
     expanded: false,
     content: [
       {
