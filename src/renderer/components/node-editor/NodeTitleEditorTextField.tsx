@@ -181,7 +181,7 @@ export function NodeTitleEditorTextField({
   )
   const divClasses = cn(
     sharedClasses,
-    'markdown-container bg-none border-none resize-none text-foreground/80 cursor-text',
+    'markdown-container bg-none border-none resize-none cursor-text',
     { 'line-through text-muted-foreground': checkboxChecked === true },
     { 'text-muted-foreground': !node.title },
   )

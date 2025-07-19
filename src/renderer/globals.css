@@ -137,6 +137,9 @@
         height: 100%;
         @apply bg-background text-foreground font-sans;
     }
+    .markdown-container {
+        @apply text-foreground/80;
+    }
     .markdown-container a {
         color: currentColor;
         text-decoration: underline;
@@ -153,6 +156,10 @@
         font-size: .875em;
         padding: .1em 0.25em;
         border-radius: 6px;
+    }
+    .markdown-container strong, .markdown-container b {
+        @apply text-foreground/90;
+        font-weight: 600;
     }
 }
 
