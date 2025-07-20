@@ -7,7 +7,7 @@ import {Selection} from '@/renderer/util/selection'
  * @returns An object containing the resulting string, and the range within the new string that the old range maps onto
  *          after correcting for spaces and inserting/removing the prefix and suffix.
  */
-export function encloseRange(
+export function markRange(
   input: string,
   range: Selection,
   mode: 'toggle' | 'enclose',
@@ -63,12 +63,4 @@ export function encloseRange(
 export function suppressUnsupportedMd(markdown: string): string {
   return markdown
     .replace(/((^#)|[<>])/g, '\\$1')
-}
-
-export function closingChar(openingChar: '(' | '[' | '{'): ')' | ']' | '}' {
-  switch (openingChar) {
-    case '(': return ')'
-    case '[': return ']'
-    case '{': return '}'
-  }
 }

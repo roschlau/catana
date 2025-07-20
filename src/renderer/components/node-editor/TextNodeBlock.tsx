@@ -105,7 +105,7 @@ export function TextNodeBlock({
   const focusEnd = useCallback(() => {
     titleEditorRef.current?.focus({ start: node.title.length, end: node.title.length })
     return true
-  }, [titleEditorRef])
+  }, [node.title.length])
 
   useFocusRestore(nodeView, (selection) => {
     titleEditorRef.current?.focus(selection)

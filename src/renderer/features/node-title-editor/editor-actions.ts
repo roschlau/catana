@@ -1,4 +1,4 @@
-import {encloseRange} from '@/common/markdown-utils'
+import {markRange} from '@/common/markdown-utils'
 import {Selection} from '@/renderer/util/selection'
 import {AppDispatch} from '@/renderer/redux/store'
 import {TextNode} from '@/common/nodes'
@@ -8,7 +8,7 @@ import {focusRestoreRequested} from '@/renderer/features/ui/uiSlice'
 import {KeyboardEvent} from 'react'
 import {modKey} from '@/renderer/util/keyboard'
 
-type EditorAction =(content: string, selection: Selection) => EditResult
+type EditorAction = (content: string, selection: Selection) => EditResult | null
 
 export type EditResult = {
   newContent: string,
@@ -34,14 +34,16 @@ export const getEditorActionThunk = (
   selection: Selection,
 ) => {
   const shortcut = getShortcut(event)
-  const action = editorShortcuts[shortcut]
-  if (!action) {
+  const actionResult = editorShortcuts[shortcut]?.(node.title, selection)
+  if (!actionResult) {
     return null
   }
+  const { newContent, newSelection } = actionResult
   console.debug(`Editor action found for shortcut ${shortcut}`)
   return (dispatch: AppDispatch) => {
-    const { newContent, newSelection } = action(node.title, selection)
-    dispatch(titleUpdated({ nodeId: node.id, title: newContent }))
+    if (newContent !== node.title) {
+      dispatch(titleUpdated({ nodeId: node.id, title: newContent }))
+    }
     dispatch(focusRestoreRequested({
       nodeView,
       selection: newSelection,
@@ -49,29 +51,38 @@ export const getEditorActionThunk = (
   }
 }
 
-const encloseRangeAction = (prefix: string, suffix: string = prefix): EditorAction => (content, selection) => {
-  const { result, mappedRange } = encloseRange(content, selection, 'enclose', prefix, suffix)
+const range = (
+  mode: 'toggle' | 'enclose',
+  prefix: string,
+  suffix: string = prefix,
+): EditorAction => (content, selection) => {
+  const { result, mappedRange } = markRange(content, selection, mode, prefix, suffix)
   return {
     newContent: result,
     newSelection: mappedRange,
   }
 }
 
-const toggleRangeAction = (prefix: string, suffix: string = prefix): EditorAction => (content, selection) => {
-  const { result, mappedRange } = encloseRange(content, selection, 'toggle', prefix, suffix)
+const skipOver = (char: string): EditorAction => (content, selection) => {
+  if (selection.start !== selection.end || content[selection.start] !== char) {
+    return null
+  }
   return {
-    newContent: result,
-    newSelection: mappedRange,
+    newContent: content,
+    newSelection: { start: selection.start + 1, end: selection.end + 1 },
   }
 }
 
 export const editorShortcuts: Record<string, EditorAction | undefined> = {
-  'mod-b': toggleRangeAction('**'),
-  '*': encloseRangeAction('*'),
-  'mod-i': toggleRangeAction('*'),
-  '`': encloseRangeAction('`'),
-  'mod-e': toggleRangeAction('`'),
-  '(': encloseRangeAction('(', ')'),
-  '[': encloseRangeAction('[', ']'),
-  '{': encloseRangeAction('{', '}'),
+  'mod-b': range('toggle', '**'),
+  '*': range('enclose', '*'),
+  'mod-i': range('toggle', '*'),
+  '`': range('enclose', '`'),
+  'mod-e': range('toggle', '`'),
+  '(': range('enclose', '(', ')'),
+  '[': range('enclose', '[', ']'),
+  '{': range('enclose', '{', '}'),
+  ')': skipOver(')'),
+  ']': skipOver(']'),
+  '}': skipOver('}'),
 }
