@@ -1,7 +1,7 @@
 import {
   NodeTitleEditorTextField,
   NodeTitleEditorTextFieldRef,
-} from '@/renderer/components/node-editor/NodeTitleEditorTextField'
+} from '@/renderer/features/node-title-editor/NodeTitleEditorTextField'
 import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
 import {KeyboardEvent, useCallback, useRef} from 'react'
 import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-editor/EditorBlockList'

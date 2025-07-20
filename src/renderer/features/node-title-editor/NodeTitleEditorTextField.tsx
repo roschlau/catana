@@ -25,10 +25,10 @@ import {flatten} from '@/common/node-tree'
 import {cn} from '@/renderer/util/tailwind'
 import Markdown from 'react-markdown'
 import rehypeSanitize from 'rehype-sanitize'
-import {closingChar, suppressUnsupportedMd} from '@/common/markdown-utils'
-import {encloseRangeThunk} from '@/renderer/features/node-graph/markup'
+import {suppressUnsupportedMd} from '@/common/markdown-utils'
 import {nodeOpened} from '@/renderer/features/navigation/navigation-slice'
 import {TooltipSimple} from '@/renderer/components/ui/tooltip'
+import {getEditorActionThunk} from '@/renderer/features/node-title-editor/editor-actions'
 
 export interface NodeTitleEditorTextFieldRef {
   focus: (selection?: Selection) => void
@@ -99,24 +99,10 @@ export function NodeTitleEditorTextField({
       setIsEditing(false)
       return
     }
-    if (e.key === 'b' && modKey(e)) {
+    const editorAction = getEditorActionThunk(e, node, nodeView, currentSelection)
+    if (editorAction) {
       e.preventDefault()
-      dispatch(encloseRangeThunk(node, nodeView, currentSelection, 'toggle', '**'))
-      return
-    }
-    if (e.key === '*' || (e.key === 'i' && modKey(e))) {
-      e.preventDefault()
-      dispatch(encloseRangeThunk(node, nodeView, currentSelection, e.key === '*' ? 'enclose' : 'toggle', '*'))
-      return
-    }
-    if (e.key === '`' || (e.key === 'e' && modKey(e))) {
-      e.preventDefault()
-      dispatch(encloseRangeThunk(node, nodeView, currentSelection, e.key === '`' ? 'enclose' : 'toggle', '`'))
-      return
-    }
-    if (e.key === '(' || e.key === '[' || e.key === '{') {
-      e.preventDefault()
-      dispatch(encloseRangeThunk(node, nodeView, currentSelection, 'enclose', e.key, closingChar(e.key)))
+      dispatch(editorAction)
       return
     }
     if (e.key === 'Enter' && modKey(e)) {

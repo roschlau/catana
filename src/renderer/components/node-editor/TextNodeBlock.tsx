@@ -15,7 +15,7 @@ import {isRecursive, NodeViewWithParent} from '@/common/node-views'
 import {
   NodeTitleEditorTextField,
   NodeTitleEditorTextFieldRef,
-} from '@/renderer/components/node-editor/NodeTitleEditorTextField'
+} from '@/renderer/features/node-title-editor/NodeTitleEditorTextField'
 import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-editor/EditorBlockList'
 import {ChevronRight, FullscreenIcon} from 'lucide-react'
 import {selectResolvedNodeView} from '@/renderer/features/node-graph/helpers'
