@@ -28,6 +28,7 @@ import {modKey} from '@/renderer/util/keyboard'
 import {nodeOpened} from '@/renderer/features/navigation/navigation-slice'
 import {indentNode, outdentNode} from '@/renderer/features/node-graph/indent-outdent'
 import {useEventListener} from '@/renderer/hooks/use-event-listener'
+import {displayWarning} from '@/renderer/features/ui/toasts'
 
 export interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void
@@ -199,11 +200,12 @@ export function TextNodeBlock({
       return
     }
     if (e.key === 'Backspace') {
-      if (isLink) {
-        console.debug(`Can't merge linked node ${node.id} into surrounding nodes`)
-        return
-      }
       if (selectionStart === 0 && selectionEnd === selectionStart) {
+        e.preventDefault()
+        if (isLink) {
+          displayWarning(`Linked node can't be merged into previous node`, { logData: { nodeId: node.id } })
+          return
+        }
         if (node.checkbox !== undefined) {
           dispatch(checkboxUpdated({ nodeId: node.id, state: null }))
         } else if (node.title === '' && node.content.length === 0) {
@@ -213,18 +215,17 @@ export function TextNodeBlock({
         } else {
           dispatch(mergeNodeBackward(nodeView))
         }
-        e.preventDefault()
       }
       return
     }
     if (e.key === 'Delete') {
-      if (isLink && (!isExpanded || node.content.length === 0)) {
-        console.debug(`Can't merge linked node ${node.id} into surrounding nodes`)
-        return
-      }
       if (selectionStart === node.title.length && selectionEnd === selectionStart) {
-        dispatch(mergeNodeForward(nodeView))
+        if (isLink && (!isExpanded || node.content.length === 0)) {
+          displayWarning(`Linked node can't be merged into next node`, { logData: { nodeId: node.id } })
+          return
+        }
         e.preventDefault()
+        dispatch(mergeNodeForward(nodeView))
       }
       return
     }

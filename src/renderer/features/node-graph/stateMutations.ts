@@ -2,7 +2,7 @@ import {NodeViewWithParent} from '@/common/node-views'
 import {findBacklinks, getNode, getOptionalNode, getViewContext, resolveNodeView} from './helpers'
 import {AppState} from '@/renderer/redux/store'
 import {Id, Node, ParentNode} from '@/common/nodes'
-import {toast} from 'sonner'
+import {displayWarning} from '@/renderer/features/ui/toasts'
 
 /**
  * Deletes a node and points all parents linking to it to a new node. Specifically intended for the use case of
@@ -94,7 +94,7 @@ export function addChildReferences(
     .filter(it => !parent.content.some(ref => ref.nodeId === it))
     .map(it => ({ nodeId: it, expanded }))
   if (newChildRefs.length !== childIds.length) {
-    toast.warning('Some nodes were not added because they already exist in the parent.')
+    displayWarning('Some nodes were not added because they already exist in the parent.')
   }
   parent.content.splice(atIndex, 0, ...newChildRefs)
 }
