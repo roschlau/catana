@@ -161,6 +161,11 @@
         @apply text-foreground/90;
         font-weight: 600;
     }
+    .markdown-container del {
+        color: var(--color-muted-foreground);
+        text-decoration: line-through;
+        text-decoration-color: var(--color-muted-foreground);
+    }
 }
 
 @layer utilities {

@@ -29,6 +29,7 @@ import {suppressUnsupportedMd} from '@/common/markdown-utils'
 import {nodeOpened} from '@/renderer/features/navigation/navigation-slice'
 import {TooltipSimple} from '@/renderer/components/ui/tooltip'
 import {getEditorActionThunk} from '@/renderer/features/node-title-editor/editor-actions'
+import {remarkGfmStrikethrough} from '@/renderer/features/node-title-editor/remark-gfm-strikethrough'
 
 export interface NodeTitleEditorTextFieldRef {
   focus: (selection?: Selection) => void
@@ -205,6 +206,7 @@ export function NodeTitleEditorTextField({
         >
           <Markdown
             rehypePlugins={[rehypeSanitize]}
+            remarkPlugins={[remarkGfmStrikethrough]}
             components={{
               a(props) {
                 if (props.href?.startsWith('catana://')) {
@@ -223,7 +225,7 @@ export function NodeTitleEditorTextField({
                     </TooltipSimple>
                   )
                 }
-              }
+              },
             }}
           >
             {suppressUnsupportedMd(node.title) || 'Empty'}

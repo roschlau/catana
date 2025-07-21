@@ -77,6 +77,7 @@ export const editorShortcuts: Record<string, EditorAction | undefined> = {
   'mod-b': range('toggle', '**'),
   '*': range('enclose', '*'),
   'mod-i': range('toggle', '*'),
+  '~': range('enclose', '~'),
   '`': range('enclose', '`'),
   'mod-e': range('toggle', '`'),
   '(': range('enclose', '(', ')'),
