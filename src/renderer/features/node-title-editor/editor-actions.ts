@@ -73,17 +73,54 @@ const skipOver = (char: string): EditorAction => (content, selection) => {
   }
 }
 
+const removeClosingChar: EditorAction = (content, selection) => {
+  if (selection.start !== selection.end) {
+    return null
+  }
+  if (selection.start === 0) {
+    return null
+  }
+  const toDelete = content[selection.start - 1]
+  const matchingNext = charRangePairs.get(toDelete)
+  if (!matchingNext) {
+    return null
+  }
+  const actualNext = content[selection.start]
+  if (matchingNext !== actualNext) {
+    return null
+  }
+  return {
+    newContent: content.slice(0, selection.start - 1) + content.slice(selection.start + 1),
+    newSelection: { start: selection.start - 1, end: selection.start - 1 },
+  }
+}
+
+export const charRangePairs = new Map<string, string>([
+  ['*', '*'],
+  ['~', '~'],
+  ['`', '`'],
+  ['(', ')'],
+  ['[', ']'],
+  ['{', '}'],
+])
+
 export const editorShortcuts: Record<string, EditorAction | undefined> = {
   'mod-b': range('toggle', '**'),
-  '*': range('enclose', '*'),
   'mod-i': range('toggle', '*'),
-  '~': range('enclose', '~'),
-  '`': range('enclose', '`'),
   'mod-e': range('toggle', '`'),
-  '(': range('enclose', '(', ')'),
-  '[': range('enclose', '[', ']'),
-  '{': range('enclose', '{', '}'),
-  ')': skipOver(')'),
-  ']': skipOver(']'),
-  '}': skipOver('}'),
+  'Backspace': removeClosingChar,
+  // Auto-generate range and skipOver shortcuts from charRangePairs
+  ...charRangePairs.entries()
+    .reduce((prev, [prefix, suffix]) =>
+        prefix === suffix
+          ? {
+            ...prev,
+            [prefix]: range('enclose', prefix),
+          }
+          : {
+            ...prev,
+            [prefix]: range('enclose', prefix, suffix),
+            [suffix]: skipOver(suffix),
+          },
+      {}),
 }
