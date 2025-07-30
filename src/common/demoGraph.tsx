@@ -67,18 +67,18 @@ export const demoGraph: TreeTextNode = {
           type: 'node',
           id: '2-1-1',
         }, {
-          title: 'You can nest Nodes as deeply as you want. Try nesting this one under the one above by pressing Tab!',
+          title: 'You can nest Nodes as deeply as you want. Try nesting this one under the one above by pressing `Tab`!',
           type: 'node',
           id: '2-1-2',
         }, {
           title: 'Nodes remember if they are expanded or collapsed. That\'s how some of the nodes on this page started expanded while others didn\'t.',
           type: 'node',
         }, {
-          title: 'Nodes can also be expanded or collapsed using the Keyboard. Focus on this Node, then press Ctrl + Arrow Down to expand it!',
+          title: 'Nodes can also be expanded or collapsed using the Keyboard. Focus on this Node, then press `Ctrl + Arrow Down` to expand it!',
           type: 'node',
           id: '2-1-3',
           content: [{
-            title: 'Nice! In the same way, you can collapse an expanded node by pressing Ctrl + Arrow Up. You can find even more keyboard shortcuts at the bottom of this page!',
+            title: 'Nice! In the same way, you can collapse an expanded node by pressing `Ctrl + Arrow Up`. You can find even more keyboard shortcuts at the bottom of this page!',
             type: 'node',
           }],
         }],
@@ -87,7 +87,7 @@ export const demoGraph: TreeTextNode = {
       title: '🔎 Zooming In',
       type: 'node',
       content: [{
-        title: 'You can zoom in on a Node by clicking on its bullet/arrow while holding Ctrl, or by pressing Alt + Arrow Right when you have it focused.',
+        title: 'You can zoom in on a Node by clicking on its bullet/arrow while holding `Ctrl`, or by pressing `Alt + Arrow Right` when you have it focused.',
         type: 'node',
       }, {
         title: 'This way, you get a full-page view on a single Node and its contents, without getting distracted by anything else.',
@@ -173,22 +173,25 @@ export const demoGraph: TreeTextNode = {
       title: 'Catana has been built to be used efficiently with the keyboard. Below are some of the supported keyboard shortcuts to try!',
     }, {
       type: 'node',
-      title: '🔎 Run a command or open a node by searching for it: Ctrl + K',
+      title: '🔎 Run a command or open a node by searching for it: `Ctrl + K`',
     }, {
       type: 'node',
-      title: '↔️ Indent / Outdent Node: Tab / Shift + Tab',
+      title: '↔️ Indent / Outdent Node: `Tab` / `Shift + Tab`',
     }, {
       type: 'node',
-      title: '▶️ Collapse/Expand Node: Ctrl + Arrow Up/Down',
+      title: '▶️ Collapse/Expand Node: `Ctrl + Arrow Up/Down`',
     }, {
       type: 'node',
-      title: '✅ Cycle Checkbox State: Ctrl + Enter',
+      title: '✅ Cycle Checkbox State: `Ctrl + Enter`',
     }, {
       type: 'node',
-      title: '↕️ Move the focused Node up/down within its parent Node: Alt + Shift + Arrow Up/Down',
+      title: '↕️ Move the focused Node up/down within its parent Node: `Alt + Shift + Arrow Up/Down`',
     }, {
       type: 'node',
-      title: '🗑️ Delete the focused Node and all its children: Ctrl + Shift + Backspace',
+      title: '🗑️ Delete the focused Node and all its children: `Ctrl + Shift + Backspace`',
+    }, {
+      type: 'node',
+      title: '2️⃣ Duplicate the focused Node: `Ctrl + D`',
     }],
   }, systemFields],
 }

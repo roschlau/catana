@@ -29,6 +29,7 @@ import {nodeOpened} from '@/renderer/features/navigation/navigation-slice'
 import {indentNode, outdentNode} from '@/renderer/features/node-graph/indent-outdent'
 import {useEventListener} from '@/renderer/hooks/use-event-listener'
 import {displayWarning} from '@/renderer/features/ui/toasts'
+import {duplicateSubtree} from '@/renderer/features/node-graph/duplicate-subtree'
 
 export interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void
@@ -227,6 +228,15 @@ export function TextNodeBlock({
         e.preventDefault()
         dispatch(mergeNodeForward(nodeView))
       }
+      return
+    }
+    if (e.key === 'd' && modKey(e)) {
+      e.preventDefault()
+      if (isLink) {
+        displayWarning(`Linked nodes can't be duplicated`, { logData: { nodeId: node.id } })
+        return
+      }
+      dispatch(duplicateSubtree(nodeView))
       return
     }
   }
