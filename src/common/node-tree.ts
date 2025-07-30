@@ -44,7 +44,7 @@ export function flatten(tree: TreeTextNode): { nodes: NodeGraphFlattened, rootId
       }
       return { nodeId: traverse(child, nodeId), expanded: (child.type === 'node' && child.expanded) }
     }) ?? []
-    const { content, ...rest } = node // Making sure `content` isn't included in the flattened tree
+    const { content, history, ...rest } = node // Making sure `content` isn't included in the flattened tree
     return {
       ...rest,
       id: nodeId,
@@ -53,6 +53,7 @@ export function flatten(tree: TreeTextNode): { nodes: NodeGraphFlattened, rootId
       history: {
         createdTime: new Date().getTime(),
         lastModifiedTime: new Date().getTime(),
+        ...history,
       },
     } satisfies TextNode
   }
