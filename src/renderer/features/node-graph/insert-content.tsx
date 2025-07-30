@@ -9,10 +9,7 @@ import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
 export const insertNodeLinks = (
   currentNode: NodeView<TextNode>,
   nodeIds: Id<'node'>[],
-) => (
-  dispatch: AppDispatch,
-  getState: () => AppState,
-) => {
+) => createUndoTransaction((dispatch: AppDispatch, getState: () => AppState) => {
   for (const nodeId of nodeIds) {
     if (!getState().undoable.present.nodes[nodeId]) {
       throw Error(`Node ${nodeId} not found`)
@@ -41,15 +38,12 @@ export const insertNodeLinks = (
       selection: { start: 0 },
     }))
   }
-}
+})
 
 export const insertTrees = (
   currentNode: NodeView<TextNode>,
   graphs: { nodes: NodeGraphFlattened, rootId: Id<'node'> }[],
-) => createUndoTransaction((
-  dispatch: AppDispatch,
-  getState: () => AppState,
-) => {
+) => createUndoTransaction((dispatch: AppDispatch, getState: () => AppState) => {
   const { node, viewContext } = resolveNodeView(getState().undoable.present.nodes, currentNode)
   if (node.title === '' && node.content.length === 0 && viewContext) {
     // Current node is empty, replace it with the inserted content's root node
