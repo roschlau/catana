@@ -11,7 +11,7 @@ declare module 'unified' {
   interface Data {
     micromarkExtensions?: Extension[]
     micromarkHtmlExtensions?: HtmlExtension[]
-    fromMarkdownExtensions?: FromMarkdownExtension[]
+    fromMarkdownExtensions?: (FromMarkdownExtension | FromMarkdownExtension[])[]
     toMarkdownExtensions?: ToMarkdownExtension[]
   }
 }
