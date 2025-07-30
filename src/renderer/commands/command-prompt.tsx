@@ -17,6 +17,7 @@ import {TextNode} from '@/common/nodes'
 import {ChevronRight, DotIcon} from 'lucide-react'
 import {commands} from '@/renderer/commands/commands'
 import {nodeOpened} from '@/renderer/features/navigation/navigation-slice'
+import {mdToPlain} from '@/common/markdown-utils'
 
 export function CommandPrompt({ open, onOpenChange }: {
   open: boolean,
@@ -72,10 +73,11 @@ export function CommandPrompt({ open, onOpenChange }: {
     .map(node => (
       <CommandItem
         key={node.id}
+        value={mdToPlain(node.title)}
         onSelect={() => nodeSelected(node.id)}
       >
         {node.content.length === 0 ? <DotIcon/> : <ChevronRight/>}
-        {node.title || <span className={'text-muted-foreground'}>Empty</span>}
+        {mdToPlain(node.title) || <span className={'text-muted-foreground'}>Empty</span>}
       </CommandItem>
     ))
     .slice(0, 10)
