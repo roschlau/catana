@@ -65,3 +65,9 @@ export function breakdown(duration: Duration): DurationComponents {
     nanos,
   }
 }
+
+export function epochMillis(input: string, zoneId: ZoneId = ZoneId.systemDefault()): number {
+  return ZonedDateTime.of(LocalDateTime.parse(input), zoneId)
+    .toInstant()
+    .toEpochMilli()
+}

@@ -1,13 +1,7 @@
 import {expect, test} from 'vitest'
 import {tryParseLogseq} from '@/common/conversion/logseq-parser'
 import {TreeTextNode} from '@/common/node-tree'
-import {LocalDateTime, ZonedDateTime, ZoneId} from '@js-joda/core'
-
-export function epochMillis(input: string, zoneId: ZoneId = ZoneId.systemDefault()): number {
-  return ZonedDateTime.of(LocalDateTime.parse(input), zoneId)
-    .toInstant()
-    .toEpochMilli()
-}
+import {epochMillis} from '@/common/time'
 
 test('Simple Node', () => {
   const input = '- Node Title'
