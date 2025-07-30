@@ -15,11 +15,12 @@ const PROPERTY_LOGBOOK_END = ':END:'
 // Constants for regex patterns
 const BULLET_POINT_PATTERN = /^(\s*)-\s+(.*)/
 const CLOCK_ENTRY_PATTERN = /CLOCK: \[(.*?)]--\[(.*?)]/
+const INCOMPLETE_CLOCK_ENTRY_PATTERN = /CLOCK: \[(.*?)]/
 const LOGSEQ_DATE_PATTERN = /(\d{4}-\d{2}-\d{2}) \w+ (\d{2}:\d{2}:\d{2})/
 
 // Type definitions
 type NodeStackItem = { node: TreeTextNode, level: number }
-type LogbookEntry = { start: number, end: number }
+type LogbookEntry = { start: number, end?: number }
 
 /**
  * Attempts to parse a string in Logseq format into a tree of nodes.
@@ -216,25 +217,40 @@ function processLogbook(lines: string[], startIndex: number, node: TreeTextNode)
  * Parses a clock entry line into start and end timestamps.
  *
  * @param line The line containing a clock entry
- * @returns An object with start and end timestamps, or undefined if parsing fails
+ * @returns An object with start and end timestamps, or just start timestamp for incomplete entries, or undefined if parsing fails
  */
 function parseClockEntry(line: string): LogbookEntry | undefined {
+  // Try to match complete clock entry pattern first
   const clockMatch = line.match(CLOCK_ENTRY_PATTERN)
-  if (!clockMatch) {
-    return undefined
+  if (clockMatch) {
+    const [, startTimeStr, endTimeStr] = clockMatch
+
+    try {
+      const startTime = parseLogseqDate(startTimeStr)
+      const endTime = parseLogseqDate(endTimeStr)
+
+      if (!isNaN(startTime) && !isNaN(endTime)) {
+        return { start: startTime, end: endTime }
+      }
+    } catch (e) {
+      console.error('Error parsing complete logbook timestamps:', e)
+    }
   }
 
-  const [, startTimeStr, endTimeStr] = clockMatch
+  // If complete pattern doesn't match, try incomplete pattern
+  const incompleteMatch = line.match(INCOMPLETE_CLOCK_ENTRY_PATTERN)
+  if (incompleteMatch) {
+    const [, startTimeStr] = incompleteMatch
 
-  try {
-    const startTime = parseLogseqDate(startTimeStr)
-    const endTime = parseLogseqDate(endTimeStr)
+    try {
+      const startTime = parseLogseqDate(startTimeStr)
 
-    if (!isNaN(startTime) && !isNaN(endTime)) {
-      return { start: startTime, end: endTime }
+      if (!isNaN(startTime)) {
+        return { start: startTime }
+      }
+    } catch (e) {
+      console.error('Error parsing incomplete logbook timestamp:', e)
     }
-  } catch (e) {
-    console.error('Error parsing logbook timestamps:', e)
   }
 
   return undefined
@@ -278,19 +294,27 @@ function addLogbookEntriesToNodeHistory(node: TreeTextNode, logbookEntries: Logb
   for (let i = 0; i < logbookEntries.length; i++) {
     const entry = logbookEntries[i]
 
-    // If this isn't the first entry, switch the previous entry to 'TODO'
+    // Check if this is an incomplete entry (no end time)
+    const isIncomplete = entry.end === undefined
+
+    // If this isn't the first entry and the previous entry was complete,
+    // switch the previous entry to 'TODO'
     if (i > 0) {
       const prevEntry = logbookEntries[i - 1]
-      history.push([prevEntry.end, false]) // End of previous entry -> TODO
+      if (prevEntry.end !== undefined) {
+        history.push([prevEntry.end, false]) // End of previous entry -> TODO
+      }
     }
 
     // Add the DOING state at the start of this entry
     history.push([entry.start, 'indeterminate']) // Start of entry -> DOING
 
-    // If this is the last entry, add the current checkbox state at the end
-    if (i === logbookEntries.length - 1) {
-      history.push([entry.end, node.checkbox ?? null]) // End of last entry -> current state
+    // If this is a complete entry and the last entry, add the current checkbox state at the end
+    if (!isIncomplete && i === logbookEntries.length - 1) {
+      history.push([entry.end!, node.checkbox ?? null]) // End of last entry -> current state
     }
+    // If this is a complete entry but not the last one, we don't need to add anything here
+    // as the next iteration will handle the transition
   }
 
   // Reverse the history to get reverse chronological order (newest first)
