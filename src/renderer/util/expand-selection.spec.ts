@@ -1,6 +1,6 @@
 import {describe, expect, test} from 'vitest'
 
-import {expandSelection} from '@/renderer/features/node-title-editor/expand-selection'
+import {expandSelection} from '@/renderer/util/expand-selection'
 
 // Basic functionality tests
 test('expands simple word from middle', () => {

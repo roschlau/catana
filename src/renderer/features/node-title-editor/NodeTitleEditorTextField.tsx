@@ -30,7 +30,7 @@ import {nodeOpened} from '@/renderer/features/navigation/navigation-slice'
 import {TooltipSimple} from '@/renderer/components/ui/tooltip'
 import {getEditorActionThunk} from '@/renderer/features/node-title-editor/editor-actions'
 import {remarkGfmStrikethrough} from '@/renderer/features/node-title-editor/remark-gfm-strikethrough'
-import {expandSelection} from '@/renderer/features/node-title-editor/expand-selection'
+import {expandSelection} from '@/renderer/util/expand-selection'
 
 export interface NodeTitleEditorTextFieldRef {
   focus: (selection?: Selection) => void
