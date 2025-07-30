@@ -16,7 +16,7 @@ import {CheckboxState, cycleCheckboxState} from '@/common/checkboxes'
 import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
 import {TextNode} from '@/common/nodes'
 import {NodeView} from '@/common/node-views'
-import {setCommandFocus} from '@/renderer/features/ui/uiSlice'
+import {focusRestoreRequested, setCommandFocus} from '@/renderer/features/ui/uiSlice'
 import {getNode} from '@/renderer/features/node-graph/helpers'
 import {modKey} from '@/renderer/util/keyboard'
 import {insertNodeLinks, insertTrees} from '@/renderer/features/node-graph/insert-content'
@@ -25,12 +25,13 @@ import {flatten} from '@/common/node-tree'
 import {cn} from '@/renderer/util/tailwind'
 import Markdown from 'react-markdown'
 import rehypeSanitize from 'rehype-sanitize'
-import {suppressUnsupportedMd} from '@/common/markdown-utils'
+import {isLink, markRange, suppressUnsupportedMd} from '@/common/markdown-utils'
 import {nodeOpened} from '@/renderer/features/navigation/navigation-slice'
 import {TooltipSimple} from '@/renderer/components/ui/tooltip'
 import {getEditorActionThunk} from '@/renderer/features/node-title-editor/editor-actions'
 import {remarkGfmStrikethrough} from '@/renderer/features/node-title-editor/remark-gfm-strikethrough'
 import {expandSelection} from '@/renderer/util/expand-selection'
+import {displayWarning} from '@/renderer/features/ui/toasts'
 
 export interface NodeTitleEditorTextFieldRef {
   focus: (selection?: Selection) => void
@@ -155,19 +156,29 @@ export function NodeTitleEditorTextField({
   }
 
   const onPaste = async (e: ClipboardEvent<HTMLTextAreaElement>) => {
-    const { nodeIds, nodeTrees } = readClipboard(e.clipboardData)
+    const { nodeIds, nodeTrees, plainText } = readClipboard(e.clipboardData)
     if (nodeIds) {
       e.preventDefault()
       try {
         dispatch(insertNodeLinks(nodeView, nodeIds))
         return
       } catch {
-        console.warn(`Failed to insert node links from clipboard: ${nodeIds.join(', ')}. Falling back to plain content.`)
+        displayWarning(`Failed to insert node links from clipboard. Falling back to plain content.`, { logData: nodeIds })
       }
     }
     if (nodeTrees && nodeTrees.length > 0) {
       e.preventDefault()
       dispatch(insertTrees(nodeView, nodeTrees.map(nodeTree => flatten(nodeTree))))
+      return
+    }
+    const selection = { start: e.currentTarget.selectionStart, end: e.currentTarget.selectionEnd }
+    if (selection.start !== selection.end && isLink(plainText)) {
+      e.preventDefault()
+      const suffix = '](' + plainText + ')'
+      const { result, mappedRange } = markRange(node.title, selection, 'enclose', '[', suffix)
+      dispatch(titleUpdated({ nodeId: node.id, title: result }))
+      dispatch(focusRestoreRequested({ nodeView, selection: { start: mappedRange.end + suffix.length } }))
+      return
     }
   }
 

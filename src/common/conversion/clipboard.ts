@@ -15,7 +15,7 @@ export function copyNode(node: TextNode, clipboardData: DataTransfer) {
 }
 
 type ClipboardData = {
-  text: string,
+  plainText: string,
   nodeTrees?: TreeTextNode[],
   nodeIds?: ClipboardNodes,
 }
@@ -30,7 +30,7 @@ export function readClipboard(clipboardData: DataTransfer): ClipboardData {
   const plainText = clipboardData.getData('text/plain')
   const fromLogseq = tryParseLogseq(plainText)
   return {
-    text: plainText,
+    plainText,
     nodeTrees: fromLogseq,
     nodeIds: parsed,
   }

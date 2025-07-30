@@ -69,3 +69,5 @@ export function suppressUnsupportedMd(markdown: string): string {
 
 const mdToPlainProcessor = remark().use(stripMarkdown)
 export const mdToPlain = (md: string) => mdToPlainProcessor.processSync(md).toString()
+
+export const isLink = (text: string) => /^https?:\/\//.test(text)
