@@ -17,6 +17,7 @@ import {
 } from '@/renderer/components/ui/dropdown-menu'
 import {selectAncestry} from '@/renderer/features/node-graph/selectors'
 import {Field, TextNode} from '@/common/nodes'
+import {mdToPlain} from '@/common/markdown-utils'
 
 /**
  * Renders a breadcrumb trail for the current Doc. Property docs in the ancestry, they will be skipped.
@@ -42,7 +43,7 @@ export function EditorPageBreadcrumbs({ node, className }: {
         className={'cursor-pointer'}
         onClick={() => dispatch(nodeOpened({ nodeId: node.id }))}
       >
-        {ellipsize(20, node.title)}
+        {ellipsize(20, mdToPlain(node.title))}
       </BreadcrumbLink>
     </BreadcrumbItem>
   )

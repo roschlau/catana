@@ -1,4 +1,6 @@
 import {Selection} from '@/renderer/util/selection'
+import {remark} from 'remark'
+import stripMarkdown from 'strip-markdown'
 
 /**
  * If `range` within `input` is surrounded by `prefix` and `suffix`, returns a string with the prefix and suffix removed
@@ -64,3 +66,6 @@ export function suppressUnsupportedMd(markdown: string): string {
   return markdown
     .replace(/((^#)|[<>])/g, '\\$1')
 }
+
+const mdToPlainProcessor = remark().use(stripMarkdown)
+export const mdToPlain = (md: string) => mdToPlainProcessor.processSync(md).toString()
