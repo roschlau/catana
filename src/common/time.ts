@@ -1,14 +1,27 @@
-import {Duration} from '@js-joda/core'
+import {Duration, LocalDateTime, ZonedDateTime, ZoneId} from '@js-joda/core'
 
 /**
- * Formates the passed Duration in the format 'HH:mm:ss'
+ * Formats the passed Duration according to the given style
  */
-export function formatDuration(duration: Duration): string {
-  const { hours, minutes, seconds } = breakdown(duration)
-  const hoursString = hours.toString().padStart(2, '0')
-  const minutesString = minutes.toString().padStart(2, '0')
-  const secondsString = seconds.toString().padStart(2, '0')
-  return [hoursString, minutesString, secondsString].join(':')
+export function formatDuration(
+  duration: Duration,
+  format: (components: DurationComponents) => string = DurationFormat.clock,
+): string {
+  return format(breakdown(duration))
+}
+
+export const DurationFormat = {
+  clock: (components: DurationComponents): string => {
+    const { hours, minutes, seconds } = components
+    const hoursString = hours.toString().padStart(2, '0')
+    const minutesString = minutes.toString().padStart(2, '0')
+    const secondsString = seconds.toString().padStart(2, '0')
+    return [hoursString, minutesString, secondsString].join(':')
+  },
+  letters: (components: DurationComponents): string => {
+    const { hours, minutes, seconds } = components
+    return hours.toString() + 'h ' + minutes.toString() + 'm ' + seconds.toString() + 's'
+  }
 }
 
 interface DurationComponents {

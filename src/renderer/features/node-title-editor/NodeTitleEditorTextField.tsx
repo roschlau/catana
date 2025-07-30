@@ -12,7 +12,7 @@ import React, {
 import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
 import {Selection} from '@/renderer/util/selection'
 import {Checkbox} from '@/renderer/components/ui/checkbox'
-import {CheckboxState, cycleCheckboxState} from '@/common/checkboxes'
+import {CheckboxState, cycleCheckboxState, inProgressDuration} from '@/common/checkboxes'
 import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
 import {TextNode} from '@/common/nodes'
 import {NodeView} from '@/common/node-views'
@@ -32,6 +32,8 @@ import {getEditorActionThunk} from '@/renderer/features/node-title-editor/editor
 import {remarkGfmStrikethrough} from '@/renderer/features/node-title-editor/remark-gfm-strikethrough'
 import {expandSelection} from '@/renderer/util/expand-selection'
 import {displayWarning} from '@/renderer/features/ui/toasts'
+import {CheckedState} from '@radix-ui/react-checkbox'
+import {DurationFormat, formatDuration} from '@/common/time'
 
 export interface NodeTitleEditorTextFieldRef {
   focus: (selection?: Selection) => void
@@ -196,13 +198,11 @@ export function NodeTitleEditorTextField({
 
   return (
     <div className={'w-full flex flex-row items-baseline gap-2'}>
-      {checkboxChecked !== undefined && (
-        <Checkbox
-          className={'translate-y-0.5'}
-          checked={checkboxChecked}
-          onCheckedChange={setCheckbox}
-        />
-      )}
+      {checkboxChecked !== undefined && <NodeCheckbox
+        history={node.history.checkbox}
+        checked={checkboxChecked}
+        onCheckedChange={setCheckbox}
+      />}
       {isEditing && (
         <TextareaAutosize
           ref={textAreaRef}
@@ -249,5 +249,27 @@ export function NodeTitleEditorTextField({
         </div>
       )}
     </div>
+  )
+}
+
+export function NodeCheckbox({
+  history,
+  checked,
+  onCheckedChange,
+}: {
+  history: TextNode['history']['checkbox'],
+  checked: CheckedState,
+  onCheckedChange: (state: CheckedState) => void,
+}) {
+  const duration = inProgressDuration(history ?? [])
+  const tooltip = duration ? formatDuration(duration, DurationFormat.letters) : 'No history'
+  return (
+    <TooltipSimple content={tooltip}>
+      <Checkbox
+        className={'translate-y-0.5'}
+        checked={checked}
+        onCheckedChange={onCheckedChange}
+      />
+    </TooltipSimple>
   )
 }
