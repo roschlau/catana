@@ -30,6 +30,7 @@ import {indentNode, outdentNode} from '@/renderer/features/node-graph/indent-out
 import {useEventListener} from '@/renderer/hooks/use-event-listener'
 import {displayWarning} from '@/renderer/features/ui/toasts'
 import {duplicateSubtree} from '@/renderer/features/node-graph/duplicate-subtree'
+import {expandAllChildren} from '@/renderer/features/node-graph/expand-all-children'
 
 export interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void
@@ -258,9 +259,12 @@ export function TextNodeBlock({
       </ListItem>
       {isExpanded && childRefs.length > 0 && (
         <ListItem>
-          <div className={'w-4 shrink-0 self-stretch grid justify-center'}>
-            <div className={'w-0.5 bg-border'}></div>
-          </div>
+          <button
+            className={'group w-4 shrink-0 self-stretch grid justify-center cursor-pointer'}
+            onClick={() => dispatch(expandAllChildren(nodeView))}
+          >
+            <div className={'w-0.5 group-hover:w-1.5 rounded-full bg-border transition-all'}></div>
+          </button>
           <EditorBlockList
             className={'grow'}
             ref={contentNodesList}
