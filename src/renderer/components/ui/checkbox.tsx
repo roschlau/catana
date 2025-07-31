@@ -14,8 +14,8 @@ function Checkbox({ className, ...props }: React.ComponentProps<typeof CheckboxP
       data-slot="checkbox"
       className={cn(
         'peer border-input dark:bg-input/30 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none size-[1em]',
-        'data-[state=indeterminate]:bg-primary data-[state=indeterminate]:text-primary-foreground dark:data-[state=indeterminate]:bg-primary data-[state=indeterminate]:border-primary',
-        'data-[state=checked]:bg-input data-[state=checked]:text-input-foreground data-[state=checked]:border-input',
+        props.checked === 'indeterminate' ? 'bg-primary text-primary-foreground dark:bg-primary border-primary' : null,
+        props.checked === true ? 'bg-input text-input-foreground border-input' : null,
         'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
         'aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive',
         'disabled:cursor-not-allowed disabled:opacity-50',
