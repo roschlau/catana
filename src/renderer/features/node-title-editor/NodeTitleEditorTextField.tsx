@@ -34,6 +34,7 @@ import {expandSelection} from '@/renderer/util/expand-selection'
 import {displayWarning} from '@/renderer/features/ui/toasts'
 import {CheckedState} from '@radix-ui/react-checkbox'
 import {DurationFormat, formatDuration} from '@/common/time'
+import {remarkGfmAutolinkLiteral} from '@/renderer/features/node-title-editor/remark-gfm-autolink'
 
 export interface NodeTitleEditorTextFieldRef {
   focus: (selection?: Selection) => void
@@ -222,7 +223,7 @@ export function NodeTitleEditorTextField({
         >
           <Markdown
             rehypePlugins={[rehypeSanitize]}
-            remarkPlugins={[remarkGfmStrikethrough]}
+            remarkPlugins={[remarkGfmStrikethrough, remarkGfmAutolinkLiteral]}
             components={{
               a(props) {
                 if (props.href?.startsWith('catana://')) {
@@ -232,12 +233,16 @@ export function NodeTitleEditorTextField({
                   return <a {...rest} onClick={() => dispatch(nodeOpened({ nodeId }))}/>
                 } else {
                   const { node, ...rest } = props
+                  const link = <a
+                    {...rest}
+                    target={'_blank'} rel={'noreferrer'}
+                  />
+                  if (rest.children === rest.href) {
+                    return link
+                  }
                   return (
                     <TooltipSimple content={props.href} side={'bottom'} delayed>
-                      <a
-                        {...rest}
-                        target={'_blank'} rel={'noreferrer'}
-                      />
+                      {link}
                     </TooltipSimple>
                   )
                 }
