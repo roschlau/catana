@@ -5,6 +5,9 @@ import {
   nodeIndexChanged,
   nodeLinkRemoved,
   nodeTreeDeleted,
+  selectIsLastNode,
+  selectIsLink,
+  selectNodeFromNodeView,
 } from '@/renderer/features/node-graph/nodesSlice'
 import {KeyboardEvent, MouseEvent, Ref, useCallback, useImperativeHandle, useMemo, useRef, useState} from 'react'
 import classNames from 'classnames'
@@ -18,7 +21,6 @@ import {
 } from '@/renderer/features/node-title-editor/NodeTitleEditorTextField'
 import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-editor/EditorBlockList'
 import {ChevronRight, FullscreenIcon} from 'lucide-react'
-import {selectResolvedNodeView} from '@/renderer/features/node-graph/helpers'
 import {ListItem} from '@/renderer/components/ui/list-item'
 import {twMerge} from 'tailwind-merge'
 import {TextNode} from '@/common/nodes'
@@ -37,13 +39,13 @@ export interface NodeEditorRef {
 }
 
 export function TextNodeBlock({
-                                className,
-                                nodeView,
-                                expanded,
-                                moveFocusBefore,
-                                moveFocusAfter,
-                                ref,
-                              }: {
+  className,
+  nodeView,
+  expanded,
+  moveFocusBefore,
+  moveFocusAfter,
+  ref,
+}: {
   className?: string,
   /** The node view to render */
   nodeView: NodeViewWithParent<TextNode>,
@@ -57,10 +59,10 @@ export function TextNodeBlock({
   ref?: Ref<NodeEditorRef>,
 }) {
   const dispatch = useAppDispatch()
-  const { node, viewContext } = useAppSelector(selectResolvedNodeView(nodeView))
-  const parent = viewContext.parent
+  const node = useAppSelector(state => selectNodeFromNodeView<TextNode>(state, nodeView))
   /** True if this node editor is shown under a different node than the node's owner. */
-  const isLink = !!parent && (!node.ownerId || node.ownerId !== parent.id)
+  const isLink = useAppSelector(state => selectIsLink(state, nodeView))
+  const isLastNode = useAppSelector(state => selectIsLastNode(state, nodeView))
   const childRefs = node.content
 
   const isRecursiveInstance = useMemo(() => isRecursive(nodeView.parent), [nodeView])
@@ -178,7 +180,7 @@ export function TextNodeBlock({
     if (e.key === 'Enter') {
       // Not allowing any line breaks for now to simplify things. Might change my mind on that later.
       e.preventDefault()
-      if (node.title === '' && viewContext.childIndex === parent.content.length - 1) {
+      if (node.title === '' && isLastNode) {
         // Outdent node instead of adding additional empty nodes
         dispatch(outdentNode(nodeView, selection))
       } else {
@@ -240,7 +242,7 @@ export function TextNodeBlock({
       dispatch(duplicateSubtree(nodeView))
       return
     }
-  }, [setExpanded, zoomIn, dispatch, node.id, node.title, node.checkbox, node.content.length, nodeView, isExpanded, childRefs.length, moveFocusAfter, moveFocusBefore, viewContext.childIndex, parent.content.length, isLink])
+  }, [setExpanded, zoomIn, dispatch, node.id, node.title, node.checkbox, node.content.length, nodeView, isExpanded, childRefs.length, moveFocusAfter, moveFocusBefore, isLastNode, isLink])
 
   return (
     <div className={twMerge('flex flex-col grow', className)}>

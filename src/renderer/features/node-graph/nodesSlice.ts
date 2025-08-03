@@ -10,7 +10,7 @@ import {
 } from './stateMutations'
 import {CheckboxState} from '@/common/checkboxes'
 import {CheckboxHistoryEntry, Id, Node, NodeGraphFlattened, ParentNode, TextNode} from '@/common/nodes'
-import {NodeViewWithParent} from '@/common/node-views'
+import {NodeView, NodeViewWithParent} from '@/common/node-views'
 import {AppState} from '@/renderer/redux/store'
 
 export const nodesSlice = createSlice({
@@ -168,6 +168,29 @@ export const selectNodes = createSelector([
   return Object.values(nodes)
     .filter((node): node is TextNode => node?.type === 'node' && node.title.toLowerCase().includes(query.toLowerCase()))
 })
+
+export function selectNodeFromNodeView<T extends Node>(
+  state: AppState,
+  nodeView: NodeView<T>,
+): T {
+  return getNode(state.undoable.present.nodes, nodeView.nodeId) as T
+}
+
+export const selectIsLink = (
+  state: AppState,
+  nodeView: NodeViewWithParent<Node>,
+) => {
+  const node = getNode(state.undoable.present.nodes, nodeView.nodeId)
+  return !node.ownerId || node.ownerId !== nodeView.parent.nodeId
+}
+
+export const selectIsLastNode = (
+  state: AppState,
+  nodeView: NodeViewWithParent<Node>,
+) => {
+  const { viewContext } = resolveNodeView(state.undoable.present.nodes, nodeView)
+  return viewContext.childIndex === viewContext.parent.content.length - 1
+}
 
 export const {
   titleUpdated,
