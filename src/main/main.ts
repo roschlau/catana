@@ -60,6 +60,7 @@ async function createWindow() {
     icon: `src/renderer/assets/app-icon/${environment === 'dev' ? 'dev_' : ''}catana.png`,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
+      enableBlinkFeatures: 'SmoothScrolling',
     },
   })
   if (lastWindowPosition) {

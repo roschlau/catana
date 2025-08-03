@@ -132,6 +132,8 @@
     }
     html {
         height: 100%;
+        transform: translateZ(0);
+        will-change: transform;
     }
     body {
         height: 100%;
