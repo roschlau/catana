@@ -3,7 +3,7 @@ import {
   NodeTitleEditorTextFieldRef,
 } from '@/renderer/features/node-title-editor/NodeTitleEditorTextField'
 import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
-import {KeyboardEvent, useCallback, useRef} from 'react'
+import {KeyboardEvent, useCallback, useMemo, useRef} from 'react'
 import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-editor/EditorBlockList'
 import {calculateCursorPosition} from '@/renderer/util/textarea-measuring'
 import {selectDebugMode, useFocusRestore} from '@/renderer/features/ui/uiSlice'
@@ -14,6 +14,7 @@ import {DateTimeFormatter, Instant, LocalDate, ZonedDateTime, ZoneId} from '@js-
 import {mergeNodeForward, splitNode} from '@/renderer/features/node-graph/split-merge-thunks'
 
 import {PageTitle} from '@/renderer/components/ui/page-title'
+import {serialize} from '@/common/node-views'
 
 export function NodeEditorPage({ nodeId }: {
   nodeId: Id<'node'>,
@@ -23,7 +24,7 @@ export function NodeEditorPage({ nodeId }: {
   const debugMode = useAppSelector(selectDebugMode)
   const contentNodesList = useRef<EditorBlockListRef | null>(null)
   const titleEditorRef = useRef<NodeTitleEditorTextFieldRef | null>(null)
-  const nodeView = { nodeId }
+  const nodeView = useMemo(() => ({ nodeId }), [nodeId])
 
   const focusEnd = useCallback(() => {
     if (!node) return false
@@ -35,7 +36,7 @@ export function NodeEditorPage({ nodeId }: {
     titleEditorRef.current?.focus(selection)
   })
 
-  const titleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+  const titleKeyDown = useCallback((e: KeyboardEvent<HTMLTextAreaElement>) => {
     const textarea = e.currentTarget
     const { selectionStart, selectionEnd } = e.currentTarget
     if ((e.key === 'ArrowDown' && calculateCursorPosition(textarea).lastLine)
@@ -66,7 +67,7 @@ export function NodeEditorPage({ nodeId }: {
       }
       return
     }
-  }
+  }, [node, dispatch, nodeView])
 
   if (!node) {
     return (
@@ -86,7 +87,7 @@ export function NodeEditorPage({ nodeId }: {
         <PageTitle>
           <NodeTitleEditorTextField
             ref={titleEditorRef}
-            nodeView={nodeView}
+            nodeView={serialize(nodeView)}
             onKeyDown={titleKeyDown}
           />
         </PageTitle>

@@ -1,17 +1,25 @@
-import {NodeViewWithParent, ParentNodeView} from '@/common/node-views'
-import {Ref, useImperativeHandle, useRef} from 'react'
+import {NodeView, NodeViewWithParent, serialize} from '@/common/node-views'
+import React, {Ref, useCallback, useImperativeHandle, useMemo, useRef} from 'react'
 import {twMerge} from 'tailwind-merge'
 import {EditorBlock} from '@/renderer/components/node-editor/EditorBlock'
-import {Node, TextNode} from '@/common/nodes'
+import {Node, ParentNode, TextNode} from '@/common/nodes'
+import {NodeEditorRef} from '@/renderer/components/node-editor/TextNodeBlock'
 
 export interface EditorBlockListRef {
   focus: (mode: 'first' | 'last') => void
 }
 
-export function EditorBlockList({ className, nodes, parentView, moveFocusBefore, moveFocusAfter, ref }: {
+export const EditorBlockList = React.memo(function EditorBlockList({
+  className,
+  nodes,
+  parentView,
+  moveFocusBefore,
+  moveFocusAfter,
+  ref,
+}: {
   className?: string,
   nodes: TextNode['content'],
-  parentView: ParentNodeView,
+  parentView: NodeView<ParentNode>,
   moveFocusBefore?: () => boolean,
   moveFocusAfter?: () => boolean,
   ref?: Ref<EditorBlockListRef>,
@@ -35,7 +43,7 @@ export function EditorBlockList({ className, nodes, parentView, moveFocusBefore,
     childNodeRefs.current = Array(nodes.length).fill(null)
   }
 
-  const focusIndex = (index: number, mode: 'first' | 'last') => {
+  const focusIndex = useCallback((index: number, mode: 'first' | 'last') => {
     if (index >= nodes.length) {
       // We stepped past our last child node, delegate to parent node
       return moveFocusAfter?.() || false
@@ -46,7 +54,18 @@ export function EditorBlockList({ className, nodes, parentView, moveFocusBefore,
     }
     childNodeRefs.current[index]?.focus(mode)
     return true
-  }
+  }, [moveFocusAfter, moveFocusBefore, nodes.length])
+
+  // Pre-generate and memoize callback functions
+  const callbacks = useMemo(() =>
+    new Array(nodes.length).fill(null).map((_, i) => ({
+      moveFocusBefore: () => focusIndex(i - 1, 'last'),
+      moveFocusAfter: () => focusIndex(i + 1, 'first'),
+      ref: (el: NodeEditorRef | null) => {
+        childNodeRefs.current[i] = el
+      },
+    })), [focusIndex, nodes.length])
+
 
   return (
     <div className={twMerge('grid p-0', className)} style={{ gridTemplateColumns: 'minmax(auto, 200px) 1fr' }}>
@@ -56,16 +75,14 @@ export function EditorBlockList({ className, nodes, parentView, moveFocusBefore,
           <EditorBlock
             className={'col-span-2'}
             key={contentNode.nodeId}
-            nodeView={childView}
+            nodeView={serialize(childView)}
             expanded={contentNode.expanded ?? false}
-            moveFocusBefore={() => focusIndex(i - 1, 'last')}
-            moveFocusAfter={() => focusIndex(i + 1, 'first')}
-            ref={el => {
-              childNodeRefs.current[i] = el
-            }}
+            moveFocusBefore={callbacks[i].moveFocusBefore}
+            moveFocusAfter={callbacks[i].moveFocusAfter}
+            ref={callbacks[i].ref}
           />
         )
       })}
     </div>
   )
-}
+})

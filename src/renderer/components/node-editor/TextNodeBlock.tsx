@@ -11,7 +11,7 @@ import classNames from 'classnames'
 import {calculateCursorPosition} from '@/renderer/util/textarea-measuring'
 import {focusRestoreRequested, useFocusRestore} from '@/renderer/features/ui/uiSlice'
 import {Selection} from '@/renderer/util/selection'
-import {isRecursive, NodeViewWithParent} from '@/common/node-views'
+import {isRecursive, NodeViewWithParent, serialize} from '@/common/node-views'
 import {
   NodeTitleEditorTextField,
   NodeTitleEditorTextFieldRef,
@@ -69,16 +69,16 @@ export function TextNodeBlock({
   // that defaults to false. If we don't, the UI will crash in a recursive loop.
   const [expandedLocalOverride, setExpandedLocalOverride] = useState(false)
   const isExpanded = isRecursiveInstance ? expandedLocalOverride : expanded
-  const setExpanded = (expanded: boolean) => {
+  const setExpanded = useCallback((expanded: boolean) => {
     if (isRecursiveInstance) {
       setExpandedLocalOverride(expanded)
     } else {
       dispatch(nodeExpandedChanged({ nodeView, expanded }))
     }
-  }
-  const zoomIn = () => {
+  }, [dispatch, isRecursiveInstance, nodeView])
+  const zoomIn = useCallback(() => {
     dispatch(nodeOpened({ nodeId: node.id }))
-  }
+  }, [dispatch, node.id])
   const bulletClicked = (e: MouseEvent) => {
     if (modKey(e)) {
       zoomIn()
@@ -113,7 +113,7 @@ export function TextNodeBlock({
     titleEditorRef.current?.focus(selection)
   })
 
-  const keyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+  const keyDown = useCallback((e: KeyboardEvent<HTMLTextAreaElement>) => {
     const textarea = e.currentTarget
     const { selectionStart, selectionEnd } = e.currentTarget
     const selection: Selection = { start: selectionStart, end: selectionEnd }
@@ -240,7 +240,7 @@ export function TextNodeBlock({
       dispatch(duplicateSubtree(nodeView))
       return
     }
-  }
+  }, [setExpanded, zoomIn, dispatch, node.id, node.title, node.checkbox, node.content.length, nodeView, isExpanded, childRefs.length, moveFocusAfter, moveFocusBefore, viewContext.childIndex, parent.content.length, isLink])
 
   return (
     <div className={twMerge('flex flex-col grow', className)}>
@@ -253,7 +253,7 @@ export function TextNodeBlock({
         />
         <NodeTitleEditorTextField
           ref={titleEditorRef}
-          nodeView={nodeView}
+          nodeView={serialize(nodeView)}
           onKeyDown={keyDown}
         />
       </ListItem>

@@ -1,12 +1,12 @@
-import {NodeView, NodeViewWithParent, ParentNodeView} from '@/common/node-views'
-import {Id, Node, NodeGraphFlattened, NodeOfType, Property, TextNode} from '@/common/nodes'
+import {NodeView, NodeViewWithParent} from '@/common/node-views'
+import {Id, Node, NodeGraphFlattened, NodeOfType, ParentNode, Property, TextNode} from '@/common/nodes'
 import {createSelector} from '@reduxjs/toolkit'
 import {AppState} from '@/renderer/redux/store'
 
 export type NodeWithContext<T extends Node> = {
   node: T,
   viewContext?: {
-    parentView: ParentNodeView,
+    parentView: NodeView<ParentNode>,
     parent: TextNode | Property,
     childIndex: number,
     isExpanded: boolean,

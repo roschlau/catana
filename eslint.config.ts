@@ -9,6 +9,7 @@ export default tseslint.config(
   {
     rules: {
       '@typescript-eslint/no-unused-vars': ['warn', { ignoreRestSiblings: true }],
+      'react-hooks/react-compiler': 'error',
     }
   }
 )

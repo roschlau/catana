@@ -1,19 +1,47 @@
 import {Node, ParentNode} from '@/common/nodes'
+import {Brand} from '@ark/util/'
 
 /**
  * A node view that definitely has a parent
  */
 export type NodeViewWithParent<T extends Node> = Required<NodeView<T>>
 
-/**
- * A node view of a node that can potentially be a parent for other nodes.
- */
-export type ParentNodeView = NodeView<ParentNode>
-
 /** Identifies a node being viewed at a specific point in the Node graph. */
 export interface NodeView<T extends Node> {
   nodeId: T['id'],
-  parent?: ParentNodeView,
+  parent?: NodeView<ParentNode>,
+}
+
+export type SerializedNodeView = Brand<string, 'nodeView'>
+export type SerializedNodeViewWithParent = Brand<`${string}/${string}`, 'nodeView'>
+
+export function serialize(nodeView: NodeViewWithParent<Node>): SerializedNodeViewWithParent
+export function serialize(nodeView: NodeView<Node>): SerializedNodeView
+export function serialize(nodeView: NodeView<Node>): SerializedNodeView {
+  let result = nodeView.nodeId as string
+  let next: NodeView<Node> | undefined = nodeView.parent
+  while (next !== undefined) {
+    result = `${next.nodeId}/${result}`
+    next = next.parent
+  }
+  return result as SerializedNodeView
+}
+
+export function deserialize<T extends Node>(input: SerializedNodeViewWithParent): NodeViewWithParent<T>
+export function deserialize<T extends Node>(input: SerializedNodeView): NodeView<T>
+export function deserialize<T extends Node>(input: SerializedNodeView): NodeView<T> {
+  let nodeView: NodeView<T> | undefined = undefined
+  const nodePath = input.split('/')
+  if (nodePath.length === 0) {
+    throw Error(`Invalid node view: '${input}'`)
+  }
+  for (const nodeId of nodePath) {
+    nodeView = {
+      nodeId: nodeId as Node['id'],
+      parent: nodeView as NodeView<ParentNode> | undefined
+    }
+  }
+  return nodeView!
 }
 
 /** Checks whether the passed NodeView contains any of the nodes within it more than once. */
