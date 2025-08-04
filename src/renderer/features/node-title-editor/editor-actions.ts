@@ -108,6 +108,7 @@ export const editorShortcuts: Record<string, EditorAction | undefined> = {
   'mod-b': range('toggle', '**'),
   'mod-i': range('toggle', '*'),
   'mod-e': range('toggle', '`'),
+  'mod-S': range('toggle', '~~'),
   'Backspace': removeClosingChar,
   // Auto-generate range and skipOver shortcuts from charRangePairs
   ...charRangePairs.entries()
