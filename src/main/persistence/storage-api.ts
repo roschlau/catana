@@ -7,11 +7,13 @@ import {type} from 'arktype'
 import {dialog} from 'electron'
 import fs from 'node:fs'
 import path from 'node:path'
+import chokidar, {FSWatcher} from 'chokidar'
 
 export const workspaceFileName = '.catana'
 
 /** Stores the location of the node graph that is currently opened. */
 let openedGraphDirectory: string | null = null
+let fileWatcher: FSWatcher | null = null
 
 export function registerStorageApi(ipcMain: Electron.IpcMain) {
   ipcMain.handle('open-workspace', async (
@@ -39,6 +41,13 @@ export function registerStorageApi(ipcMain: Electron.IpcMain) {
     openedGraphDirectory = directory
 
     await gitInitializeWorkspace(directory)
+
+    fileWatcher?.close()
+    fileWatcher = chokidar.watch(filePath)
+      .on('change', (event) => {
+        console.log('Node graph file changed', event)
+        _event.sender.send('workspace-file-changed-externally')
+      })
 
     return { path: directory, content: saveFile }
   })

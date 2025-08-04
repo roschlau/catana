@@ -5,6 +5,7 @@ export interface CatanaAPI {
   openWorkspace: (mode: 'last' | 'pick') => Promise<OpenWorkspaceResult | null>
   saveWorkspace: (content: SaveFile) => Promise<void>
   loadTanaExport: () => Promise<{ rootId: Id<'node'>, nodes: NodeGraphFlattened } | null>
+  onWorkspaceFileChangedExternally: (callback: () => void) => () => void
 }
 
 export interface OpenWorkspaceResult {

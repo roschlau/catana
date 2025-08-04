@@ -6,10 +6,15 @@ import {AppDispatch, AppState} from '@/renderer/redux/store'
 import {FolderOpen} from 'lucide-react'
 import {promptToSaveWorkspaceIfNecessary} from '@/renderer/features/workspace/save-workspace-prompt'
 
-export const openWorkspace = (mode: 'last' | 'pick') => async (dispatch: AppDispatch, getState: () => AppState) => {
-  const canceled = await promptToSaveWorkspaceIfNecessary(dispatch, getState)
-  if (canceled) {
-    return
+export const openWorkspace = (
+  mode: 'last' | 'pick',
+  skipSavePrompt: boolean = false,
+) => async (dispatch: AppDispatch, getState: () => AppState) => {
+  if (!skipSavePrompt) {
+    const canceled = await promptToSaveWorkspaceIfNecessary(dispatch, getState)
+    if (canceled) {
+      return
+    }
   }
   const result = await window.catanaAPI.openWorkspace(mode)
   if (!result) {

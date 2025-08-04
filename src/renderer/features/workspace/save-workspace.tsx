@@ -15,8 +15,8 @@ export const saveWorkspaceCommand: AppCommand = {
 }
 
 export async function saveWorkspace(dispatch: AppDispatch, getStore: () => AppState) {
-  await window.catanaAPI.saveWorkspace(serialize(getStore()))
   dispatch(markWorkspaceClean())
+  await window.catanaAPI.saveWorkspace(serialize(getStore()))
 }
 
 export function serialize(state: AppState): SaveFile {

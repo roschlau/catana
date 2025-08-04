@@ -24,14 +24,16 @@ import {OpenWorkspaceOnStartup} from '@/renderer/features/workspace/open-workspa
 import {Toaster} from '@/renderer/components/ui/sonner'
 import {TooltipSimple} from '@/renderer/components/ui/tooltip'
 import {GitHubIcon} from '@/renderer/components/icons/github-icon'
+import {WorkspaceFileChangedPrompt} from '@/renderer/features/workspace/workspace-file-changed-prompt'
 
 const root = createRoot(document.body)
 root.render(
   <ReduxProvider store={store}>
     <OpenWorkspaceOnStartup/>
-    <SaveWorkspacePrompt/>
     <ThemeProvider attribute={'class'}>
       <App/>
+      <SaveWorkspacePrompt/>
+      <WorkspaceFileChangedPrompt/>
       <Toaster richColors/>
     </ThemeProvider>
   </ReduxProvider>,
