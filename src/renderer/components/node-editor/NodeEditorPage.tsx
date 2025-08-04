@@ -83,7 +83,7 @@ export function NodeEditorPage({ nodeId }: {
         node={node}
         className={'self-start sticky top-0'}
       />
-      <div className={'flex flex-col gap-4 w-full max-w-[600px]'}>
+      <div className={'flex flex-col gap-4 w-full max-w-[800px]'}>
         <PageTitle>
           <NodeTitleEditorTextField
             ref={titleEditorRef}
