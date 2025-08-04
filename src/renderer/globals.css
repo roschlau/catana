@@ -134,6 +134,7 @@
         height: 100%;
         transform: translateZ(0);
         will-change: transform;
+        overflow: hidden;
     }
     body {
         height: 100%;
