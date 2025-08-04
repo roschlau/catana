@@ -262,7 +262,7 @@ export function TextNodeBlock({
       {isExpanded && childRefs.length > 0 && (
         <ListItem>
           <button
-            className={'group w-4 shrink-0 self-stretch grid justify-center cursor-pointer'}
+            className={'group w-4 shrink-0 mb-1 self-stretch grid justify-center cursor-pointer'}
             onClick={() => dispatch(expandAllChildren(nodeView))}
           >
             <div className={'w-0.5 group-hover:w-1.5 rounded-full bg-border transition-all'}></div>

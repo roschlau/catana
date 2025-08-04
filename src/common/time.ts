@@ -20,7 +20,9 @@ export const DurationFormat = {
   },
   letters: (components: DurationComponents): string => {
     const { hours, minutes, seconds } = components
-    return hours.toString() + 'h ' + minutes.toString() + 'm ' + seconds.toString() + 's'
+    if (hours === 0 && minutes === 0) return seconds.toString() + 's'
+    if (hours === 0) return minutes.toString() + 'm ' + seconds.toString() + 's'
+    return hours.toString() + 'h ' + minutes.toString() + 'm'
   }
 }
 
