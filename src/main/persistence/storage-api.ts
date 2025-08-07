@@ -13,6 +13,8 @@ export const workspaceFileName = '.catana'
 
 /** Stores the location of the node graph that is currently opened. */
 let openedGraphDirectory: string | null = null
+
+let isSaving = false
 let fileWatcher: FSWatcher | null = null
 
 export function registerStorageApi(ipcMain: Electron.IpcMain) {
@@ -45,6 +47,9 @@ export function registerStorageApi(ipcMain: Electron.IpcMain) {
     fileWatcher?.close()
     fileWatcher = chokidar.watch(filePath)
       .on('change', (event) => {
+        if (isSaving) {
+          return
+        }
         console.log('Node graph file changed', event)
         _event.sender.send('workspace-file-changed-externally')
       })
@@ -72,7 +77,9 @@ export function registerStorageApi(ipcMain: Electron.IpcMain) {
     }
     const filePath = path.join(openedGraphDirectory, workspaceFileName)
     console.log('Saving node graph:', filePath)
+    isSaving = true
     await fs.promises.writeFile(filePath, JSON.stringify(parsedSaveFile, null, 2), 'utf8')
+    isSaving = false
 
     // Commit the workspace file to git
     try {
