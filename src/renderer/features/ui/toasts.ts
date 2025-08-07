@@ -12,8 +12,8 @@ export const displayWarning = (message: Message, data?: Data) => {
  * Like toast.error, but also logs the `message` and anything contained in `data.logData` to the console.
  */
 export const displayError = (message: Message, data?: Data) => {
-  console.warn('TOAST ERROR: ' + message, data?.logData)
-  return toast.warning(message, data)
+  console.error('TOAST ERROR: ' + message, data?.logData)
+  return toast.error(message, data)
 }
 
 type Message = Parameters<typeof toast>[0]
