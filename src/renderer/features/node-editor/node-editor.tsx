@@ -27,12 +27,12 @@ import {flatten} from '@/common/node-tree'
 import {cn} from '@/renderer/util/tailwind'
 import {isLink, markRange} from '@/common/markdown-utils'
 import {TooltipSimple} from '@/renderer/components/ui/tooltip'
-import {getEditorActionThunk} from '@/renderer/features/node-title-editor/editor-actions'
+import {getEditorActionThunk} from '@/renderer/features/node-editor/editor-actions'
 import {expandSelection} from '@/renderer/util/expand-selection'
 import {displayWarning} from '@/renderer/features/ui/toasts'
 import {CheckedState} from '@radix-ui/react-checkbox'
 import {DurationFormat, formatDuration} from '@/common/time'
-import {RenderedNodeTitle} from '@/renderer/features/node-title-editor/rendered-node-title'
+import {RenderedNodeTitle} from '@/renderer/features/node-editor/rendered-node-title'
 
 export interface NodeTitleEditorTextFieldRef {
   focus: (selection?: Selection) => void
@@ -42,7 +42,7 @@ export interface NodeTitleEditorTextFieldRef {
  * Displays a text area for the user to edit the title of a node.
  * Handles dispatching actions for title editing itself, any other input is passed to the parent via `keyDown`.
  */
-export const NodeTitleEditorTextField = React.memo(function NodeTitleEditorTextField({
+export const NodeEditor = React.memo(function NodeEditor({
   nodeView, onKeyDown, ref,
 }: {
   nodeView: SerializedNodeView,

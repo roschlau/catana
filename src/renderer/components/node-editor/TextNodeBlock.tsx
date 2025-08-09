@@ -15,10 +15,7 @@ import {calculateCursorPosition} from '@/renderer/util/textarea-measuring'
 import {focusRestoreRequested, useFocusRestore} from '@/renderer/features/ui/uiSlice'
 import {Selection} from '@/renderer/util/selection'
 import {isRecursive, NodeViewWithParent, serialize} from '@/common/node-views'
-import {
-  NodeTitleEditorTextField,
-  NodeTitleEditorTextFieldRef,
-} from '@/renderer/features/node-title-editor/NodeTitleEditorTextField'
+import {NodeEditor, NodeTitleEditorTextFieldRef} from '@/renderer/features/node-editor/node-editor'
 import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-editor/EditorBlockList'
 import {ChevronRight, FullscreenIcon} from 'lucide-react'
 import {ListItem} from '@/renderer/components/ui/list-item'
@@ -253,7 +250,7 @@ export function TextNodeBlock({
           isExpanded={isExpanded}
           bulletClicked={bulletClicked}
         />
-        <NodeTitleEditorTextField
+        <NodeEditor
           ref={titleEditorRef}
           nodeView={serialize(nodeView)}
           onKeyDown={keyDown}

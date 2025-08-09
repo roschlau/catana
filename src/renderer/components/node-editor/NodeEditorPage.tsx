@@ -1,7 +1,4 @@
-import {
-  NodeTitleEditorTextField,
-  NodeTitleEditorTextFieldRef,
-} from '@/renderer/features/node-title-editor/NodeTitleEditorTextField'
+import {NodeEditor, NodeTitleEditorTextFieldRef} from '@/renderer/features/node-editor/node-editor'
 import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
 import {KeyboardEvent, useCallback, useMemo, useRef} from 'react'
 import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-editor/EditorBlockList'
@@ -85,7 +82,7 @@ export function NodeEditorPage({ nodeId }: {
       />
       <div className={'flex flex-col gap-4 w-full max-w-[800px]'}>
         <PageTitle>
-          <NodeTitleEditorTextField
+          <NodeEditor
             ref={titleEditorRef}
             nodeView={serialize(nodeView)}
             onKeyDown={titleKeyDown}
