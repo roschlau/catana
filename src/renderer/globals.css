@@ -18,8 +18,8 @@
     --secondary-foreground: oklch(0.205 0 0);
     --muted: oklch(0.97 0 0);
     --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.93 0.023 157.577);
-    --accent-foreground: oklch(0.476 0.106 147.144);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
     --destructive: oklch(0.577 0.245 27.325);
     --border: oklch(0.922 0 0);
     --input: oklch(0.922 0 0);
@@ -42,22 +42,22 @@
 .dark {
     --background: oklch(0.145 0 0);
     --foreground: oklch(0.985 0 0);
-    --card: oklch(0.145 0 0);
+    --card: oklch(0.205 0 0);
     --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.145 0 0);
+    --popover: oklch(0.205 0 0);
     --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
     --primary-foreground: oklch(0.205 0 0);
     --secondary: oklch(0.269 0 0);
     --secondary-foreground: oklch(0.985 0 0);
     --muted: oklch(0.269 0 0);
     --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.368 0.071 146.834);
-    --accent-foreground: oklch(0.853 0.097 150.626);
-    --destructive: oklch(0.396 0.141 25.723);
-    --border: oklch(0.369 0 0);
-    --input: oklch(0.369 0 0);
-    --ring: oklch(0.439 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
     --chart-1: oklch(0.488 0.243 264.376);
     --chart-2: oklch(0.696 0.17 162.48);
     --chart-3: oklch(0.769 0.188 70.08);
@@ -69,8 +69,8 @@
     --sidebar-primary-foreground: oklch(0.985 0 0);
     --sidebar-accent: oklch(0.269 0 0);
     --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(0.269 0 0);
-    --sidebar-ring: oklch(0.439 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.556 0 0);
 }
 
 @theme inline {
@@ -130,19 +130,23 @@
         @apply border-border outline-ring/50;
         scrollbar-width: thin;
     }
+
     html {
         height: 100%;
         transform: translateZ(0);
         will-change: transform;
         overflow: hidden;
     }
+
     body {
         height: 100%;
         @apply bg-background text-foreground font-sans;
     }
+
     .markdown-container {
         @apply text-foreground/80;
     }
+
     .markdown-container a {
         color: currentColor;
         text-decoration: underline;
@@ -150,20 +154,24 @@
         text-decoration-thickness: .1ex;
         text-underline-offset: .1ex;
     }
+
     .markdown-container a:hover, .markdown-container a:focus {
         color: var(--color-foreground);
         text-decoration-thickness: .2ex;
     }
+
     .markdown-container code {
         background: var(--color-muted);
         font-size: .875em;
         padding: .1em 0.25em;
         border-radius: 6px;
     }
+
     .markdown-container strong, .markdown-container b {
         @apply text-foreground/90;
         font-weight: 600;
     }
+
     .markdown-container del {
         color: var(--color-muted-foreground);
         text-decoration: line-through;
