@@ -30,6 +30,8 @@ import {useEventListener} from '@/renderer/hooks/use-event-listener'
 import {displayWarning} from '@/renderer/features/ui/toasts'
 import {duplicateSubtree} from '@/renderer/features/node-graph/duplicate-subtree'
 import {expandAllChildren} from '@/renderer/features/node-graph/expand-all-children'
+import {TagAccentColorProvider} from '@/renderer/features/tags/tag-accent-color-provider'
+import {selectPrimaryTag} from '@/renderer/features/tags/tags-slice'
 
 export interface NodeEditorRef {
   focus: (mode: 'first' | 'last') => void
@@ -57,6 +59,7 @@ export function TextNodeBlock({
 }) {
   const dispatch = useAppDispatch()
   const node = useAppSelector(state => selectNodeFromNodeView<TextNode>(state, nodeView))
+  const primaryTag = useAppSelector(state => selectPrimaryTag(state, node))
   /** True if this node editor is shown under a different node than the node's owner. */
   const isLink = useAppSelector(state => selectIsLink(state, nodeView))
   const isLastNode = useAppSelector(state => selectIsLastNode(state, nodeView))
@@ -243,19 +246,22 @@ export function TextNodeBlock({
 
   return (
     <div className={twMerge('flex flex-col grow', className)}>
-      <ListItem>
-        <TextNodeBulletButton
-          isLink={isLink}
-          hasContent={childRefs.length > 0}
-          isExpanded={isExpanded}
-          bulletClicked={bulletClicked}
-        />
-        <NodeEditor
-          ref={titleEditorRef}
-          nodeView={serialize(nodeView)}
-          onKeyDown={keyDown}
-        />
-      </ListItem>
+      <TagAccentColorProvider hue={primaryTag?.hue}>
+        <ListItem>
+          <TextNodeBulletButton
+            isLink={isLink}
+            hasContent={childRefs.length > 0}
+            isExpanded={isExpanded}
+            isTagged={!!primaryTag}
+            bulletClicked={bulletClicked}
+          />
+          <NodeEditor
+            ref={titleEditorRef}
+            nodeView={serialize(nodeView)}
+            onKeyDown={keyDown}
+          />
+        </ListItem>
+      </TagAccentColorProvider>
       {isExpanded && childRefs.length > 0 && (
         <ListItem>
           <button
@@ -278,10 +284,11 @@ export function TextNodeBlock({
   )
 }
 
-export function TextNodeBulletButton({ isLink, hasContent, isExpanded, disabled, bulletClicked }: {
+export function TextNodeBulletButton({ isLink, hasContent, isExpanded, isTagged, disabled, bulletClicked }: {
   isLink: boolean,
   hasContent: boolean,
   isExpanded: boolean,
+  isTagged: boolean,
   disabled?: boolean,
   bulletClicked: (e: MouseEvent<HTMLButtonElement>) => void,
 }) {
@@ -312,9 +319,10 @@ export function TextNodeBulletButton({ isLink, hasContent, isExpanded, disabled,
   }
 
   const toggleButtonClasses = classNames(
-    'mt-1 size-4 shrink-0 grid place-content-center rounded-full cursor-pointer text-foreground/50',
-    'hover:bg-accent hover:text-foreground',
-    { 'outline -outline-offset-1 outline-dashed outline-foreground/40': isLink },
+    'mt-1 size-4 shrink-0 grid place-content-center rounded-full cursor-pointer',
+    isTagged ? 'text-accent-foreground' : 'text-accent-foreground/50',
+    'hover:bg-accent hover:text-accent-foreground',
+    { 'outline -outline-offset-1 outline-dashed outline-accent-foreground/40': isLink },
   )
 
   const chevronIconClasses = classNames(

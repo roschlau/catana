@@ -19,6 +19,13 @@ export const RenderedNodeTitle = React.memo(function RenderedNodeTitle({
 }) {
   const dispatch = useAppDispatch()
   const [components] = useState<Components>({
+    p(props) {
+      // Linebreaks are currently not supported, so there's only going to be a single paragraph wrapping the entire
+      // node title. We replace that with a span to make it easier to render other elements like supertags
+      // or an overflow menu inline with the node title.
+      const { node, ...rest } = props
+      return <span {...rest}/>
+    },
     a(props) {
       if (props.href?.startsWith('catana://')) {
         // TODO this doesn't currently work because the href is already being sanitized before
@@ -43,7 +50,7 @@ export const RenderedNodeTitle = React.memo(function RenderedNodeTitle({
     },
   })
   return (
-    <div
+    <span
       className={cn('markdown-container', className)}
       onClick={onClick}
     >
@@ -54,7 +61,7 @@ export const RenderedNodeTitle = React.memo(function RenderedNodeTitle({
       >
         {suppressUnsupportedMd(title) || 'Empty'}
       </Markdown>
-    </div>
+    </span>
   )
 })
 

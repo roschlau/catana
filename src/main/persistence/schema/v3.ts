@@ -20,6 +20,7 @@ const TextNode = type({
   title: 'string',
   ownerId: type(ParentId, '|', 'null'),
   'checkbox?': CheckboxState.or('undefined'),
+  'tags?': 'string#tag[]|undefined',
   content: type({
     nodeId: NodeId,
     'expanded?': 'boolean|undefined',

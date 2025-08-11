@@ -7,6 +7,7 @@ import {AppDispatch} from '@/renderer/redux/store'
 import {mapIds} from '@/renderer/features/node-graph/mapIds'
 import {nanoid} from '@reduxjs/toolkit'
 import {insertTrees} from '@/renderer/features/node-graph/insert-content'
+import {Tag} from '@/common/tags'
 
 export const insertDemoContentCommand: AppCommand =   {
   name: 'Insert Demo Content',
@@ -38,7 +39,7 @@ export const ROOT_NODE = '_root' as Id<'node'>
 export const demoGraph: TreeTextNode = {
   type: 'node',
   id: ROOT_NODE,
-  title: '👋 Welcome to Catana!',
+  title: '**👋 Welcome to Catana!**',
   expanded: true,
   content: [{
     title: 'Catana is a (still very much WIP) notetaking software that aims to let you keep control of your data like Obsidian or Logseq, but using a data model that\'s closer to Tana.',
@@ -87,11 +88,40 @@ export const demoGraph: TreeTextNode = {
       title: '🔎 Zooming In',
       type: 'node',
       content: [{
+        title: 'Your Catana workspace is always just one big tree of nodes. But seeing it all on the same page all the time would be way too much. That\'s why you can zoom in on Nodes!',
+        type: 'node',
+      }, {
         title: 'You can zoom in on a Node by clicking on its bullet/arrow while holding `Ctrl`, or by pressing `Alt + Arrow Right` when you have it focused.',
         type: 'node',
       }, {
         title: 'This way, you get a full-page view on a single Node and its contents, without getting distracted by anything else.',
         type: 'node',
+      }],
+    }, {
+      title: '#️⃣ Supertags',
+      type: 'node',
+      expanded: true,
+      content: [{
+        title: 'Supertags look similar to hashtags in other apps, but are way more powerful. Think as them of a way to describe what a Node _is_ or _represents_. Good Supertags could be `#Task`, `#Idea`, `#Website`, or `#Person`.',
+        type: 'node',
+      }, {
+        title: 'Check out the examples below to see how they work!',
+        type: 'node',
+      }, {
+        title: 'Get the groceries',
+        type: 'node',
+        tags: ['task' as Tag['id']],
+      }, {
+        title: 'William Shakespeare',
+        type: 'node',
+        tags: ['person' as Tag['id']],
+      }, {
+        title: 'Albert Einstein',
+        type: 'node',
+        tags: ['person' as Tag['id']],
+      }, {
+        type: 'nodeLink',
+        nodeId: 'indenting-nodes',
       }],
     }, {
       title: '🔗 Node Linking',
@@ -174,24 +204,32 @@ export const demoGraph: TreeTextNode = {
     }, {
       type: 'node',
       title: '🔎 Run a command or open a node by searching for it: `Ctrl + K`',
+      tags: ['shortcut' as Tag['id']],
     }, {
+      id: 'indenting-nodes',
       type: 'node',
       title: '↔️ Indent / Outdent Node: `Tab` / `Shift + Tab`',
+      tags: ['shortcut' as Tag['id']],
     }, {
       type: 'node',
       title: '▶️ Collapse/Expand Node: `Ctrl + Arrow Up/Down`',
+      tags: ['shortcut' as Tag['id']],
     }, {
       type: 'node',
       title: '✅ Cycle Checkbox State: `Ctrl + Enter`',
+      tags: ['shortcut' as Tag['id']],
     }, {
       type: 'node',
       title: '↕️ Move the focused Node up/down within its parent Node: `Alt + Shift + Arrow Up/Down`',
+      tags: ['shortcut' as Tag['id']],
     }, {
       type: 'node',
       title: '🗑️ Delete the focused Node and all its children: `Ctrl + Shift + Backspace`',
+      tags: ['shortcut' as Tag['id']],
     }, {
       type: 'node',
       title: '2️⃣ Duplicate the focused Node: `Ctrl + D`',
+      tags: ['shortcut' as Tag['id']],
     }],
   }, systemFields],
 }

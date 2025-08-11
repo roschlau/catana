@@ -1,5 +1,6 @@
 import {CheckboxState} from '@/common/checkboxes'
 import {Brand} from '@ark/util/'
+import {Tag} from '@/common/tags'
 
 export type Node =
   | TextNode
@@ -17,6 +18,7 @@ export interface TextNode {
   title: string
   ownerId: ParentNode['id'] | null
   checkbox?: CheckboxState
+  tags?: Tag['id'][],
   content: {
     nodeId: Node['id'],
     expanded?: boolean,

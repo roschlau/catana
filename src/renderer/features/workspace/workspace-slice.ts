@@ -3,6 +3,7 @@ import {SaveFile} from '@/main/persistence/schema/workspace-file-schema'
 import {Node} from '@/common/nodes'
 import {createAction, createSlice, PayloadAction, Reducer, UnknownAction} from '@reduxjs/toolkit'
 import {OpenWorkspaceResult} from '@/preload/catana-api'
+import {testingTags} from '@/renderer/features/tags/tags-slice'
 
 export interface WorkspaceState {
   workspacePath: string
@@ -40,6 +41,7 @@ export const createWorkspaceRootReducer = (reducer: Reducer) => {
         undoable: {
           past: [],
           present: {
+            tags: testingTags,
             workspace: {
               workspacePath: saveFile.path,
               workspaceDirty: false,

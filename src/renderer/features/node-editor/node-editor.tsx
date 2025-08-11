@@ -1,5 +1,5 @@
 import TextareaAutosize from 'react-textarea-autosize'
-import {checkboxUpdated, titleUpdated} from '@/renderer/features/node-graph/nodesSlice'
+import {checkboxUpdated, tagRemoved, titleUpdated} from '@/renderer/features/node-graph/nodesSlice'
 import React, {
   ClipboardEvent,
   KeyboardEvent,
@@ -33,6 +33,9 @@ import {displayWarning} from '@/renderer/features/ui/toasts'
 import {CheckedState} from '@radix-ui/react-checkbox'
 import {DurationFormat, formatDuration} from '@/common/time'
 import {RenderedNodeTitle} from '@/renderer/features/node-editor/rendered-node-title'
+import {TagBadge} from '@/renderer/components/ui/tag-badge'
+import {selectNodeTags} from '@/renderer/features/tags/tags-slice'
+import {TagAccentColorProvider} from '@/renderer/features/tags/tag-accent-color-provider'
 
 export interface NodeTitleEditorTextFieldRef {
   focus: (selection?: Selection) => void
@@ -61,6 +64,7 @@ export const NodeEditor = React.memo(function NodeEditor({
   const dispatch = useAppDispatch()
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
   const node = useAppSelector(state => getNode(state.undoable.present.nodes, nv.nodeId))
+  const tags = useAppSelector(state => selectNodeTags(state, node))
 
   const [isEditing, setIsEditing] = React.useState(false)
   const [selectionRange, setSelectionRange] = React.useState(null as null | Selection)
@@ -197,33 +201,56 @@ export const NodeEditor = React.memo(function NodeEditor({
     { 'text-muted-foreground': !node.title },
   )
 
+  const tagElements = tags.map(tag => (
+    <TagBadge
+      key={tag.id}
+      hue={tag.hue}
+      onRemoveClick={(e) => {
+        e.stopPropagation()
+        dispatch(tagRemoved({ nodeId: node.id, tagId: tag.id }))
+      }}
+    >
+      {tag.name}
+    </TagBadge>
+  ))
+
   return (
-    <div className={'w-full flex flex-row items-baseline gap-2'}>
-      {checkboxChecked !== undefined && <NodeCheckbox
-        history={node.history.checkbox}
-        checked={checkboxChecked}
-        onCheckedChange={setCheckbox}
-      />}
-      {isEditing && (
-        <TextareaAutosize
-          ref={textAreaRef}
-          className={textareaClasses}
-          value={node.title}
-          placeholder={'Empty'}
-          onChange={e => dispatch(titleUpdated({ nodeId: node.id, title: e.target.value }))}
-          onKeyDown={_keyDown}
-          onCopy={onCopy}
-          onPaste={onPaste}
-          onBlur={() => setIsEditing(false)}
-        />
-      ) || (
-        <RenderedNodeTitle
-          title={node.title}
-          className={divClasses}
-          onClick={handleDisplayClick}
-        />
-      )}
-    </div>
+    <TagAccentColorProvider hue={tags[0]?.hue}>
+      <div
+        className={'w-full flex flex-row items-baseline gap-2'}
+        onClick={isEditing ? undefined : handleDisplayClick}
+      >
+        {checkboxChecked !== undefined && <NodeCheckbox
+          history={node.history.checkbox}
+          checked={checkboxChecked}
+          onCheckedChange={setCheckbox}
+        />}
+        {isEditing && (
+          <>
+            <TextareaAutosize
+              ref={textAreaRef}
+              className={textareaClasses}
+              value={node.title}
+              placeholder={'Empty'}
+              onChange={e => dispatch(titleUpdated({ nodeId: node.id, title: e.target.value }))}
+              onKeyDown={_keyDown}
+              onCopy={onCopy}
+              onPaste={onPaste}
+              onBlur={() => setIsEditing(false)}
+            />
+            {tagElements}
+          </>
+        ) || (
+          <div className={divClasses}>
+            <RenderedNodeTitle
+              title={node.title}
+              className={cn({ 'mr-[.5em]': tags.length > 0 }, { 'text-muted-foreground': !node.title })}
+            />
+            {tagElements}
+          </div>
+        )}
+      </div>
+    </TagAccentColorProvider>
   )
 })
 

@@ -150,7 +150,7 @@
     .markdown-container a {
         color: currentColor;
         text-decoration: underline;
-        text-decoration-color: var(--color-accent-foreground);
+        text-decoration-color: var(--accent-foreground);
         text-decoration-thickness: .1ex;
         text-underline-offset: .1ex;
     }

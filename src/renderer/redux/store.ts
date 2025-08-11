@@ -15,9 +15,11 @@ import {
   workspaceSlice,
 } from '@/renderer/features/workspace/workspace-slice'
 import {navigationSlice, nodeOpened} from '@/renderer/features/navigation/navigation-slice'
+import {tagsSlice} from '@/renderer/features/tags/tags-slice'
 
 export const undoableReducers = combineReducers({
   nodes: nodesSlice.reducer,
+  tags: tagsSlice.reducer,
   workspace: workspaceSlice.reducer,
   navigation: navigationSlice.reducer,
 })

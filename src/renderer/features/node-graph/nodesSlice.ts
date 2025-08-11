@@ -12,6 +12,7 @@ import {CheckboxState} from '@/common/checkboxes'
 import {CheckboxHistoryEntry, Id, Node, NodeGraphFlattened, ParentNode, TextNode} from '@/common/nodes'
 import {NodeView, NodeViewWithParent} from '@/common/node-views'
 import {AppState} from '@/renderer/redux/store'
+import {Tag} from '@/common/tags'
 
 export const nodesSlice = createSlice({
   name: 'nodes',
@@ -116,6 +117,25 @@ export const nodesSlice = createSlice({
         ...(node.history.checkbox ?? []),
       ]
     },
+    tagApplied: (state, action: PayloadAction<{ nodeId: Id<'node'>, tagId: Tag['id'] }>) => {
+      const node = getNode(state, action.payload.nodeId)
+      if (node.tags?.includes(action.payload.tagId)) {
+        // Already applied
+        return
+      }
+      node.tags = [...(node.tags ?? []), action.payload.tagId]
+      node.history.lastModifiedTime = new Date().getTime()
+    },
+    tagRemoved: (state, action: PayloadAction<{ nodeId: Id<'node'>, tagId: Tag['id'] }>) => {
+      const node = getNode(state, action.payload.nodeId)
+      const tagIndex = node.tags?.indexOf(action.payload.tagId) ?? -1
+      if (!node.tags || tagIndex === -1) {
+        // Node already doesn't have this tag
+        return
+      }
+      node.tags.splice(tagIndex, 1)
+      node.history.lastModifiedTime = new Date().getTime()
+    },
     nodeLinksAdded: (state, action: PayloadAction<{
       parentId: ParentNode['id'],
       childIds: TextNode['id'][],
@@ -200,6 +220,8 @@ export const {
   nodeExpandedChanged,
   nodesMerged,
   checkboxUpdated,
+  tagApplied,
+  tagRemoved,
   nodeLinksAdded,
   nodeLinkRemoved,
   nodeTreeDeleted,
