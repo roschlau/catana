@@ -6,14 +6,21 @@ export interface Tag {
   hue: number,
 }
 
-export interface TagColors {
-  tagBackground: string,
-  tagForeground: string,
-}
-
-export function tagColors(hue: number, theme: string | undefined): TagColors {
-  return {
-    tagBackground: theme === 'dark' ? `oklch(0.30 0.10 ${hue})` : `oklch(0.96 0.06 ${hue})`,
-    tagForeground: theme === 'dark' ? `oklch(0.8 0.16 ${hue})` : `oklch(0.30 0.20 ${hue})`,
+/**
+ * Finds and returns the position of the closest suggestionChar occurrence before the cursor position that's not
+ * separated from it by whitespace, if such a character exists.
+ */
+export function findSuggestionStartPosition(text: string, suggestionChar: string, cursorPosition: number): number {
+  let i = cursorPosition - 1
+  let hashPosition = -1
+  while (i >= 0) {
+    const prevChar = text[i]
+    if (prevChar === suggestionChar) {
+      hashPosition = i
+      break
+    }
+    if (/\s/.test(prevChar)) break
+    i -= 1
   }
+  return hashPosition
 }

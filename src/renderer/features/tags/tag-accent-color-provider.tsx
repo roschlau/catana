@@ -1,7 +1,7 @@
 import {Slot} from '@radix-ui/react-slot'
-import {tagColors} from '@/common/tags'
 import {useTheme} from 'next-themes'
 import * as React from 'react'
+import {tagColorValues} from '@/renderer/features/tags/tag-colors'
 
 export function TagAccentColorProvider({
   hue,
@@ -14,7 +14,7 @@ export function TagAccentColorProvider({
   if (hue === undefined) {
     return children
   }
-  const colors = tagColors(hue, resolvedTheme)
+  const colors = tagColorValues(hue, resolvedTheme)
   return (
     <Slot
       style={{

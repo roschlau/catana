@@ -48,6 +48,12 @@ const Field = type({
   history: NodeHistory,
 })
 
+const Tag = type({
+  id: 'string#tag',
+  name: 'string',
+  hue: 'number',
+})
+
 const Node = type.or(TextNode, Property, Field)
 export type Node = typeof TextNode.infer | typeof Property.infer | typeof Field.infer
 
@@ -56,6 +62,7 @@ export const SaveFile = type({
   openedNode: 'string#node|null',
   'debugMode?': 'boolean',
   nodes: Node.array(),
+  tags: Tag.array().default(() => []),
 })
 
 export type SaveFile = typeof SaveFile.infer
@@ -79,5 +86,6 @@ export function migrate(v2: v2.SaveFile): SaveFile {
     ...v2,
     v: 3,
     nodes: [...v2.nodes.map(migrateNode)],
+    tags: [],
   }
 }

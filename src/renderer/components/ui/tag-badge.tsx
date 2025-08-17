@@ -4,7 +4,7 @@ import {MouseEvent} from 'react'
 import {cn} from '@/renderer/util/tailwind'
 import {useTheme} from 'next-themes'
 import {HashIcon, XIcon} from 'lucide-react'
-import {tagColors} from '@/common/tags'
+import {grayTagColorValues, tagColorValues} from '@/renderer/features/tags/tag-colors'
 
 export function TagBadge({
   className,
@@ -13,11 +13,25 @@ export function TagBadge({
   onRemoveClick,
   ...props
 }: React.ComponentProps<'span'> & {
-  hue: number,
-  onRemoveClick: (e: MouseEvent) => void,
+  hue: number | null,
+  onRemoveClick?: (e: MouseEvent) => void,
 }) {
   const { resolvedTheme } = useTheme()
-  const colors = tagColors(hue, resolvedTheme)
+  const colors = hue !== null ? tagColorValues(hue, resolvedTheme) : grayTagColorValues(resolvedTheme)
+  const hashtagRemoveButton = (onRemoveClick ? (
+    <button
+      className={'group/remove-button inline-flex items-center cursor-pointer self-stretch px-[calc(1em/4)]'}
+      title={'Remove tag'}
+      onClick={onRemoveClick}
+    >
+      <HashIcon className={'group-hover/tag:hidden group-focus/remove-button:hidden size-[1em]'}/>
+      <XIcon className={'hidden group-hover/tag:block group-focus/remove-button:block size-[1em]'}/>
+    </button>
+  ) : (
+    <span className={'inline-flex items-center self-stretch px-[calc(1em/4)]'}>
+      <HashIcon className={'size-[1em]'}/>
+    </span>
+  ))
   return (
     <span
       style={{
@@ -35,14 +49,7 @@ export function TagBadge({
       )}
       {...props}
     >
-      <button
-        className={'group/remove-button inline-flex items-center cursor-pointer self-stretch px-[calc(1em/4)]'}
-        title={'Remove tag'}
-        onClick={onRemoveClick}
-      >
-        <HashIcon className={'group-hover/tag:hidden group-focus/remove-button:hidden size-[1em]'}/>
-        <XIcon className={'hidden group-hover/tag:block group-focus/remove-button:block size-[1em]'}/>
-      </button>
+      {hashtagRemoveButton}
       <span className={'py-[calc(1em/12)] pe-[calc(1em/3)]'}>
         {children}
       </span>

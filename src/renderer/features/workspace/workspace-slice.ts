@@ -1,9 +1,8 @@
 import {AppState, UndoableState} from '@/renderer/redux/store'
-import {SaveFile} from '@/main/persistence/schema/workspace-file-schema'
 import {Node} from '@/common/nodes'
 import {createAction, createSlice, PayloadAction, Reducer, UnknownAction} from '@reduxjs/toolkit'
 import {OpenWorkspaceResult} from '@/preload/catana-api'
-import {testingTags} from '@/renderer/features/tags/tags-slice'
+import {Tag} from '@/common/tags'
 
 export interface WorkspaceState {
   workspacePath: string
@@ -28,11 +27,14 @@ export const createWorkspaceRootReducer = (reducer: Reducer) => {
   return (state: AppState | undefined, action: UnknownAction): AppState => {
     if (action.type === workspaceLoaded.type) {
       const saveFile = (action as PayloadAction<OpenWorkspaceResult>).payload
-      const nodes: SaveFile['nodes'] = saveFile.content.nodes
-      const nodesById = nodes.reduce((acc, node) => ({
+      const nodesById = saveFile.content.nodes.reduce((acc, node) => ({
         ...acc,
         [node.id]: node,
-      }), {} as Partial<Record<string, Node>>)
+      }), {} as Partial<Record<Node['id'], Node>>)
+      const tagsById = saveFile.content.tags.reduce((acc, tag) => ({
+        ...acc,
+        [tag.id]: tag,
+      }), {} as Record<Tag['id'], Tag>)
 
       return {
         ui: {
@@ -41,7 +43,6 @@ export const createWorkspaceRootReducer = (reducer: Reducer) => {
         undoable: {
           past: [],
           present: {
-            tags: testingTags,
             workspace: {
               workspacePath: saveFile.path,
               workspaceDirty: false,
@@ -52,6 +53,7 @@ export const createWorkspaceRootReducer = (reducer: Reducer) => {
               forwardStack: [],
             },
             nodes: nodesById,
+            tags: tagsById,
           },
           future: [],
         },

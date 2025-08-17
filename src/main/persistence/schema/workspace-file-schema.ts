@@ -13,6 +13,7 @@ export const emptySaveFile: SaveFile = {
   v: 3,
   openedNode: ROOT_NODE,
   nodes: [...Object.values(flatten(demoGraph).nodes as Record<string, Node>)],
+  tags: [],
 }
 
 export function loadSaveFile(content: string): SaveFile {

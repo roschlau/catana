@@ -21,11 +21,14 @@ export async function saveWorkspace(dispatch: AppDispatch, getStore: () => AppSt
 
 export function serialize(state: AppState): SaveFile {
   const nodes: SaveFile['nodes'] = []
-  nodes.push(...Object.values(state.undoable.present.nodes as Record<string, Node>))
+  nodes.push(...Object.values(state.undoable.present.nodes as Record<Node['id'], Node>))
+  const tags: SaveFile['tags'] = []
+  tags.push(...Object.values(state.undoable.present.tags))
   return {
     v: 3,
     openedNode: state.undoable.present.navigation.openedNode,
     debugMode: state.ui.debugMode,
     nodes,
+    tags,
   }
 }
