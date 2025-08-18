@@ -19,6 +19,7 @@ import {NodeView} from '@/common/node-views'
  * A popover wrapping a textarea that automatically shows when the user types a hashtag.
  * This component passes through all props all props of the wrapped textarea. Don't register any event handlers
  * directly on the wrapped textarea, as that might break this component's functionality.
+ * TODO To be refactored to be generically usable for any other kind of suggestions
  */
 export const TagSuggestionsPopover = function SuggestionsTextarea({
   nodeView,
@@ -163,40 +164,28 @@ export const TagSuggestionsPopover = function SuggestionsTextarea({
       >
         <div className="max-h-64 overflow-auto p-1">
           {filteredSuggestions.map((suggestion, suggestionIndex) => (
-            <div
+            <SuggestionPopoverEntry
               key={suggestion.id}
-              className={cn(
-                'p-1 rounded cursor-pointer flex flex-row items-center',
-                { 'bg-accent text-accent-foreground': suggestionIndex === highlightedSuggestionIndex }
-              )}
+              highlighted={suggestionIndex === highlightedSuggestionIndex}
               onMouseEnter={() => setHighlightedSuggestionIndex(suggestionIndex)}
-              onMouseDown={(ev) => {
-                ev.preventDefault()
+              onMouseDown={() => {
                 void applyTagSelection(suggestionIndex, textAreaRef.current?.selectionStart ?? 0)
               }}
             >
               <TagBadge className={'cursor-pointer'} hue={suggestion.hue}>{suggestion.name}</TagBadge>
-              <div className={'grow'}/>
-              {suggestionIndex === highlightedSuggestionIndex && <CornerDownLeftIcon size={16} className={'text-muted-foreground'}/>}
-            </div>
+            </SuggestionPopoverEntry>
           ))}
           {!hasExactMatch && query.trim() && (
-            <div
-              className={cn(
-                'p-1 rounded cursor-pointer flex flex-row items-center',
-                { 'bg-accent text-accent-foreground': highlightedSuggestionIndex === filteredSuggestions.length }
-              )}
+            <SuggestionPopoverEntry
+              highlighted={highlightedSuggestionIndex === filteredSuggestions.length}
               onMouseEnter={() => setHighlightedSuggestionIndex(filteredSuggestions.length)}
-              onMouseDown={(ev) => {
-                ev.preventDefault()
+              onMouseDown={() => {
                 void applyTagSelection(filteredSuggestions.length, textAreaRef.current?.selectionStart ?? 0)
               }}
             >
               Create new tag
               <TagBadge className={'ms-2 cursor-pointer'} hue={null}>{query.trim()}</TagBadge>
-              <div className={'grow'}/>
-              {highlightedSuggestionIndex === filteredSuggestions.length && <CornerDownLeftIcon size={16} className={'text-muted-foreground'}/>}
-            </div>
+            </SuggestionPopoverEntry>
           )}
           {filteredSuggestions.length === 0 && !query.trim() && (
             <div className="p-1 rounded text-muted-foreground">Type to create your first tag!</div>
@@ -204,5 +193,29 @@ export const TagSuggestionsPopover = function SuggestionsTextarea({
         </div>
       </PopoverContent>
     </Popover>
+  )
+}
+
+function SuggestionPopoverEntry({
+  highlighted,
+  children,
+  className,
+  ...props
+}: {
+  highlighted: boolean,
+} & React.ComponentProps<'div'>) {
+  return (
+    <div
+      className={cn(
+        'p-1 rounded cursor-pointer flex flex-row items-center',
+        { 'bg-accent text-accent-foreground': highlighted },
+        className,
+      )}
+      {...props}
+    >
+      {children}
+      <div className={'grow'}/>
+      {highlighted && <CornerDownLeftIcon size={16} className={'text-muted-foreground'}/>}
+    </div>
   )
 }
