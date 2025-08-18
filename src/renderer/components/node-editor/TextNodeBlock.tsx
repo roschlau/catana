@@ -322,7 +322,7 @@ export function TextNodeBulletButton({ isLink, hasContent, isExpanded, isTagged,
     'mt-1 size-4 shrink-0 grid place-content-center rounded-full cursor-pointer',
     isTagged ? 'text-accent-foreground' : 'text-accent-foreground/50',
     'hover:bg-accent hover:text-accent-foreground',
-    { 'outline -outline-offset-1 outline-dashed outline-accent-foreground/40': isLink },
+    { 'outline -outline-offset-1 outline-dashed outline-current/80': isLink },
   )
 
   const chevronIconClasses = classNames(
@@ -342,7 +342,7 @@ export function TextNodeBulletButton({ isLink, hasContent, isExpanded, isTagged,
         ? <FullscreenIcon size={16}/>
         : (hasContent
           ? <ChevronRight size={16} className={chevronIconClasses}/>
-          : <div className={'size-1.25 rounded-full bg-current'}/>)
+          : <div className={'size-1.5 rounded-full bg-current/80'}/>)
       }
     </button>
   )
