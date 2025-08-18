@@ -3,7 +3,7 @@ import {AppDispatch, AppState} from '@/renderer/redux/store'
 import {getNode, resolveNodeView} from '@/renderer/features/node-graph/helpers'
 import {mapIds} from '@/renderer/features/node-graph/mapIds'
 import {nanoid} from '@reduxjs/toolkit'
-import {nodeTreeAdded} from '@/renderer/features/node-graph/nodesSlice'
+import {nodeTreeAdded} from '@/renderer/features/node-graph/nodes-slice'
 import {focusRestoreRequested} from '@/renderer/features/ui/uiSlice'
 import {NodeViewWithParent} from '@/common/node-views'
 

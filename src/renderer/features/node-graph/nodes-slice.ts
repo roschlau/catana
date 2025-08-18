@@ -7,7 +7,7 @@ import {
   deleteNodeTree,
   moveNode,
   removeChildReference,
-} from './stateMutations'
+} from './nodes-state-mutations'
 import {CheckboxState} from '@/common/checkboxes'
 import {CheckboxHistoryEntry, Id, Node, NodeGraphFlattened, ParentNode, TextNode} from '@/common/nodes'
 import {NodeView, NodeViewWithParent} from '@/common/node-views'

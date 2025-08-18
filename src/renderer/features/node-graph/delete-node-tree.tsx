@@ -1,7 +1,7 @@
 import {Node} from '@/common/nodes'
 import {AppDispatch, AppState} from '@/renderer/redux/store'
 import {getNode} from '@/renderer/features/node-graph/helpers'
-import {nodeTreeDeleted} from '@/renderer/features/node-graph/nodesSlice'
+import {nodeTreeDeleted} from '@/renderer/features/node-graph/nodes-slice'
 import {nodeOpened} from '@/renderer/features/navigation/navigation-slice'
 import {AppCommand} from '@/renderer/commands/app-command'
 import {ArrowBigUp, DeleteIcon, TrashIcon} from 'lucide-react'

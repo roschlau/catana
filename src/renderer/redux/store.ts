@@ -4,7 +4,7 @@ import {
   nodeIndexChanged,
   nodesSlice,
   titleUpdated,
-} from '@/renderer/features/node-graph/nodesSlice'
+} from '@/renderer/features/node-graph/nodes-slice'
 import undoable from 'redux-undo'
 import {ephemeralUiSlice} from '@/renderer/features/ui/uiSlice'
 import {getUndoTransactionKey} from './undoTransactions'

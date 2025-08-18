@@ -2,7 +2,7 @@
 import {CheckedState} from '@radix-ui/react-checkbox'
 import {AppCommand} from '@/renderer/commands/app-command'
 import {CopyCheckIcon, CornerDownLeftIcon} from 'lucide-react'
-import {checkboxUpdated} from '@/renderer/features/node-graph/nodesSlice'
+import {checkboxUpdated} from '@/renderer/features/node-graph/nodes-slice'
 import {getNode} from '@/renderer/features/node-graph/helpers'
 import {CheckboxHistoryEntry} from '@/common/nodes'
 import {Duration} from '@js-joda/core'

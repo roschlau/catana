@@ -1,7 +1,7 @@
 import {NodeView} from '@/common/node-views'
 import {TextNode} from '@/common/nodes'
 import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
-import {nodeExpandedChanged} from '@/renderer/features/node-graph/nodesSlice'
+import {nodeExpandedChanged} from '@/renderer/features/node-graph/nodes-slice'
 import {getNode} from '@/renderer/features/node-graph/helpers'
 
 export const expandAllChildren = (

@@ -3,7 +3,7 @@ import {Id, Node, TextNode} from '@/common/nodes'
 import {createUndoTransaction} from '@/renderer/redux/undoTransactions'
 import {AppDispatch, AppState} from '@/renderer/redux/store'
 import {getNode, NodeWithContext, resolveNodeView} from '@/renderer/features/node-graph/helpers'
-import {nodeCreated, nodeExpandedChanged, nodesMerged, titleUpdated} from '@/renderer/features/node-graph/nodesSlice'
+import {nodeCreated, nodeExpandedChanged, nodesMerged, titleUpdated} from '@/renderer/features/node-graph/nodes-slice'
 import {nanoid} from '@reduxjs/toolkit'
 import {focusRestoreRequested} from '@/renderer/features/ui/uiSlice'
 

@@ -2,7 +2,7 @@ import {Selection} from '@/renderer/util/selection'
 import {TextNode} from '@/common/nodes'
 import {AppDispatch} from '@/renderer/redux/store'
 import {markRange} from '@/common/markdown-utils'
-import {titleUpdated} from '@/renderer/features/node-graph/nodesSlice'
+import {titleUpdated} from '@/renderer/features/node-graph/nodes-slice'
 import {focusRestoreRequested} from '@/renderer/features/ui/uiSlice'
 import {NodeView} from '@/common/node-views'
 

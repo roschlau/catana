@@ -1,5 +1,5 @@
 import TextareaAutosize from 'react-textarea-autosize'
-import {checkboxUpdated, tagRemoved, titleUpdated} from '@/renderer/features/node-graph/nodesSlice'
+import {checkboxUpdated, tagRemoved, titleUpdated} from '@/renderer/features/node-graph/nodes-slice'
 import React, {
   ClipboardEvent,
   KeyboardEvent,

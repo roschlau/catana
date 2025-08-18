@@ -1,6 +1,6 @@
 import React, {KeyboardEvent, useCallback, useEffect, useMemo} from 'react'
 import {Popover, PopoverAnchor, PopoverContent} from '@/renderer/components/ui/popover'
-import {tagApplied, titleUpdated} from '@/renderer/features/node-graph/nodesSlice'
+import {tagApplied, titleUpdated} from '@/renderer/features/node-graph/nodes-slice'
 import {cn} from '@/renderer/util/tailwind'
 import {TagBadge} from '@/renderer/components/ui/tag-badge'
 import {CornerDownLeftIcon} from 'lucide-react'

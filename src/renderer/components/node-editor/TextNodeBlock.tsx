@@ -8,7 +8,7 @@ import {
   selectIsLastNode,
   selectIsLink,
   selectNodeFromNodeView,
-} from '@/renderer/features/node-graph/nodesSlice'
+} from '@/renderer/features/node-graph/nodes-slice'
 import {KeyboardEvent, MouseEvent, Ref, useCallback, useImperativeHandle, useMemo, useRef, useState} from 'react'
 import classNames from 'classnames'
 import {calculateCursorPosition} from '@/renderer/util/textarea-measuring'
