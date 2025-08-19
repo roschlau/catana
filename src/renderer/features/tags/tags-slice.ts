@@ -5,36 +5,19 @@ import {TextNode} from '@/common/nodes'
 import {isPresent} from '@/renderer/util/optionals'
 import {displayError} from '@/renderer/features/ui/toasts'
 
-export const testingTags = {
-  ['task' as Tag['id']]: {
-    id: 'task' as Tag['id'],
-    name: 'Task',
-    hue: 92,
-  },
-  ['area' as Tag['id']]: {
-    id: 'area' as Tag['id'],
-    name: 'Area/Private',
-    hue: 127,
-  },
-  ['shortcut' as Tag['id']]: {
-    id: 'shortcut' as Tag['id'],
-    name: 'Shortcut',
-    hue: 223,
-  },
-  ['person' as Tag['id']]: {
-    id: 'person' as Tag['id'],
-    name: 'Person',
-    hue: 140,
-  },
-} satisfies Record<Tag['id'], Tag>
-
 export const tagsSlice = createSlice({
   name: 'tags',
   initialState: {} as Record<Tag['id'], Tag>,
   reducers: {
     tagCreated: (state, action: PayloadAction<{ id: Tag['id'], name: string, hue: number }>) => {
       const { id, name, hue } = action.payload
-      state[id] = { id, name, hue }
+      state[id] = {
+        id, name, hue,
+        history: {
+          createdTime: Date.now(),
+          lastModifiedTime: Date.now(),
+        },
+      }
     },
   },
 })
@@ -57,6 +40,7 @@ export const selectNodeTags = createSelector([
 })
 
 const knownMissingTags = new Set<Tag['id']>()
+
 function reportMissingTag(tagId: Tag['id']) {
   if (knownMissingTags.has(tagId)) {
     return

@@ -4,6 +4,10 @@ export interface Tag {
   id: Brand<string, 'tag'>,
   name: string,
   hue: number,
+  history: {
+    createdTime: number,
+    lastModifiedTime: number,
+  },
 }
 
 /**
