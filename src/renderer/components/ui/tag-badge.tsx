@@ -20,7 +20,10 @@ export function TagBadge({
   const colors = hue !== null ? tagColorValues(hue, resolvedTheme) : grayTagColorValues(resolvedTheme)
   const hashtagRemoveButton = (onRemoveClick ? (
     <button
-      className={'group/remove-button inline-flex items-center cursor-pointer self-stretch px-[calc(1em/4)]'}
+      className={cn(
+        'group/remove-button inline-flex items-center cursor-pointer self-stretch px-[calc(1em/4)]',
+        'hover:text-destructive',
+      )}
       title={'Remove tag'}
       onClick={onRemoveClick}
     >
