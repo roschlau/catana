@@ -14,7 +14,7 @@ import {
   trackWorkspaceDirtyState,
   workspaceSlice,
 } from '@/renderer/features/workspace/workspace-slice'
-import {navigationSlice, nodeOpened} from '@/renderer/features/navigation/navigation-slice'
+import {navigationSlice, viewOpened} from '@/renderer/features/navigation/navigation-slice'
 import {tagsSlice} from '@/renderer/features/tags/tags-slice'
 
 export const undoableReducers = combineReducers({
@@ -36,7 +36,7 @@ const undoableRootReducer = undoable(
         // If we have an explicit transaction, then that overrules any other grouping behavior.
         return transactionKey
       }
-      if (action.type === nodeOpened.type) {
+      if (action.type === viewOpened.type) {
         // Navigation actions are undone all together.
         return action.type
       }

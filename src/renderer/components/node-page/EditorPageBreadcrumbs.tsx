@@ -7,7 +7,7 @@ import {
   BreadcrumbSeparator,
 } from '@/renderer/components/ui/breadcrumb'
 import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
-import {nodeOpened} from '@/renderer/features/navigation/navigation-slice'
+import {viewOpened} from '@/renderer/features/navigation/navigation-slice'
 import {Fragment} from 'react'
 import {
   DropdownMenu,
@@ -41,7 +41,7 @@ export function EditorPageBreadcrumbs({ node, className }: {
     <BreadcrumbItem>
       <BreadcrumbLink
         className={'cursor-pointer'}
-        onClick={() => dispatch(nodeOpened({ nodeId: node.id }))}
+        onClick={() => dispatch(viewOpened({ type: 'node', nodeId: node.id }))}
       >
         {ellipsize(20, mdToPlain(node.title))}
       </BreadcrumbLink>
@@ -60,7 +60,7 @@ export function EditorPageBreadcrumbs({ node, className }: {
             <DropdownMenuItem>
               <BreadcrumbLink
                 className={'cursor-pointer'}
-                onClick={() => dispatch(nodeOpened({ nodeId: node.id }))}
+                onClick={() => dispatch(viewOpened({ type: 'node', nodeId: node.id }))}
               >
                 {ellipsize(40, node.title)}
               </BreadcrumbLink>

@@ -11,9 +11,11 @@ export function TagBadge({
   hue,
   children,
   onRemoveClick,
+  onTagClick,
   ...props
 }: React.ComponentProps<'span'> & {
   hue: number | null,
+  onTagClick?: (e: MouseEvent) => void,
   onRemoveClick?: (e: MouseEvent) => void,
 }) {
   const { resolvedTheme } = useTheme()
@@ -35,6 +37,18 @@ export function TagBadge({
       <HashIcon className={'size-[1em]'}/>
     </span>
   ))
+  const tagButton = (onTagClick ? (
+    <button
+      className={'py-[calc(1em/12)] pe-[calc(1em/3)] cursor-pointer'}
+      onClick={(e) => onTagClick?.(e)}
+    >
+      {children}
+    </button>
+  ) : (
+    <span className={'py-[calc(1em/12)] pe-[calc(1em/3)]'}>
+      {children}
+    </span>
+  ))
   return (
     <span
       style={{
@@ -47,15 +61,14 @@ export function TagBadge({
         '[&>svg]:size-3 [&>svg]:pointer-events-none',
         'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
         'transition-[color,box-shadow]',
-        'rounded-[calc(1em/4)] border border-transparent bg-accent text-accent-foreground [a&]:hover:bg-accent/90',
+        'rounded-[calc(1em/4)] border border-transparent bg-accent text-accent-foreground',
+        { 'hover:bg-accent/50': onTagClick },
         className,
       )}
       {...props}
     >
       {hashtagRemoveButton}
-      <span className={'py-[calc(1em/12)] pe-[calc(1em/3)]'}>
-        {children}
-      </span>
+      {tagButton}
     </span>
   )
 }

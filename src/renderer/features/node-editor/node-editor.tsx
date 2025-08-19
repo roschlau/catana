@@ -37,6 +37,7 @@ import {TagBadge} from '@/renderer/components/ui/tag-badge'
 import {selectNodeTags} from '@/renderer/features/tags/tags-slice'
 import {TagAccentColorProvider} from '@/renderer/features/tags/tag-accent-color-provider'
 import {TagSuggestionsPopover} from '@/renderer/components/tag-suggestions-popover'
+import {viewOpened} from '@/renderer/features/navigation/navigation-slice'
 
 export interface NodeTitleEditorTextFieldRef {
   focus: (selection?: Selection) => void
@@ -209,6 +210,7 @@ export const NodeEditor = React.memo(function NodeEditor({
     <TagBadge
       key={tag.id}
       hue={tag.hue}
+      onTagClick={() => {dispatch(viewOpened({ type: 'tag', tagId: tag.id }))}}
       onRemoveClick={(e) => {
         e.stopPropagation()
         dispatch(tagRemoved({ nodeId: node.id, tagId: tag.id }))

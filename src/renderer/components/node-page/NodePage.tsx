@@ -1,19 +1,18 @@
 import {NodeEditor, NodeTitleEditorTextFieldRef} from '@/renderer/features/node-editor/node-editor'
 import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
 import {KeyboardEvent, useCallback, useMemo, useRef} from 'react'
-import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-editor/EditorBlockList'
+import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-page/EditorBlockList'
 import {calculateCursorPosition} from '@/renderer/util/textarea-measuring'
 import {selectDebugMode, useFocusRestore} from '@/renderer/features/ui/uiSlice'
-import {EditorPageBreadcrumbs} from '@/renderer/components/node-editor/EditorPageBreadcrumbs'
+import {EditorPageBreadcrumbs} from '@/renderer/components/node-page/EditorPageBreadcrumbs'
 import {getOptionalNode} from '@/renderer/features/node-graph/helpers'
-import {Id, Node} from '@/common/nodes'
-import {DateTimeFormatter, Instant, LocalDate, ZonedDateTime, ZoneId} from '@js-joda/core'
+import {Id} from '@/common/nodes'
 import {mergeNodeForward, splitNode} from '@/renderer/features/node-graph/split-merge-thunks'
-
 import {PageTitle} from '@/renderer/components/ui/page-title'
 import {serialize} from '@/common/node-views'
+import {ObjectDebugInfo} from '@/renderer/components/object-debug-info'
 
-export function NodeEditorPage({ nodeId }: {
+export function NodePage({ nodeId }: {
   nodeId: Id<'node'>,
 }) {
   const dispatch = useAppDispatch()
@@ -88,7 +87,7 @@ export function NodeEditorPage({ nodeId }: {
             onKeyDown={titleKeyDown}
           />
         </PageTitle>
-        {debugMode && <NodeDebugInfo node={node}/>}
+        {debugMode && <ObjectDebugInfo object={node}/>}
         <EditorBlockList
           ref={contentNodesList}
           nodes={node.content}
@@ -97,22 +96,4 @@ export function NodeEditorPage({ nodeId }: {
         />
       </div>
     </div>)
-}
-
-function NodeDebugInfo({ node }: { node: Node }) {
-  const created = ZonedDateTime.ofInstant(Instant.ofEpochMilli(node.history.createdTime), ZoneId.systemDefault())
-  const modified = ZonedDateTime.ofInstant(Instant.ofEpochMilli(node.history.lastModifiedTime), ZoneId.systemDefault())
-  const format = (date: ZonedDateTime) => {
-    const today = LocalDate.now()
-    if (date.toLocalDate().equals(today)) {
-      return date.toLocalTime().format(DateTimeFormatter.ofPattern('HH:mm'))
-    } else {
-      return date.toLocalDate().toString()
-    }
-  }
-  return (
-    <div className={'text-xs text-muted-foreground'}>
-      Created: {format(created)} • Modified: {format(modified)} • Node ID: {node.id}
-    </div>
-  )
 }

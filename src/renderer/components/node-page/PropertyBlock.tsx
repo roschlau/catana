@@ -1,11 +1,11 @@
 import {NodeViewWithParent} from '@/common/node-views'
 import {Ref, useImperativeHandle, useRef} from 'react'
-import {NodeEditorRef} from '@/renderer/components/node-editor/TextNodeBlock'
+import {NodeEditorRef} from '@/renderer/components/node-page/TextNodeBlock'
 import {useAppSelector} from '@/renderer/redux/hooks'
 import {getNode} from '@/renderer/features/node-graph/helpers'
 import {ListItem} from '@/renderer/components/ui/list-item'
 import {RectangleEllipsis} from 'lucide-react'
-import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-editor/EditorBlockList'
+import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-page/EditorBlockList'
 import {twMerge} from 'tailwind-merge'
 import {Property} from '@/common/nodes'
 

@@ -1,7 +1,7 @@
 import {ArrowLeft, ArrowRight, FullscreenIcon} from 'lucide-react'
 import {AppCommand, CommandContext} from '@/renderer/commands/app-command'
 import {AppDispatch, AppState} from '@/renderer/redux/store'
-import {navigatedBack, navigatedForward, nodeOpened} from '@/renderer/features/navigation/navigation-slice'
+import {navigatedBack, navigatedForward, viewOpened} from '@/renderer/features/navigation/navigation-slice'
 
 export const zoomInCommand: AppCommand = {
   name: 'Zoom in on node',
@@ -14,7 +14,7 @@ export const zoomInCommand: AppCommand = {
       console.warn('Zoom command triggered without node in context')
       return
     }
-    dispatch(nodeOpened({ nodeId: context.focus.nodeView.nodeId }))
+    dispatch(viewOpened({ type: 'node', nodeId: context.focus.nodeView.nodeId }))
   },
 }
 

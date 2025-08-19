@@ -25,8 +25,8 @@ export function serialize(state: AppState): SaveFile {
   const tags: SaveFile['tags'] = []
   tags.push(...Object.values(state.undoable.present.tags))
   return {
-    v: 3,
-    openedNode: state.undoable.present.navigation.openedNode,
+    v: 4,
+    currentView: state.undoable.present.navigation.currentView,
     debugMode: state.ui.debugMode,
     nodes,
     tags,

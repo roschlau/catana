@@ -16,7 +16,7 @@ import {selectNodes} from '@/renderer/features/node-graph/nodes-slice'
 import {TextNode} from '@/common/nodes'
 import {ChevronRight, DotIcon} from 'lucide-react'
 import {commands} from '@/renderer/commands/commands'
-import {nodeOpened} from '@/renderer/features/navigation/navigation-slice'
+import {viewOpened} from '@/renderer/features/navigation/navigation-slice'
 import {mdToPlain} from '@/common/markdown-utils'
 
 export function CommandPrompt({ open, onOpenChange }: {
@@ -26,10 +26,10 @@ export function CommandPrompt({ open, onOpenChange }: {
   const [searchQuery, setSearchQuery] = useState('')
   const dispatch = useAppDispatch()
   const filteredNodes = useAppSelector(state => open && searchQuery !== '' ? selectNodes(state, searchQuery) : emptyArray)
-  const openedNode = useAppSelector(state => state.undoable.present.navigation.openedNode)
+  const currentView = useAppSelector(state => state.undoable.present.navigation.currentView)
   const lastFocus = useAppSelector(selectCommandFocus)
   const context: CommandContext = {
-    openedNode: openedNode ?? undefined,
+    openedNode: currentView?.type === 'node' ? currentView.nodeId : undefined,
     focus: lastFocus,
   }
 
@@ -50,7 +50,7 @@ export function CommandPrompt({ open, onOpenChange }: {
 
   const nodeSelected = (nodeId: TextNode['id']) => {
     _onOpenChange(false)
-    dispatch(nodeOpened({ nodeId }))
+    dispatch(viewOpened({ type: 'node', nodeId }))
   }
 
   const commandElements = commands

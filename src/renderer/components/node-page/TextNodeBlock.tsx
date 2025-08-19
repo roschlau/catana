@@ -16,7 +16,7 @@ import {focusRestoreRequested, useFocusRestore} from '@/renderer/features/ui/uiS
 import {Selection} from '@/renderer/util/selection'
 import {isRecursive, NodeViewWithParent, serialize} from '@/common/node-views'
 import {NodeEditor, NodeTitleEditorTextFieldRef} from '@/renderer/features/node-editor/node-editor'
-import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-editor/EditorBlockList'
+import {EditorBlockList, EditorBlockListRef} from '@/renderer/components/node-page/EditorBlockList'
 import {ChevronRight, FullscreenIcon} from 'lucide-react'
 import {ListItem} from '@/renderer/components/ui/list-item'
 import {twMerge} from 'tailwind-merge'
@@ -24,7 +24,7 @@ import {TextNode} from '@/common/nodes'
 import {mergeNodeBackward, mergeNodeForward, splitNode} from '@/renderer/features/node-graph/split-merge-thunks'
 import {deleteNodeTree} from '@/renderer/features/node-graph/delete-node-tree'
 import {modKey} from '@/renderer/util/keyboard'
-import {nodeOpened} from '@/renderer/features/navigation/navigation-slice'
+import {viewOpened} from '@/renderer/features/navigation/navigation-slice'
 import {indentNode, outdentNode} from '@/renderer/features/node-graph/indent-outdent'
 import {useEventListener} from '@/renderer/hooks/use-event-listener'
 import {displayWarning} from '@/renderer/features/ui/toasts'
@@ -79,7 +79,7 @@ export function TextNodeBlock({
     }
   }, [dispatch, isRecursiveInstance, nodeView])
   const zoomIn = useCallback(() => {
-    dispatch(nodeOpened({ nodeId: node.id }))
+    dispatch(viewOpened({ type: 'node', nodeId: node.id }))
   }, [dispatch, node.id])
   const bulletClicked = (e: MouseEvent) => {
     if (modKey(e)) {

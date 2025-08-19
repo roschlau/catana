@@ -48,7 +48,7 @@ export const createWorkspaceRootReducer = (reducer: Reducer) => {
               workspaceDirty: false,
             },
             navigation: {
-              openedNode: saveFile.content.openedNode,
+              currentView: saveFile.content.currentView,
               backStack: [],
               forwardStack: [],
             },

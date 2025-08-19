@@ -2,7 +2,7 @@ import React, {MouseEvent, useState} from 'react'
 import {useAppDispatch} from '@/renderer/redux/hooks'
 import Markdown, {Components} from 'react-markdown'
 import {TextNode} from '@/common/nodes'
-import {nodeOpened} from '@/renderer/features/navigation/navigation-slice'
+import {viewOpened} from '@/renderer/features/navigation/navigation-slice'
 import {TooltipSimple} from '@/renderer/components/ui/tooltip'
 import {suppressUnsupportedMd} from '@/common/markdown-utils'
 import {remarkGfmStrikethrough} from '@/renderer/features/node-editor/remark-gfm-strikethrough'
@@ -31,7 +31,7 @@ export const RenderedNodeTitle = React.memo(function RenderedNodeTitle({
         // TODO this doesn't currently work because the href is already being sanitized before
         const nodeId = props.href.slice('catana://'.length) as TextNode['id']
         const { node, href, ...rest } = props
-        return <a {...rest} onClick={() => dispatch(nodeOpened({ nodeId }))}/>
+        return <a {...rest} onClick={() => dispatch(viewOpened({ type: 'node', nodeId: nodeId }))}/>
       } else {
         const { node, ...rest } = props
         const link = <a

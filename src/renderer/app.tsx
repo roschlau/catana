@@ -5,7 +5,7 @@ import {Provider as ReduxProvider} from 'react-redux'
 import {store} from '@/renderer/redux/store'
 import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
 import {ActionCreators} from 'redux-undo'
-import {NodeEditorPage} from '@/renderer/components/node-editor/NodeEditorPage'
+import {NodePage} from '@/renderer/components/node-page/NodePage'
 import {debugModeSet, selectDebugMode} from '@/renderer/features/ui/uiSlice'
 import {SearchIcon, SunMoon} from 'lucide-react'
 import {Button} from '@/renderer/components/ui/button'
@@ -25,6 +25,7 @@ import {Toaster} from '@/renderer/components/ui/sonner'
 import {TooltipSimple} from '@/renderer/components/ui/tooltip'
 import {GitHubIcon} from '@/renderer/components/icons/github-icon'
 import {WorkspaceFileChangedPrompt} from '@/renderer/features/workspace/workspace-file-changed-prompt'
+import {TagPage} from '@/renderer/components/tag-page/tag-page'
 
 const root = createRoot(document.body)
 root.render(
@@ -41,7 +42,7 @@ root.render(
 
 function App() {
   const dispatch = useAppDispatch()
-  const nodeId = useAppSelector((state) => state.undoable.present.navigation.openedNode)
+  const currentView = useAppSelector((state) => state.undoable.present.navigation.currentView)
   const [commandPromptOpen, setCommandPromptOpen] = useState(false)
 
   const globalKeydown = useCallback(async (e: KeyboardEvent) => {
@@ -105,7 +106,9 @@ function App() {
     <div className={'h-full flex flex-row p-2 gap-2 items-stretch bg-sidebar overflow-hidden'}>
       <CommandPrompt open={commandPromptOpen} onOpenChange={setCommandPromptOpen}/>
       <Sidebar searchClicked={() => setCommandPromptOpen(true)}/>
-      {nodeId && <NodeEditorPage nodeId={nodeId}/> || <OpenWorkspaceScreen/>}
+      {!currentView && <OpenWorkspaceScreen/>}
+      {currentView?.type === 'node' && <NodePage nodeId={currentView.nodeId}/>}
+      {currentView?.type === 'tag' && <TagPage tagId={currentView.tagId}/>}
     </div>
   )
 }

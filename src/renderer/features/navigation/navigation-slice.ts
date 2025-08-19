@@ -1,48 +1,53 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
-import {Id} from '@/common/nodes'
+import {TextNode} from '@/common/nodes'
+import {Tag} from '@/common/tags'
+
+type View =
+  | { type: 'node', nodeId: TextNode['id']}
+  | { type: 'tag', tagId: Tag['id']}
 
 export interface NavigationState {
-  openedNode: Id<'node'> | null
-  backStack: Id<'node'>[]
-  forwardStack: Id<'node'>[]
+  currentView: View | null
+  backStack: View[]
+  forwardStack: View[]
 }
 
 export const navigationSlice = createSlice({
   name: 'navigation',
   initialState: {
-    openedNode: null,
+    currentView: null,
     backStack: [],
     forwardStack: [],
   } satisfies NavigationState as NavigationState,
   reducers: {
-    nodeOpened: (state, action: PayloadAction<{ nodeId: Id<'node'> | null }>) => {
-      if (state.openedNode) {
-        state.backStack.push(state.openedNode)
+    viewOpened: (state, action: PayloadAction<View | null>) => {
+      if (state.currentView) {
+        state.backStack.push(state.currentView)
       }
       state.forwardStack = []
-      state.openedNode = action.payload.nodeId
+      state.currentView = action.payload
     },
     navigatedBack: (state) => {
       if (state.backStack.length > 0) {
-        if (state.openedNode) {
-          state.forwardStack.push(state.openedNode)
+        if (state.currentView) {
+          state.forwardStack.push(state.currentView)
         }
-        state.openedNode = state.backStack.pop()!
+        state.currentView = state.backStack.pop()!
       }
     },
     navigatedForward: (state) => {
       if (state.forwardStack.length > 0) {
-        if (state.openedNode) {
-          state.backStack.push(state.openedNode)
+        if (state.currentView) {
+          state.backStack.push(state.currentView)
         }
-        state.openedNode = state.forwardStack.pop()!
+        state.currentView = state.forwardStack.pop()!
       }
     },
   }
 })
 
 export const {
-  nodeOpened,
+  viewOpened,
   navigatedBack,
   navigatedForward,
 } = navigationSlice.actions

@@ -1,9 +1,9 @@
 import {NodeView, NodeViewWithParent, serialize} from '@/common/node-views'
 import React, {Ref, useCallback, useImperativeHandle, useMemo, useRef} from 'react'
 import {twMerge} from 'tailwind-merge'
-import {EditorBlock} from '@/renderer/components/node-editor/EditorBlock'
+import {EditorBlock} from '@/renderer/components/node-page/EditorBlock'
 import {Node, ParentNode, TextNode} from '@/common/nodes'
-import {NodeEditorRef} from '@/renderer/components/node-editor/TextNodeBlock'
+import {NodeEditorRef} from '@/renderer/components/node-page/TextNodeBlock'
 
 export interface EditorBlockListRef {
   focus: (mode: 'first' | 'last') => void
@@ -33,10 +33,6 @@ export const EditorBlockList = React.memo(function EditorBlockList({
       }
     },
   }))
-  const parentId = parentView.nodeId
-  if (!parentId) {
-    throw new Error('NodeEditorList must have a parent node ID')
-  }
 
   const childNodeRefs = useRef<(EditorBlockListRef | null)[]>([])
   if (childNodeRefs.current.length !== nodes.length) {
