@@ -5,6 +5,7 @@ import {AppCommand} from '@/renderer/commands/app-command'
 import {AppDispatch, AppState} from '@/renderer/redux/store'
 import {FolderOpen} from 'lucide-react'
 import {promptToSaveWorkspaceIfNecessary} from '@/renderer/features/workspace/save-workspace-prompt'
+import {displayError} from '@/renderer/features/ui/toasts'
 
 export const openWorkspace = (
   mode: 'last' | 'pick',
@@ -16,14 +17,18 @@ export const openWorkspace = (
       return
     }
   }
-  const result = await window.catanaAPI.openWorkspace(mode)
-  if (!result) {
-    console.warn(`Couldn't load workspace: Main process returned no result`)
-    return
+  try {
+    const result = await window.catanaAPI.openWorkspace(mode)
+    if (result === 'user-canceled') {
+      console.warn(`Couldn't load workspace: Main process returned no result`)
+      return
+    }
+    console.log('Workspace loaded', result.path)
+    document.title = 'Catana - ' + result.path
+    dispatch(workspaceLoaded(result))
+  } catch (e) {
+    displayError('Workspace could not be loaded: ' + String(e), { logData: e })
   }
-  console.log('Workspace loaded', result.path)
-  document.title = 'Catana - ' + result.path
-  dispatch(workspaceLoaded(result))
 }
 
 export const openWorkspaceCommand: AppCommand = {

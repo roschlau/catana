@@ -27,7 +27,7 @@ export function registerStorageApi(ipcMain: Electron.IpcMain) {
       directory = await promptForWorkspaceDirectory()
       if (!directory) {
         console.warn('User aborted opening node graph')
-        return null
+        return 'user-canceled'
       }
     }
 
