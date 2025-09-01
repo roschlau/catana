@@ -222,10 +222,7 @@ export const NodeEditor = React.memo(function NodeEditor({
 
   return (
     <TagAccentColorProvider hue={appliedTags[0]?.hue}>
-      <div
-        className={'w-full flex flex-row items-baseline gap-2'}
-        onClick={isEditing ? undefined : handleDisplayClick}
-      >
+      <div className={'w-full flex flex-row items-baseline gap-2'}>
         {checkboxChecked !== undefined && <NodeCheckbox
           history={node.history.checkbox}
           checked={checkboxChecked}
@@ -252,7 +249,10 @@ export const NodeEditor = React.memo(function NodeEditor({
             {tagElements}
           </>
         ) || (
-          <div className={divClasses}>
+          <div
+            className={divClasses}
+            onClick={isEditing ? undefined : handleDisplayClick}
+          >
             <RenderedNodeTitle
               title={node.title}
               className={cn({ 'text-muted-foreground': !node.title })}
