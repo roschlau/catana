@@ -177,6 +177,11 @@ export function TextNodeBlock({
       }
       return
     }
+    if (e.key === 'Enter' && e.shiftKey) {
+      e.preventDefault()
+      dispatch(splitNode(nodeView, node.title.length, node.title.length))
+      return
+    }
     if (e.key === 'Enter') {
       // Not allowing any line breaks for now to simplify things. Might change my mind on that later.
       e.preventDefault()
