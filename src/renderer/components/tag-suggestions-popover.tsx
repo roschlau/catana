@@ -97,7 +97,7 @@ export const TagSuggestionsPopover = function SuggestionsTextarea({
       if (selectedTagId && triggerCharPosition !== null) {
         const start = triggerCharPosition
         const newTitle = node.title.slice(0, start) + node.title.slice(caretPos)
-        dispatch(titleUpdated({ nodeId: node.id, title: newTitle }))
+        dispatch(titleUpdated({ nodeId: node.id, title: newTitle.trimEnd() }))
         dispatch(tagApplied({ nodeId: node.id, tagId: selectedTagId }))
         dispatch(focusRestoreRequested({ nodeView, selection: { start, end: start } }))
       }
