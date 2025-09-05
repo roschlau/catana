@@ -7,7 +7,7 @@ import {useAppDispatch, useAppSelector} from '@/renderer/redux/hooks'
 import {ActionCreators} from 'redux-undo'
 import {NodePage} from '@/renderer/components/node-page/NodePage'
 import {debugModeSet, selectDebugMode} from '@/renderer/features/ui/uiSlice'
-import {SearchIcon, SunMoon} from 'lucide-react'
+import {CheckIcon, SearchIcon, SunMoon} from 'lucide-react'
 import {Button} from '@/renderer/components/ui/button'
 import {Switch} from '@/renderer/components/ui/switch'
 import {Label} from '@/renderer/components/ui/label'
@@ -18,7 +18,7 @@ import {SaveWorkspacePrompt} from '@/renderer/features/workspace/save-workspace-
 import {modKey} from '@/renderer/util/keyboard'
 import {navigatedBack, navigatedForward} from '@/renderer/features/navigation/navigation-slice'
 import packageJson from '../../package.json' with {type: 'json'}
-import {selectIsWorkspaceLoaded} from '@/renderer/features/workspace/workspace-slice'
+import {selectIsWorkspaceLoaded, selectWorkspaceDirty} from '@/renderer/features/workspace/workspace-slice'
 import {OpenWorkspaceScreen} from '@/renderer/features/workspace/open-workspace-screen'
 import {OpenWorkspaceOnStartup} from '@/renderer/features/workspace/open-workspace'
 import {Toaster} from '@/renderer/components/ui/sonner'
@@ -103,12 +103,15 @@ function App() {
   }, [globalKeydown, globalMouseup])
 
   return (
-    <div className={'h-full flex flex-row p-2 gap-2 items-stretch bg-sidebar overflow-hidden'}>
-      <CommandPrompt open={commandPromptOpen} onOpenChange={setCommandPromptOpen}/>
-      <Sidebar searchClicked={() => setCommandPromptOpen(true)}/>
-      {!currentView && <OpenWorkspaceScreen/>}
-      {currentView?.type === 'node' && <NodePage nodeId={currentView.nodeId}/>}
-      {currentView?.type === 'tag' && <TagPage tagId={currentView.tagId}/>}
+    <div className={'h-full flex flex-col bg-sidebar'}>
+      <div className={'h-full flex flex-row p-2 pb-0 gap-2 items-stretch overflow-hidden'}>
+        <CommandPrompt open={commandPromptOpen} onOpenChange={setCommandPromptOpen}/>
+        <Sidebar searchClicked={() => setCommandPromptOpen(true)}/>
+        {!currentView && <OpenWorkspaceScreen/>}
+        {currentView?.type === 'node' && <NodePage nodeId={currentView.nodeId}/>}
+        {currentView?.type === 'tag' && <TagPage tagId={currentView.tagId}/>}
+      </div>
+      <Statusbar/>
     </div>
   )
 }
@@ -139,14 +142,29 @@ function Sidebar({ searchClicked }: {
         <Switch id="debug-mode" checked={debugMode} onCheckedChange={checked => dispatch(debugModeSet(checked))}/>
         <Label htmlFor="debug-mode">Debug Mode</Label>
       </div>
-      <div className={'grow'}/>
+    </div>
+  )
+}
+
+function Statusbar() {
+  const workspaceDirty = useAppSelector(selectWorkspaceDirty)
+  return (
+    <div className={'flex flex-row items-center justify-end'}>
+      <TooltipSimple content={workspaceDirty ? 'There are unsaved changes. Press Ctrl+S to save.' : 'All changes saved'}>
+        <div className={'group flex flex-row items-center gap-1 p-2 text-xs'}>
+          {workspaceDirty
+            ? <div className={'size-2 rounded-full bg-destructive/50 group-hover:bg-destructive/80'}></div>
+            : <CheckIcon size={12} className={'text-muted-foreground group-hover:text-foreground'}/>
+          }
+        </div>
+      </TooltipSimple>
       <TooltipSimple content={'See Code and Issues on GitHub'}>
         <a
           href="https://github.com/roschlau/catana" target="_blank" rel="noreferrer"
           className={'flex flex-row items-center justify-center gap-2 p-2 text-xs text-muted-foreground hover:text-foreground'}
         >
-          <GitHubIcon className={'-translate-y-[1px]'}/>
           v{packageJson.version}
+          <GitHubIcon className={'-translate-y-[1px]'}/>
         </a>
       </TooltipSimple>
     </div>
