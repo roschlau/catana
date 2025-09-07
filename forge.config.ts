@@ -8,6 +8,7 @@ import {FuseV1Options, FuseVersion} from '@electron/fuses'
 import {PublisherGithub} from '@electron-forge/publisher-github'
 import {MakerDMG} from '@electron-forge/maker-dmg'
 import {MakerZIP} from '@electron-forge/maker-zip'
+import {MakerFlatpak} from '@electron-forge/maker-flatpak'
 
 const icon_base = process.env.CATANA_ENV === 'dev' ? 'dev_catana' : 'catana'
 console.log('Environment: ', process.env.ENVIRONMENT, icon_base)
@@ -41,6 +42,21 @@ const config: ForgeConfig = {
         section: 'misc',
         categories: ['Office'],
         homepage: 'https://github.com/roschlau/catana',
+      },
+    }),
+    new MakerFlatpak({
+      options: {
+        files: [],
+        icon: 'src/renderer/assets/app-icon/' + icon_base + '.png',
+        categories: ['Office'],
+        id: 'me.roschlau.Catana',
+        finishArgs: [
+          '--share=network',
+          '--socket=x11',
+          '--socket=wayland',
+          '--device=dri',
+          '--share=ipc',
+        ],
       },
     }),
   ],
