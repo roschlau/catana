@@ -69,6 +69,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "electron-squirrel-startup": "^1.0.1",
+    "isomorphic-git": "^1.33.1",
     "lucide-react": "^0.542.0",
     "mdast-util-gfm-autolink-literal": "^2.0.1",
     "mdast-util-gfm-strikethrough": "^2.0.0",

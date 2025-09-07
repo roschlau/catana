@@ -1,39 +1,15 @@
-import {spawn} from 'node:child_process'
 import path from 'node:path'
+import fscb from 'node:fs'
 import fs from 'node:fs/promises'
+import * as git from 'isomorphic-git'
 import {workspaceFileName} from '../persistence/storage-api'
 
 let gitStatus: null | 'initialized' | 'could-not-initialize' = null
 
-/**
- * Executes a git command in the specified directory
- */
-async function executeGitCommand(directory: string, args: string[]): Promise<{ success: boolean; output: string; error?: string }> {
-  return new Promise((resolve) => {
-    const gitProcess = spawn('git', args, {
-      cwd: directory,
-      stdio: ['pipe', 'pipe', 'pipe']
-    })
-
-    let output = ''
-    let error = ''
-
-    gitProcess.stdout.on('data', (data) => {
-      output += data.toString()
-    })
-
-    gitProcess.stderr.on('data', (data) => {
-      error += data.toString()
-    })
-
-    gitProcess.on('close', (code) => {
-      resolve({
-        success: code === 0,
-        output: output.trim(),
-        error: error.trim()
-      })
-    })
-  })
+// Default identity used for commits if user hasn't configured anything
+const defaultIdentity = {
+  name: 'Catana',
+  email: 'catana@local'
 }
 
 /**
@@ -61,17 +37,21 @@ export async function gitInitializeWorkspace(workspaceDir: string): Promise<void
  * Checks if git is already initialized in workspace directory
  */
 async function isGitInitialized(workspaceDir: string): Promise<boolean> {
-  const result = await executeGitCommand(workspaceDir, ['rev-parse', '--git-dir'])
-  return result.success
+  // Treat repo as initialized if .git exists
+  const gitDirPath = path.join(workspaceDir, '.git')
+  const stat = await fs.stat(gitDirPath).catch(() => null)
+  return !!stat && stat.isDirectory()
 }
 
 /**
  * Initializes a git repository in the specified directory
  */
 async function initializeGit(workspaceDir: string): Promise<void> {
-  const result = await executeGitCommand(workspaceDir, ['init'])
-  if (!result.success) {
-    throw new Error(`Failed to initialize git repository: ${result.error}`)
+  try {
+    await git.init({fs: fscb, dir: workspaceDir})
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e)
+    throw new Error(`Failed to initialize git repository: ${msg}`)
   }
 
   // Add .gitignore to ignore common files that shouldn't be tracked
@@ -89,20 +69,15 @@ Thumbs.db
   const gitignorePath = path.join(workspaceDir, '.gitignore')
   await fs.writeFile(gitignorePath, gitignoreContent.trim(), 'utf8')
 
-  const addGitIgnoreResult = await executeGitCommand(workspaceDir, ['add', '.gitignore'])
-  if (!addGitIgnoreResult.success) {
-    throw Error(`Failed to add .gitignore: ${addGitIgnoreResult.error}`)
-  }
-
-  const addWorkspaceFileResult = await executeGitCommand(workspaceDir, ['add', workspaceFileName])
-  if (!addWorkspaceFileResult.success) {
-    throw Error(`Failed to add .gitignore: ${addWorkspaceFileResult.error}`)
-  }
-
-  const commitResult = await executeGitCommand(workspaceDir, ['commit', '-m', 'Initial commit'])
-  if (!commitResult.success) {
-    throw Error(`Failed to create initial commit: ${commitResult.error}`)
-  }
+  await git.add({fs: fscb, dir: workspaceDir, filepath: '.gitignore'})
+  await git.add({fs: fscb, dir: workspaceDir, filepath: workspaceFileName})
+  await git.commit({
+    fs: fscb,
+    dir: workspaceDir,
+    message: 'Initial commit',
+    author: defaultIdentity,
+    committer: defaultIdentity,
+  })
 }
 
 /**
@@ -114,34 +89,23 @@ export async function gitCommitWorkspace(workspaceDir: string): Promise<void> {
     return
   }
 
-  // Add the workspace file
-  const addResult = await executeGitCommand(workspaceDir, ['add', workspaceFileName])
-  if (!addResult.success) {
-    throw new Error(`Failed to add ${workspaceFileName} to git: ${addResult.error}`)
-  }
+  // Stage workspace file
+  await git.add({fs: fscb, dir: workspaceDir, filepath: workspaceFileName})
 
   // Check if there are any changes to commit
-  const statusResult = await executeGitCommand(workspaceDir, ['status', '--porcelain'])
-  if (!statusResult.success) {
-    throw new Error(`Failed to check git status: ${statusResult.error}`)
-  }
-
-  // If there are no changes, don't commit
-  if (!statusResult.output.includes(workspaceFileName)) {
+  const status = await git.status({fs: fscb, dir: workspaceDir, filepath: workspaceFileName})
+  if (status === 'unmodified') {
     console.log('No changes to commit for workspace file')
     return
   }
 
-  // Commit the changes
-  const commitResult = await executeGitCommand(workspaceDir, [
-    'commit',
-    '-m',
-    `Workspace saved - ${new Date().toISOString()}`
-  ])
-
-  if (!commitResult.success) {
-    throw new Error(`Failed to commit workspace changes: ${commitResult.error}`)
-  }
+  await git.commit({
+    fs: fscb,
+    dir: workspaceDir,
+    message: `Workspace saved - ${new Date().toISOString()}`,
+    author: defaultIdentity,
+    committer: defaultIdentity,
+  })
 
   console.log('Successfully committed workspace changes')
 }
