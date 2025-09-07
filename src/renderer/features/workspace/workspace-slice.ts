@@ -91,4 +91,5 @@ export const trackWorkspaceDirtyState = (reducer: Reducer) => {
 }
 
 export const selectIsWorkspaceLoaded = (state: AppState) => state.undoable.present.workspace !== null
+export const selectWorkspacePath = (state: AppState) => state.undoable.present.workspace?.workspacePath
 export const selectWorkspaceDirty = (state: AppState) => state.undoable.present.workspace?.workspaceDirty ?? false

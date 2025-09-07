@@ -18,7 +18,11 @@ import {SaveWorkspacePrompt} from '@/renderer/features/workspace/save-workspace-
 import {modKey} from '@/renderer/util/keyboard'
 import {navigatedBack, navigatedForward} from '@/renderer/features/navigation/navigation-slice'
 import packageJson from '../../package.json' with {type: 'json'}
-import {selectIsWorkspaceLoaded, selectWorkspaceDirty} from '@/renderer/features/workspace/workspace-slice'
+import {
+  selectIsWorkspaceLoaded,
+  selectWorkspaceDirty,
+  selectWorkspacePath
+} from '@/renderer/features/workspace/workspace-slice'
 import {OpenWorkspaceScreen} from '@/renderer/features/workspace/open-workspace-screen'
 import {OpenWorkspaceOnStartup} from '@/renderer/features/workspace/open-workspace'
 import {Toaster} from '@/renderer/components/ui/sonner'
@@ -26,6 +30,7 @@ import {TooltipSimple} from '@/renderer/components/ui/tooltip'
 import {GitHubIcon} from '@/renderer/components/icons/github-icon'
 import {WorkspaceFileChangedPrompt} from '@/renderer/features/workspace/workspace-file-changed-prompt'
 import {TagPage} from '@/renderer/components/tag-page/tag-page'
+import {cn} from "@/renderer/util/tailwind";
 
 const root = createRoot(document.body)
 root.render(
@@ -116,10 +121,10 @@ function App() {
   )
 }
 
-function Sidebar({ searchClicked }: {
+function Sidebar({searchClicked}: {
   searchClicked: () => void,
 }) {
-  const { resolvedTheme, setTheme } = useTheme()
+  const {resolvedTheme, setTheme} = useTheme()
   const dispatch = useAppDispatch()
   const debugMode = useAppSelector(selectDebugMode)
   const workspaceLoaded = useAppSelector(selectIsWorkspaceLoaded)
@@ -148,25 +153,28 @@ function Sidebar({ searchClicked }: {
 
 function Statusbar() {
   const workspaceDirty = useAppSelector(selectWorkspaceDirty)
+  const workspacePath = useAppSelector(selectWorkspacePath)
   return (
-    <div className={'flex flex-row items-center justify-end'}>
-      <TooltipSimple content={workspaceDirty ? 'There are unsaved changes. Press Ctrl+S to save.' : 'All changes saved'}>
-        <div className={'group flex flex-row items-center gap-1 p-2 text-xs'}>
-          {workspaceDirty
-            ? <div className={'size-2 rounded-full bg-destructive/50 group-hover:bg-destructive/80'}></div>
-            : <CheckIcon size={12} className={'text-muted-foreground group-hover:text-foreground'}/>
-          }
-        </div>
-      </TooltipSimple>
+    <div className={'flex flex-row items-center justify-stretch'}>
       <TooltipSimple content={'See Code and Issues on GitHub'}>
         <a
           href="https://github.com/roschlau/catana" target="_blank" rel="noreferrer"
           className={'flex flex-row items-center justify-center gap-2 p-2 text-xs text-muted-foreground hover:text-foreground'}
         >
-          v{packageJson.version}
           <GitHubIcon className={'-translate-y-[1px]'}/>
+          {packageJson.productName} v{packageJson.version}
         </a>
       </TooltipSimple>
+      <div className={'grow flex place-content-center'}>
+        <TooltipSimple
+          content={workspaceDirty ? 'There are unsaved changes. Press Ctrl+S to save.' : 'All changes saved'}
+        >
+          <div className={'flex flex-row items-center justify-center gap-1 p-2 text-xs text-muted-foreground cursor-default'}>
+            {workspacePath}
+            <div className={cn('size-2 rounded-full', workspaceDirty ? 'bg-current' : 'bg-transparent')}></div>
+          </div>
+        </TooltipSimple>
+      </div>
     </div>
   )
 }
