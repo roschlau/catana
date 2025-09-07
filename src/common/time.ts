@@ -12,21 +12,23 @@ export function formatDuration(
 
 export const DurationFormat = {
   clock: (components: DurationComponents): string => {
-    const { hours, minutes, seconds } = components
-    const hoursString = hours.toString().padStart(2, '0')
+    const { days, hours, minutes, seconds } = components
+    const hoursString = (hours + (days * 24)).toString().padStart(2, '0')
     const minutesString = minutes.toString().padStart(2, '0')
     const secondsString = seconds.toString().padStart(2, '0')
     return [hoursString, minutesString, secondsString].join(':')
   },
   letters: (components: DurationComponents): string => {
-    const { hours, minutes, seconds } = components
-    if (hours === 0 && minutes === 0) return seconds.toString() + 's'
-    if (hours === 0) return minutes.toString() + 'm ' + seconds.toString() + 's'
+    const { days, hours, minutes, seconds } = components
+    if (days === 0 && hours === 0 && minutes === 0) return seconds.toString() + 's'
+    if (days === 0 && hours === 0) return minutes.toString() + 'm ' + seconds.toString() + 's'
+    if (days !== 0) return days.toString() + 'd ' + hours.toString() + 'h' + minutes.toString() + 'm'
     return hours.toString() + 'h ' + minutes.toString() + 'm'
   }
 }
 
 interface DurationComponents {
+  days: number,
   hours: number
   minutes: number
   seconds: number
@@ -54,12 +56,14 @@ interface DurationComponents {
  */
 export function breakdown(duration: Duration): DurationComponents {
   Duration.ofSeconds(68)
-  const hours = duration.toHours()
+  const days = Math.floor(duration.toHours() / 24)
+  const hours = duration.toHours() % 24
   const minutes = duration.toMinutes() % 60
   const seconds = duration.seconds() % 60
   const millis = Math.floor(duration.nano() / 1_000_000)
   const nanos = duration.nano() % 1_000_000
   return {
+    days,
     hours,
     minutes,
     seconds,
