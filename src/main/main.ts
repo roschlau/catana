@@ -63,6 +63,7 @@ async function createWindow() {
       enableBlinkFeatures: 'SmoothScrolling',
     },
   })
+  mainWindow.setMenu(null)
   if (lastWindowPosition) {
     applyWindowPosition(mainWindow, lastWindowPosition)
   }
