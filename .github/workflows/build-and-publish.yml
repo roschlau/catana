@@ -52,6 +52,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y rpm squashfs-tools
+          sudo apt-get install -y flatpak-builder
+          sudo apt-get install -y elfutils
 
       - name: Install dependencies
         run: npm ci
