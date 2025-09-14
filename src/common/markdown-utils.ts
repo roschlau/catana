@@ -68,6 +68,15 @@ export function suppressUnsupportedMd(markdown: string): string {
 }
 
 const mdToPlainProcessor = remark().use(stripMarkdown)
-export const mdToPlain = (md: string) => mdToPlainProcessor.processSync(md).toString()
+export const mdToPlain = (md: string) => {
+  let plain = mdToPlainProcessor.processSync(md).toString()
+    .trim() // Will newline to the end
+  // This works around stripMarkdown escaping non-heading hashtags at the start of lines
+  plain = plain.replaceAll('\\#', '#')
+  if (plain.includes('\\#Effort')) {
+    console.log(md, plain)
+  }
+  return plain
+}
 
 export const isLink = (text: string) => /^https?:\/\//.test(text)

@@ -1,5 +1,5 @@
 import {describe, expect, test} from 'vitest'
-import {markRange, suppressUnsupportedMd} from '@/common/markdown-utils'
+import {markRange, mdToPlain, suppressUnsupportedMd} from '@/common/markdown-utils'
 
 describe('toggleMarkup', () => {
   test('adds to entire string', () => {
@@ -85,5 +85,15 @@ describe('escapeUnsupportedMd', () => {
   test(`Suppresses html tags`, () => {
     expect(suppressUnsupportedMd('Some <span>span</span> here'))
       .toEqual('Some \\<span\\>span\\</span\\> here')
+  })
+})
+
+describe('mdToPlain', () => {
+  test(`Leaves hashtags at start of lines untouched`, () => {
+    // This test is necessary because of a strip-markdown behavior that
+    // will insert backslashes before hashtags at the start of a line
+    // that are not actually headings
+    expect(mdToPlain('`#Effort`\n#Area'))
+      .toEqual('#Effort\n#Area')
   })
 })
