@@ -1,5 +1,5 @@
 import {createRoot} from 'react-dom/client'
-import React, {useCallback, useEffect, useState} from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import {ThemeProvider, useTheme} from 'next-themes'
 import {Provider as ReduxProvider} from 'react-redux'
 import {store} from '@/renderer/redux/store'
@@ -31,6 +31,7 @@ import {GitHubIcon} from '@/renderer/components/icons/github-icon'
 import {WorkspaceFileChangedPrompt} from '@/renderer/features/workspace/workspace-file-changed-prompt'
 import {TagPage} from '@/renderer/components/tag-page/tag-page'
 import {cn} from "@/renderer/util/tailwind";
+import { useEventListener } from '@/renderer/hooks/use-event-listener'
 
 const root = createRoot(document.body)
 root.render(
@@ -98,14 +99,9 @@ function App() {
     }
   }, [dispatch])
 
-  useEffect(() => {
-    document.addEventListener('keydown', globalKeydown)
-    document.addEventListener('mouseup', globalMouseup)
-    return () => {
-      document.removeEventListener('keydown', globalKeydown)
-      document.removeEventListener('mouseup', globalMouseup)
-    }
-  }, [globalKeydown, globalMouseup])
+  const docRef = useRef(document)
+  useEventListener('keydown', globalKeydown, docRef)
+  useEventListener('mouseup', globalMouseup, docRef)
 
   return (
     <div className={'h-full flex flex-col bg-sidebar'}>
