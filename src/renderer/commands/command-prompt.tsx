@@ -70,6 +70,7 @@ export function CommandPrompt({ open, onOpenChange }: {
 
   const nodeElements = filteredNodes
     .toSorted((a, b) => b.content.length - a.content.length)
+    .slice(0, 10)
     .map(node => (
       <CommandItem
         key={node.id}
@@ -80,7 +81,6 @@ export function CommandPrompt({ open, onOpenChange }: {
         {mdToPlain(node.title) || <span className={'text-muted-foreground'}>Empty</span>}
       </CommandItem>
     ))
-    .slice(0, 10)
 
   return <CommandDialog
     open={open}
