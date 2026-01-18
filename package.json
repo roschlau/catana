@@ -6,13 +6,15 @@
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
+    "check": "npm run typeCheck && npm run test",
     "test": "vitest run --config vite.main.config.mts",
-    "testWatch": "vitest --config vite.main.config.mts",
-    "typeCheckWatch": "tsc --noEmit --watch",
+    "test:watch": "vitest --config vite.main.config.mts",
+    "typeCheck": "tsc --noEmit",
+    "typeCheck:watch": "tsc --noEmit --watch",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "install-deb": "electron-forge make && sudo dpkg -i ./out/make/deb/x64/catana_0.0.1_amd64.deb"
+    "install:deb": "electron-forge make && sudo dpkg -i ./out/make/deb/x64/catana_0.0.1_amd64.deb"
   },
   "keywords": [],
   "author": {
