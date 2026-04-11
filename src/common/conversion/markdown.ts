@@ -1,6 +1,7 @@
 import {TextNode} from '@/common/nodes'
 import {DateTimeFormatter, Duration, Instant, LocalDateTime, ZoneId} from '@js-joda/core'
-import {Locale} from '@js-joda/locale_en'
+import {Locale} from '@js-joda/locale'
+import '@js-joda/locale_en'
 import {formatDuration} from '@/common/time'
 
 type MarkdownFlavor =
